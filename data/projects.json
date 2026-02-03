@@ -1,0 +1,115 @@
+[
+  {
+    "slug": "ballerina",
+    "title": "Ballerina",
+    "description": "Children’s illustration project focused on movement, grace, and imagination.",
+    "images": [
+      "01.webp",
+      "02.webp",
+      "03-cover.webp",
+      "04.webp",
+      "05.webp",
+      "06.webp"
+    ]
+  },
+  {
+    "slug": "bright-future",
+    "title": "Bright Future",
+    "description": "Colorful illustrations about hope, growth, and childhood dreams.",
+    "images": [
+      "01.webp",
+      "02.webp",
+      "03.webp",
+      "04.webp",
+      "05-cover.webp",
+      "06.webp"
+    ]
+  },
+  {
+    "slug": "childhood",
+    "title": "Childhood",
+    "description": "Warm and playful scenes capturing everyday childhood moments.",
+    "images": [
+      "01.webp",
+      "02.webp",
+      "03-cover.webp",
+      "04.webp"
+    ]
+  },
+  {
+    "slug": "daughter",
+    "title": "Daughter",
+    "description": "Soft and emotional illustrations exploring family connection.",
+    "images": [
+      "01.webp",
+      "02.webp",
+      "03.webp",
+      "04.webp",
+      "05-cover.webp",
+      "06.webp"
+    ]
+  },
+  {
+    "slug": "guardians",
+    "title": "Guardians",
+    "description": "Fantasy-inspired illustrations about protection and friendship.",
+    "images": [
+      "01.webp",
+      "02-cover.webp",
+      "03.webp",
+      "04.webp",
+      "05.webp",
+      "06.webp"
+    ]
+  },
+  {
+    "slug": "halloween",
+    "title": "Halloween",
+    "description": "Playful spooky illustrations with a warm cartoon atmosphere.",
+    "images": [
+      "01.webp",
+      "02-cover.webp",
+      "03.webp",
+      "04.webp",
+      "05.webp"
+    ]
+  },
+  {
+    "slug": "miss-daddy",
+    "title": "When I Miss My Daddy",
+    "description": "Gentle and comforting illustrations about missing a parent.",
+    "images": [
+      "01-cover.webp",
+      "02.webp",
+      "03.webp",
+      "04.webp",
+      "05.webp",
+      "06.webp",
+      "07.webp"
+    ]
+  },
+  {
+    "slug": "rainbow-daddy",
+    "title": "Rainbow Daddy",
+    "description": "Bright emotional story illustrations about love and support.",
+    "images": [
+      "01.webp",
+      "02.webp",
+      "03-cover.webp",
+      "04.webp",
+      "05.webp"
+    ]
+  },
+  {
+    "slug": "roar-to-remember",
+    "title": "A Roar to Remember",
+    "description": "Vibrant jungle adventure illustrations for a children’s book.",
+    "images": [
+      "01.webp",
+      "02-cover.webp",
+      "03.webp",
+      "04.webp",
+      "05.webp"
+    ]
+  }
+]
