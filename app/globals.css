@@ -10,9 +10,9 @@
   --background: #ffffff;   /* чистий білий (картки) */
 
   /* бренд-палітра */
-  --accent: #f04663;       /* рожевий */
-  --mint: #7abaaa;         /* м’ятний */
-  --cream: #fff4ea;        /* кремовий фон */
+  --accent: #FF6B7A;       /* кораловий/рожевий */
+  --mint: #8FD5C7;         /* м'ятний/бірюзовий */
+  --cream: #FFF4EA;        /* кремовий/світло-бежевий фон */
 
   /* форма + глибина */
   --radius-card: 24px;
@@ -35,7 +35,7 @@
   --color-mint: var(--mint);
   --color-cream: var(--cream);
 
-  /* тут пізніше можна прив’язати шрифти */
+  /* тут пізніше можна прив'язати шрифти */
   /* --font-fun: var(--font-...); */
   /* --font-display: var(--font-...); */
 }
@@ -68,7 +68,7 @@ body {
     @apply bg-white/90 border border-white/70;
   }
 
-  /* картинки з м’яким стилем */
+  /* картинки з м'яким стилем */
   .img-rounded {
     border-radius: var(--radius-card);
     box-shadow: var(--shadow-soft);
