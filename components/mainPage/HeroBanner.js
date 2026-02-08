@@ -13,8 +13,8 @@ function FloatingImage({ src, index }) {
   const positions = [
     { top: "50%", left: "5%", translateY: "-50%", rotate: -8 },   // лівий бік
     { top: "50%", right: "5%", translateY: "-50%", rotate: 5 },   // правий бік
-    { bottom: "5%", left: "15%", rotate: 6 },                     // нижній лівий
-    { bottom: "5%", right: "15%", rotate: -7 },                   // нижній правий
+    { bottom: "5%", left: "10%", rotate: 6 },                     // нижній лівий
+    { bottom: "5%", right: "10%", rotate: -7 },                   // нижній правий
   ];
 
   const position = positions[index % 4];
@@ -133,15 +133,15 @@ export default function HeroBanner() {
         <div className="relative z-10 flex flex-col items-center text-center">
           {/* Ім'я */}
           <h1
-            className="text-6xl md:text-8xl lg:text-9xl mb-16 md:mb-20 relative inline-block cursor-default group text-foreground
-                       animate-[fadeInUp_0.8s_ease-out] uppercase italic"
+            className="text-6xl md:text-8xl lg:text-9xl mb-16 md:mb-20 relative inline-block cursor-default text-foreground uppercase italic"
             style={{
               fontFamily: "var(--font-display), ui-serif, serif",
               fontWeight: 600,
               textShadow: "0 2px 8px rgba(0,0,0,0.08)",
+              animation: "fadeInUp 0.8s ease-out both",
             }}
           >
-            <span className="relative inline-block">
+            <span className="relative inline-block group">
               Olena Oprich
               {/* Анімоване підкреслення */}
               <span 
@@ -220,15 +220,15 @@ export default function HeroBanner() {
 
           {/* Підпис */}
           <p
-            className="mt-5 text-4xl text-foreground relative inline-block cursor-default group
-                       animate-[fadeInUp_0.8s_ease-out_0.5s_backwards]"
+            className="mt-5 text-4xl text-foreground relative inline-block cursor-default"
             style={{
               fontFamily: "var(--font-display), ui-serif, serif",
               fontWeight: 400,
               textShadow: "0 1px 4px rgba(0,0,0,0.06)",
+              animation: "fadeInUp 0.8s ease-out 0.5s both",
             }}
           >
-            <span className="relative inline-block">
+            <span className="relative inline-block group">
               Passionate Illustrator
               {/* Анімоване підкреслення */}
               <span 
@@ -263,42 +263,6 @@ export default function HeroBanner() {
         </div>
       </div>
 
-      {/* CSS анімації */}
-      <style jsx>{`
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
-        }
-
-        @keyframes pulseOutline {
-          0% {
-            transform: scale(1);
-            opacity: 0;
-          }
-          50% {
-            opacity: 0.8;
-          }
-          100% {
-            transform: scale(1.15);
-            opacity: 0;
-          }
-        }
-      `}</style>
     </section>
   );
 }

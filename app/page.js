@@ -1,5 +1,5 @@
-import Image from "next/image";
 import HeroBanner from "@/components/mainPage/HeroBanner";
+import ProjectsWall from "@/components/mainPage/ProjectsWall";
 
 export default function Home() {
   return (
@@ -9,7 +9,7 @@ export default function Home() {
         <HeroBanner />
         
         {/* Секція Projects Wall (поки закоментована, додаси пізніше) */}
-        {/* <ProjectsWall /> */}
+        <ProjectsWall />
         
         {/* Секція About (поки закоментована) */}
         {/* <About /> */}
