@@ -137,7 +137,7 @@ body {
   }
 
   .hero-copy {
-    @apply rounded-[20px] border border-white/70 bg-white/80 px-5 py-4 md:px-7 md:py-6;
+    @apply rounded-[20px] border border-white/70 bg-white/65 px-5 py-4 md:px-7 md:py-6;
     box-shadow: var(--shadow-soft);
   }
 
@@ -170,22 +170,23 @@ body {
     position: relative;
     width: 100%;
     height: 100%;
-    animation: heroDrift 18s ease-in-out infinite alternate;
     transform: translate3d(0, 0, 0);
     will-change: transform;
   }
 
   .hero-image {
-    animation: heroDepth 12s ease-in-out infinite alternate;
-    transition: filter 240ms ease;
+    animation: heroBreath 14s ease-in-out infinite alternate;
+    transition: filter 240ms ease, transform 400ms ease;
     backface-visibility: hidden;
     filter: saturate(1.01) brightness(1.005) contrast(1.01);
-    transform: translate3d(0, 0, 0);
+    transform: scale(1.03) translate3d(0, 0, 0);
+    transform-origin: center;
     will-change: transform;
   }
 
   .hero-frame:hover .hero-image {
     filter: saturate(1.06) brightness(1.03);
+    transform: scale(1.04);
   }
 
   .hero-frame:hover {
@@ -218,6 +219,18 @@ body {
   }
   100% {
     transform: scale(1.02);
+  }
+}
+
+@keyframes heroBreath {
+  0% {
+    transform: scale(1.03);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1.03);
   }
 }
 

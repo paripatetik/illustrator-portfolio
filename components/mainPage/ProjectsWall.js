@@ -11,16 +11,36 @@ function getProjectCover(images = []) {
 
 export default function ProjectsWall() {
   const sectionRef = useRef(null);
+  const [playAnimation, setPlayAnimation] = useState(true);
   const [isInView, setIsInView] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    if (!sectionRef.current || isInView) return;
+    if (typeof window === "undefined") return;
+    const hasAnimated =
+      window.sessionStorage.getItem("projectsWallAnimated") === "true";
+    if (hasAnimated) {
+      setIsInView(true);
+      setPlayAnimation(false);
+      return;
+    }
+    setPlayAnimation(true);
+  }, []);
+
+  useEffect(() => {
+    if (!sectionRef.current || isInView || !playAnimation) return;
+    if (typeof window === "undefined") return;
+    if (!("IntersectionObserver" in window)) {
+      setIsInView(true);
+      window.sessionStorage.setItem("projectsWallAnimated", "true");
+      return;
+    }
 
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
           setIsInView(true);
+          window.sessionStorage.setItem("projectsWallAnimated", "true");
           observer.disconnect();
         }
       },
@@ -30,7 +50,7 @@ export default function ProjectsWall() {
     observer.observe(sectionRef.current);
 
     return () => observer.disconnect();
-  }, [isInView]);
+  }, [isInView, playAnimation]);
 
   useEffect(() => {
     const media = window.matchMedia("(max-width: 639px)");
@@ -69,6 +89,7 @@ export default function ProjectsWall() {
             const dir = isMobile
               ? mobilePattern[index % mobilePattern.length]
               : desktopByColumn[index % 3];
+            const reveal = isInView || !playAnimation;
 
             return (
               <Link
@@ -81,11 +102,13 @@ export default function ProjectsWall() {
                   style={{
                     "--from-x": `${dir.x}px`,
                     "--from-y": `${dir.y}px`,
-                    animation: isInView
-                      ? `wallSlideIn 0.95s cubic-bezier(0.2,0.8,0.2,1) ${index * 120}ms both`
+                    animation: reveal
+                      ? playAnimation && isInView
+                        ? `wallSlideIn 0.95s cubic-bezier(0.2,0.8,0.2,1) ${index * 120}ms both`
+                        : "none"
                       : "none",
-                    opacity: isInView ? 1 : 0,
-                    transform: isInView
+                    opacity: reveal ? 1 : 0,
+                    transform: reveal
                       ? "translate(0, 0)"
                       : `translate(${dir.x}px, ${dir.y}px)`,
                   }}

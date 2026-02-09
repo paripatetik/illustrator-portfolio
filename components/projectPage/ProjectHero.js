@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useState } from "react";
 
 function getHeroImage(images = []) {
   return images.find((image) => image.startsWith("01")) || images[0];
@@ -9,6 +10,7 @@ function getHeroImage(images = []) {
 export default function ProjectHero({ project, folder }) {
   const heroImage = getHeroImage(project.images);
   const metaLine = [project.client, project.year].filter(Boolean).join(" • ");
+  
   const handleHeroMove = (event) => {
     const rect = event.currentTarget.getBoundingClientRect();
     const x = ((event.clientX - rect.left) / rect.width) * 100;
@@ -25,76 +27,155 @@ export default function ProjectHero({ project, folder }) {
   const handleHeroLeave = (event) => {
     event.currentTarget.style.setProperty("--spot-opacity", "0");
   };
+
   return (
-    <section className="section md:min-h-screen pt-8 pb-10 md:pt-[var(--section-y)] md:pb-[var(--section-y)]">
-      <div className="w-full px-4 sm:px-6 lg:px-10">
-        <div
-          className="w-full max-w-[1400px] mx-auto flex flex-col md:flex-row md:items-stretch gap-3 md:gap-0"
+    <section className="section py-12 md:py-20 lg:py-24">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Mobile/Tablet: Title First (shown below lg) */}
+        <div 
+          className="lg:hidden mb-8 text-center"
           style={{ animation: "fadeInUp 0.8s ease both" }}
         >
-          <div className="flex flex-col gap-3 md:hidden text-center items-center">
-            <h1
-              className="t-section"
-              style={{
-                fontFamily: "var(--font-fun), ui-sans-serif, sans-serif",
-              }}
-            >
-              {project.title}
-            </h1>
-          </div>
-
-          <div
-            className="w-full md:flex-none md:w-[min(78vw,1180px)]"
-            style={{ animation: "fadeIn 0.9s ease both", animationDelay: "80ms" }}
+          <h1
+            className="text-4xl sm:text-5xl mb-4"
+            style={{
+              fontFamily: "var(--font-fun), ui-sans-serif, sans-serif",
+              fontWeight: 600,
+            }}
           >
+            {project.title}
+          </h1>
+        </div>
+
+        {/* Desktop: Side by Side Layout */}
+        <div 
+          className="w-full"
+          style={{ animation: "fadeInUp 0.8s ease both" }}
+        >
+          <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 lg:items-start max-w-[2000px] mx-auto">
+            {/* Hero Image */}
             <div
-              className="relative w-full aspect-[4/3] sm:aspect-[16/9] md:h-[70vh] lg:h-[78vh] overflow-hidden img-rounded md:rounded-r-none hero-frame"
-              onMouseEnter={handleHeroEnter}
-              onMouseMove={handleHeroMove}
-              onMouseLeave={handleHeroLeave}
+              className="w-full lg:flex-1 flex justify-center"
+              style={{ animation: "fadeIn 0.9s ease both", animationDelay: "0.1s" }}
             >
-              <div className="hero-image-wrap">
+              <div
+                className="relative inline-block overflow-hidden img-rounded hero-frame group cursor-pointer"
+                onMouseEnter={handleHeroEnter}
+                onMouseMove={handleHeroMove}
+                onMouseLeave={handleHeroLeave}
+              >
                 <Image
                   src={`/projects/${folder}/${heroImage}`}
                   alt={`${project.title} hero`}
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 70vw"
-                  className="object-contain hero-image"
+                  width={2400}
+                  height={2400}
+                  className="hero-image block"
+                  style={{ 
+                    maxHeight: '80vh',
+                    maxWidth: '100%',
+                    width: 'auto',
+                    height: 'auto',
+                  }}
                   priority
+                  quality={100}
                 />
               </div>
             </div>
-          </div>
 
-          <div className="flex flex-col gap-4 md:flex-1 hero-copy md:h-[70vh] lg:h-[78vh] md:justify-center md:rounded-l-none">
-            <h1
-              className="t-section hidden md:block"
-              style={{
-                fontFamily: "var(--font-fun), ui-sans-serif, sans-serif",
-              }}
+            {/* Text Content - Desktop Only (lg and above) */}
+            <div 
+              className="hidden lg:flex lg:flex-col lg:w-[380px] xl:w-[420px] gap-6 lg:sticky lg:top-24"
+              style={{ animation: "fadeInUp 0.9s ease both", animationDelay: "0.2s" }}
             >
-              {project.title}
-            </h1>
-            <p className="t-body text-foreground/85 hidden md:block">
-              {project.description}
-            </p>
-            {metaLine && (
-              <p className="text-sm md:text-base text-foreground/60 hidden md:block">
-                {metaLine}
+              <div>
+                <h1
+                  className="text-4xl xl:text-5xl mb-4 leading-tight"
+                  style={{
+                    fontFamily: "var(--font-fun), ui-sans-serif, sans-serif",
+                    fontWeight: 600,
+                  }}
+                >
+                  {project.title}
+                </h1>
+                {metaLine && (
+                  <p className="text-base text-foreground/50 mb-6">
+                    {metaLine}
+                  </p>
+                )}
+              </div>
+              
+              <p className="text-lg xl:text-xl leading-relaxed text-foreground/75">
+                {project.description}
               </p>
-            )}
-          </div>
-
-          <div className="flex flex-col gap-4 md:hidden text-center items-center hero-copy w-full">
-            <p className="t-body text-foreground/85">
-              {project.description}
-            </p>
-            {metaLine && (
-              <p className="text-sm text-foreground/60">{metaLine}</p>
-            )}
+            </div>
           </div>
         </div>
+
+        {/* Mobile/Tablet: Description Below Image (shown below lg) */}
+        <div 
+          className="lg:hidden mt-8 text-center max-w-2xl mx-auto"
+          style={{ animation: "fadeInUp 0.8s ease both", animationDelay: "0.3s" }}
+        >
+          <p className="t-body text-foreground/75">
+            {project.description}
+          </p>
+          {metaLine && (
+            <p className="text-sm text-foreground/50 mt-3">{metaLine}</p>
+          )}
+        </div>
       </div>
+
+      {/* Animations */}
+      <style jsx>{`
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+
+        .hero-frame {
+          position: relative;
+        }
+
+        .hero-image {
+          transition: transform 0.5s ease;
+        }
+
+        .hero-frame:hover .hero-image {
+          transform: scale(1.02);
+        }
+
+        @media (min-width: 768px) {
+          .hero-frame::before {
+            content: '';
+            position: absolute;
+            top: var(--spot-y, 50%);
+            left: var(--spot-x, 50%);
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255, 107, 122, 0.15) 0%, transparent 70%);
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            opacity: var(--spot-opacity, 0);
+            transition: opacity 0.3s ease;
+            z-index: 10;
+          }
+        }
+      `}</style>
     </section>
   );
 }
