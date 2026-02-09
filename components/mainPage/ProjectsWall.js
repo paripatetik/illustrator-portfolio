@@ -1,4 +1,4 @@
- "use client";
+"use client";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -9,38 +9,56 @@ function getProjectCover(images = []) {
   return images.find((image) => image.includes("-cover")) || images[0];
 }
 
+// Check sessionStorage outside of component to avoid setState in effects
+function getInitialAnimationState() {
+  if (typeof window === "undefined") {
+    return { shouldAnimate: true, isInView: true }; // TEMP: Force true for debugging
+  }
+  
+  const hasAnimated = sessionStorage.getItem("projectsWallAnimated") === "true";
+  
+  if (hasAnimated) {
+    // Already animated - show immediately without animation
+    return { shouldAnimate: false, isInView: true };
+  }
+  
+  // First visit - check if IntersectionObserver is supported
+  const hasIntersectionObserver = "IntersectionObserver" in window;
+  
+  if (!hasIntersectionObserver) {
+    // No observer support - show immediately without animation
+    return { shouldAnimate: false, isInView: true };
+  }
+  
+  // First visit with observer support - wait for intersection
+  return { shouldAnimate: true, isInView: true }; // TEMP: Force true for debugging
+}
+
 export default function ProjectsWall() {
   const sectionRef = useRef(null);
-  const [playAnimation, setPlayAnimation] = useState(true);
-  const [isInView, setIsInView] = useState(false);
+  const [animationState, setAnimationState] = useState(getInitialAnimationState);
   const [isMobile, setIsMobile] = useState(false);
 
+  // Debug logging
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const hasAnimated =
-      window.sessionStorage.getItem("projectsWallAnimated") === "true";
-    if (hasAnimated) {
-      setIsInView(true);
-      setPlayAnimation(false);
-      return;
-    }
-    setPlayAnimation(true);
-  }, []);
+    console.log('ProjectsWall animation state:', animationState);
+  }, [animationState]);
 
+  // Set up IntersectionObserver
   useEffect(() => {
-    if (!sectionRef.current || isInView || !playAnimation) return;
+    if (animationState.isInView) return; // Already in view, don't observe again
+    if (!sectionRef.current) return;
     if (typeof window === "undefined") return;
-    if (!("IntersectionObserver" in window)) {
-      setIsInView(true);
-      window.sessionStorage.setItem("projectsWallAnimated", "true");
-      return;
-    }
+
+    console.log('Setting up IntersectionObserver');
 
     const observer = new IntersectionObserver(
       ([entry]) => {
+        console.log('IntersectionObserver triggered, isIntersecting:', entry.isIntersecting);
         if (entry.isIntersecting) {
-          setIsInView(true);
-          window.sessionStorage.setItem("projectsWallAnimated", "true");
+          setAnimationState((prev) => ({ ...prev, isInView: true }));
+          // Mark as animated in sessionStorage
+          sessionStorage.setItem("projectsWallAnimated", "true");
           observer.disconnect();
         }
       },
@@ -50,8 +68,9 @@ export default function ProjectsWall() {
     observer.observe(sectionRef.current);
 
     return () => observer.disconnect();
-  }, [isInView, playAnimation]);
+  }, [animationState.isInView]);
 
+  // Detect mobile for animation direction
   useEffect(() => {
     const media = window.matchMedia("(max-width: 639px)");
     const update = () => setIsMobile(media.matches);
@@ -77,6 +96,8 @@ export default function ProjectsWall() {
           {projects.map((project, index) => {
             const cover = getProjectCover(project.images);
             const coverSrc = `/projects/${project.slug}/${cover}`;
+            
+            // Animation directions for each column
             const desktopByColumn = [
               { x: -80, y: 0 }, // left column
               { x: 0, y: 70 },  // center column (from bottom)
@@ -86,10 +107,10 @@ export default function ProjectsWall() {
               { x: -70, y: 0 }, // left
               { x: 70, y: 0 },  // right
             ];
+            
             const dir = isMobile
               ? mobilePattern[index % mobilePattern.length]
               : desktopByColumn[index % 3];
-            const reveal = isInView || !playAnimation;
 
             return (
               <Link
@@ -102,13 +123,13 @@ export default function ProjectsWall() {
                   style={{
                     "--from-x": `${dir.x}px`,
                     "--from-y": `${dir.y}px`,
-                    animation: reveal
-                      ? playAnimation && isInView
-                        ? `wallSlideIn 0.95s cubic-bezier(0.2,0.8,0.2,1) ${index * 120}ms both`
-                        : "none"
+                    // Animate only if shouldAnimate is true AND isInView is true
+                    animation: animationState.shouldAnimate && animationState.isInView
+                      ? `wallSlideIn 0.95s cubic-bezier(0.2,0.8,0.2,1) ${index * 120}ms both`
                       : "none",
-                    opacity: reveal ? 1 : 0,
-                    transform: reveal
+                    // Show immediately if not animating, or if animation is complete
+                    opacity: animationState.isInView ? 1 : 0,
+                    transform: animationState.isInView
                       ? "translate(0, 0)"
                       : `translate(${dir.x}px, ${dir.y}px)`,
                   }}
