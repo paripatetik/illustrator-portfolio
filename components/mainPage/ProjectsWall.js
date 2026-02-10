@@ -134,12 +134,12 @@ export default function ProjectsWall() {
                       )}`}
                       priority={index < 2}
                       quality={85}
-                      onLoadingComplete={(img) => {
-                        img.setAttribute("data-loaded", "true");
+                      onLoad={(e) => {
+                        e.currentTarget.setAttribute("data-loaded", "true");
                       }}
                     />
 
-                    <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/35 to-foreground/10 opacity-0 transition-opacity duration-700 ease-out group-hover:opacity-90"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/35 to-foreground/10 opacity-90 sm:opacity-0 transition-opacity duration-700 ease-out sm:group-hover:opacity-90"></div>
 
                     <div className="absolute inset-0 flex flex-col justify-end p-6">
                       <h3 className="t-project text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.55)] transition-all duration-700 ease-out translate-y-0 opacity-100 sm:translate-y-3 sm:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100">

@@ -124,14 +124,14 @@ export default function ProjectHero({ project, folder }) {
               style={{ animation: "fadeIn 0.9s ease both", animationDelay: "0.1s" }}
             >
               <div
-                className="relative inline-block overflow-hidden img-rounded hero-frame group"
+                className="relative w-full max-w-[1400px] overflow-hidden img-rounded hero-frame group"
                 ref={frameRef}
                 onMouseEnter={handleHeroEnter}
                 onMouseMove={handleHeroMove}
                 onMouseLeave={handleHeroLeave}
               >
                 <div
-                  className="relative hero-motion"
+                  className="relative w-full hero-motion aspect-[4/3] sm:aspect-[3/2] lg:aspect-[16/10]"
                   data-loaded="false"
                 >
                   <span
@@ -139,31 +139,27 @@ export default function ProjectHero({ project, folder }) {
                     className="absolute inset-0 rounded-[var(--radius-card)] bg-foreground/5 animate-pulse transition-opacity duration-500 data-[loaded=true]:opacity-0"
                   />
                   <Image
-                  ref={imgRef}
-                  src={`/projects/${folder}/${heroImage}`}
-                  alt={`${project.title} hero`}
-                  width={2400}
-                  height={2400}
-                  className="hero-image block opacity-0 scale-[1.01] transition-[opacity,transform,filter] duration-700 ease-out data-[loaded=true]:opacity-100 data-[loaded=true]:scale-100"
-                  data-loaded="false"
-                  sizes="(max-width: 768px) 92vw, (max-width: 1280px) 70vw, 60vw"
-                  style={{ 
-                    maxHeight: '80vh',
-                    maxWidth: '100%',
-                    width: 'auto',
-                    height: 'auto',
-                  }}
-                  priority
-                  quality={85}
-                  placeholder="blur"
-                  blurDataURL={`data:image/svg+xml;base64,${toBase64(
-                    shimmer(900, 900)
-                  )}`}
-                  onLoadingComplete={(img) => {
-                    img.setAttribute("data-loaded", "true");
-                    img.parentElement?.setAttribute("data-loaded", "true");
-                  }}
-                />
+                    ref={imgRef}
+                    src={`/projects/${folder}/${heroImage}`}
+                    alt={`${project.title} hero`}
+                    fill
+                    className="hero-image block object-cover opacity-0 scale-[1.01] transition-[opacity,transform,filter] duration-700 ease-out data-[loaded=true]:opacity-100 data-[loaded=true]:scale-100"
+                    data-loaded="false"
+                    sizes="(max-width: 768px) 92vw, (max-width: 1280px) 70vw, 60vw"
+                    priority
+                    quality={85}
+                    placeholder="blur"
+                    blurDataURL={`data:image/svg+xml;base64,${toBase64(
+                      shimmer(900, 900)
+                    )}`}
+                    onLoad={(e) => {
+                      e.currentTarget.setAttribute("data-loaded", "true");
+                      e.currentTarget.parentElement?.setAttribute(
+                        "data-loaded",
+                        "true"
+                      );
+                    }}
+                  />
                 </div>
               </div>
             </div>

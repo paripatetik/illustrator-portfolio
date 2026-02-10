@@ -258,7 +258,7 @@ export default function ProjectCards({ images, folder, title }) {
         </div>
 
         {/* Gallery Grid */}
-        <div className="flex flex-wrap gap-6 w-full justify-center">
+        <div className="flex flex-wrap gap-4 sm:gap-5 w-full justify-center">
           {galleryImages.map((image, index) => (
             <button
               key={image}
@@ -267,7 +267,7 @@ export default function ProjectCards({ images, folder, title }) {
               ref={(el) => {
                 cardRefs.current[index] = el;
               }}
-              className="group relative w-full sm:flex-[0_1_calc(50%-12px)] overflow-hidden img-rounded bg-white/85 p-[6px] text-left transition-transform duration-300 hover:-translate-y-1 mb-6 opacity-0 translate-y-4 data-[visible=true]:opacity-100 data-[visible=true]:translate-y-0 data-[visible=true]:animate-[fadeInUp_0.8s_ease-out_var(--delay)_both] motion-reduce:opacity-100 motion-reduce:translate-y-0 motion-reduce:animate-none cursor-pointer"
+              className="group relative w-full sm:flex-[0_1_calc(50%-12px)] overflow-hidden img-rounded bg-white/85 p-[6px] text-left transition-transform duration-300 hover:-translate-y-1 mb-4 sm:mb-5 opacity-0 translate-y-4 data-[visible=true]:opacity-100 data-[visible=true]:translate-y-0 data-[visible=true]:animate-[fadeInUp_0.8s_ease-out_var(--delay)_both] motion-reduce:opacity-100 motion-reduce:translate-y-0 motion-reduce:animate-none cursor-pointer"
               style={{ "--delay": `${index * 80}ms` }}
             >
               <span className="sr-only">
@@ -275,7 +275,7 @@ export default function ProjectCards({ images, folder, title }) {
               </span>
               <span className="absolute inset-0 rounded-[22px] ring-1 ring-foreground/10 pointer-events-none" />
               <div
-                className="relative w-full overflow-hidden rounded-[18px] bg-foreground/5"
+                className="relative w-full aspect-[4/3] sm:aspect-[3/2] overflow-hidden rounded-[18px] bg-foreground/5"
                 data-loaded={loadedMap[image] ? "true" : "false"}
               >
                 <span
@@ -285,14 +285,9 @@ export default function ProjectCards({ images, folder, title }) {
                 <Image
                   src={`/projects/${folder}/${image}`}
                   alt={`${title} artwork ${index + 2}`}
-                  width={
-                    imageDimensions[`projects/${folder}/${image}`]?.width || 1600
-                  }
-                  height={
-                    imageDimensions[`projects/${folder}/${image}`]?.height || 1200
-                  }
+                  fill
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 50vw"
-                  className={`block w-full h-auto transition-[transform,opacity,filter] duration-1000 ease-[cubic-bezier(0.2,0.8,0.2,1)] group-hover:scale-[1.012] transform-gpu will-change-transform ${
+                  className={`block object-cover transition-[transform,opacity,filter] duration-1000 ease-[cubic-bezier(0.2,0.8,0.2,1)] group-hover:scale-[1.012] transform-gpu will-change-transform ${
                     loadedMap[image]
                       ? "opacity-100 scale-100 blur-0"
                       : "opacity-0 scale-[1.01] blur-[6px]"
@@ -300,7 +295,7 @@ export default function ProjectCards({ images, folder, title }) {
                   loading="lazy"
                   fetchPriority="low"
                   quality={85}
-                  onLoadingComplete={() => {
+                  onLoad={() => {
                     requestAnimationFrame(() => {
                       setLoadedMap((prev) => ({ ...prev, [image]: true }));
                     });
@@ -370,7 +365,7 @@ export default function ProjectCards({ images, folder, title }) {
             <div className="relative flex items-center justify-center">
               <div
                 ref={zoomFrameRef}
-                className={`relative overflow-hidden rounded-2xl transition-shadow duration-300 select-none inline-block ${
+                className={`relative overflow-hidden rounded-[28px] bg-black/20 ring-1 ring-white/10 transition-shadow duration-300 select-none inline-block ${
                   isZoomed 
                     ? isDragging 
                       ? "cursor-grabbing shadow-2xl" 
@@ -438,18 +433,18 @@ export default function ProjectCards({ images, folder, title }) {
                 }}
               >
                 <div
-                  className="relative"
+                  className="relative aspect-[4/3] sm:aspect-[3/2] lg:aspect-[16/10] w-[92vw] max-w-6xl overflow-hidden rounded-[24px] lightbox-frame"
                   data-loaded={lightboxLoaded ? "true" : "false"}
                 >
                   <span
                     aria-hidden="true"
-                    className="shimmer absolute inset-0 transition-opacity duration-700 data-[loaded=true]:opacity-0"
+                    className="shimmer absolute inset-0 rounded-[24px] transition-opacity duration-700 data-[loaded=true]:opacity-0"
                   />
                   <img
                     ref={zoomImgRef}
                     src={lightboxSrc}
                     alt={`${title} detail ${lightboxIndex + 1}`}
-                    className={`block w-full h-auto max-h-[75vh] object-contain transition-[transform,opacity,filter] duration-600 ease-out ${
+                    className={`absolute inset-0 w-full h-full object-contain rounded-[24px] transition-[transform,opacity,filter] duration-600 ease-out ${
                       lightboxLoaded
                         ? "opacity-100 scale-100 blur-0"
                         : "opacity-0 scale-[1.01] blur-[6px]"
@@ -600,6 +595,11 @@ export default function ProjectCards({ images, folder, title }) {
           .shimmer {
             animation: none;
           }
+        }
+
+        .lightbox-frame {
+          -webkit-mask-image: -webkit-radial-gradient(white, black);
+          mask-image: radial-gradient(white, black);
         }
       `}</style>
     </section>
