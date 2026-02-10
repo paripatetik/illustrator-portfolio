@@ -1,32 +1,97 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useRef } from "react";
 
 function getHeroImage(images = []) {
   return images.find((image) => image.startsWith("01")) || images[0];
 }
 
+const shimmer = (w, h) => `
+  <svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+    <defs>
+      <linearGradient id="g">
+        <stop stop-color="#f2efe9" offset="20%" />
+        <stop stop-color="#e8e2d9" offset="50%" />
+        <stop stop-color="#f2efe9" offset="70%" />
+      </linearGradient>
+    </defs>
+    <rect width="${w}" height="${h}" fill="#f2efe9" />
+    <rect id="r" width="${w}" height="${h}" fill="url(#g)" />
+  </svg>`;
+
+const toBase64 = (str) =>
+  typeof window === "undefined"
+    ? Buffer.from(str).toString("base64")
+    : window.btoa(str);
+
 export default function ProjectHero({ project, folder }) {
   const heroImage = getHeroImage(project.images);
   const metaLine = [project.client, project.year].filter(Boolean).join(" • ");
+  const frameRef = useRef(null);
+  const imgRef = useRef(null);
+  const rafRef = useRef(null);
+  const targetRef = useRef({ x: 50, y: 50 });
+  const currentRef = useRef({ x: 50, y: 50 });
   
   const handleHeroMove = (event) => {
-    const rect = event.currentTarget.getBoundingClientRect();
-    const x = ((event.clientX - rect.left) / rect.width) * 100;
-    const y = ((event.clientY - rect.top) / rect.height) * 100;
-    event.currentTarget.style.setProperty("--spot-x", `${x.toFixed(2)}%`);
-    event.currentTarget.style.setProperty("--spot-y", `${y.toFixed(2)}%`);
-    event.currentTarget.style.setProperty("--spot-opacity", "1");
+    const img = imgRef.current;
+    if (!img) return;
+    const rect = img.getBoundingClientRect();
+    const rawX = ((event.clientX - rect.left) / rect.width) * 100;
+    const rawY = ((event.clientY - rect.top) / rect.height) * 100;
+    const x = Math.min(100, Math.max(0, rawX));
+    const y = Math.min(100, Math.max(0, rawY));
+    targetRef.current = { x, y };
   };
 
   const handleHeroEnter = (event) => {
-    event.currentTarget.style.setProperty("--spot-opacity", "1");
+    if (frameRef.current) {
+      frameRef.current.style.setProperty("--spot-opacity", "1");
+    }
+    if (!rafRef.current) {
+      const tick = () => {
+        const frame = frameRef.current;
+        if (!frame) {
+          rafRef.current = null;
+          return;
+        }
+        const current = currentRef.current;
+        const target = targetRef.current;
+        const nextX = current.x + (target.x - current.x) * 0.18;
+        const nextY = current.y + (target.y - current.y) * 0.18;
+        currentRef.current = { x: nextX, y: nextY };
+        frame.style.setProperty("--spot-x", `${nextX.toFixed(2)}%`);
+        frame.style.setProperty("--spot-y", `${nextY.toFixed(2)}%`);
+        const offsetX = ((nextX - 50) / 50) * 20;
+        const offsetY = ((nextY - 50) / 50) * 14;
+        frame.style.setProperty("--img-x", `${offsetX.toFixed(2)}px`);
+        frame.style.setProperty("--img-y", `${offsetY.toFixed(2)}px`);
+        rafRef.current = requestAnimationFrame(tick);
+      };
+      rafRef.current = requestAnimationFrame(tick);
+    }
   };
 
   const handleHeroLeave = (event) => {
-    event.currentTarget.style.setProperty("--spot-opacity", "0");
+    if (frameRef.current) {
+      frameRef.current.style.setProperty("--spot-opacity", "0");
+      frameRef.current.style.setProperty("--img-x", "0px");
+      frameRef.current.style.setProperty("--img-y", "0px");
+    }
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
+    currentRef.current = { x: 50, y: 50 };
+    targetRef.current = { x: 50, y: 50 };
   };
+
+  useEffect(() => {
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, []);
 
   return (
     <section className="section py-12 md:py-20 lg:py-24">
@@ -59,17 +124,29 @@ export default function ProjectHero({ project, folder }) {
               style={{ animation: "fadeIn 0.9s ease both", animationDelay: "0.1s" }}
             >
               <div
-                className="relative inline-block overflow-hidden img-rounded hero-frame group cursor-pointer"
+                className="relative inline-block overflow-hidden img-rounded hero-frame group"
+                ref={frameRef}
                 onMouseEnter={handleHeroEnter}
                 onMouseMove={handleHeroMove}
                 onMouseLeave={handleHeroLeave}
               >
-                <Image
+                <div
+                  className="relative hero-motion"
+                  data-loaded="false"
+                >
+                  <span
+                    aria-hidden="true"
+                    className="absolute inset-0 rounded-[var(--radius-card)] bg-foreground/5 animate-pulse transition-opacity duration-500 data-[loaded=true]:opacity-0"
+                  />
+                  <Image
+                  ref={imgRef}
                   src={`/projects/${folder}/${heroImage}`}
                   alt={`${project.title} hero`}
                   width={2400}
                   height={2400}
-                  className="hero-image block"
+                  className="hero-image block opacity-0 scale-[1.01] transition-[opacity,transform,filter] duration-700 ease-out data-[loaded=true]:opacity-100 data-[loaded=true]:scale-100"
+                  data-loaded="false"
+                  sizes="(max-width: 768px) 92vw, (max-width: 1280px) 70vw, 60vw"
                   style={{ 
                     maxHeight: '80vh',
                     maxWidth: '100%',
@@ -77,8 +154,17 @@ export default function ProjectHero({ project, folder }) {
                     height: 'auto',
                   }}
                   priority
-                  quality={100}
+                  quality={85}
+                  placeholder="blur"
+                  blurDataURL={`data:image/svg+xml;base64,${toBase64(
+                    shimmer(900, 900)
+                  )}`}
+                  onLoadingComplete={(img) => {
+                    img.setAttribute("data-loaded", "true");
+                    img.parentElement?.setAttribute("data-loaded", "true");
+                  }}
                 />
+                </div>
               </div>
             </div>
 
@@ -151,12 +237,10 @@ export default function ProjectHero({ project, folder }) {
           position: relative;
         }
 
-        .hero-image {
-          transition: transform 0.5s ease;
-        }
-
-        .hero-frame:hover .hero-image {
-          transform: scale(1.02);
+        .hero-motion {
+          transform: translate3d(var(--img-x, 0px), var(--img-y, 0px), 0);
+          transition: transform 0.28s ease-out;
+          will-change: transform;
         }
 
         @media (min-width: 768px) {
@@ -173,6 +257,13 @@ export default function ProjectHero({ project, folder }) {
             opacity: var(--spot-opacity, 0);
             transition: opacity 0.3s ease;
             z-index: 10;
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .hero-motion {
+            transform: none;
+            transition: none;
           }
         }
       `}</style>

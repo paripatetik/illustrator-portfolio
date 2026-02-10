@@ -9,66 +9,58 @@ function getProjectCover(images = []) {
   return images.find((image) => image.includes("-cover")) || images[0];
 }
 
-// Check sessionStorage outside of component to avoid setState in effects
-function getInitialAnimationState() {
-  if (typeof window === "undefined") {
-    return { shouldAnimate: true, isInView: true }; // TEMP: Force true for debugging
-  }
-  
-  const hasAnimated = sessionStorage.getItem("projectsWallAnimated") === "true";
-  
-  if (hasAnimated) {
-    // Already animated - show immediately without animation
-    return { shouldAnimate: false, isInView: true };
-  }
-  
-  // First visit - check if IntersectionObserver is supported
-  const hasIntersectionObserver = "IntersectionObserver" in window;
-  
-  if (!hasIntersectionObserver) {
-    // No observer support - show immediately without animation
-    return { shouldAnimate: false, isInView: true };
-  }
-  
-  // First visit with observer support - wait for intersection
-  return { shouldAnimate: true, isInView: true }; // TEMP: Force true for debugging
-}
+const shimmer = (w, h) => `
+  <svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+    <defs>
+      <linearGradient id="g">
+        <stop stop-color="#f2efe9" offset="20%" />
+        <stop stop-color="#e8e2d9" offset="50%" />
+        <stop stop-color="#f2efe9" offset="70%" />
+      </linearGradient>
+    </defs>
+    <rect width="${w}" height="${h}" fill="#f2efe9" />
+    <rect id="r" width="${w}" height="${h}" fill="url(#g)" />
+  </svg>`;
+
+const toBase64 = (str) =>
+  typeof window === "undefined"
+    ? Buffer.from(str).toString("base64")
+    : window.btoa(str);
 
 export default function ProjectsWall() {
-  const sectionRef = useRef(null);
-  const [animationState, setAnimationState] = useState(getInitialAnimationState);
   const [isMobile, setIsMobile] = useState(false);
+  const cardRefs = useRef([]);
 
-  // Debug logging
+  // Animate cards when they enter the viewport
   useEffect(() => {
-    console.log('ProjectsWall animation state:', animationState);
-  }, [animationState]);
-
-  // Set up IntersectionObserver
-  useEffect(() => {
-    if (animationState.isInView) return; // Already in view, don't observe again
-    if (!sectionRef.current) return;
     if (typeof window === "undefined") return;
 
-    console.log('Setting up IntersectionObserver');
+    const cards = cardRefs.current.filter(Boolean);
+    if (!cards.length) return;
+
+    if (!("IntersectionObserver" in window)) {
+      requestAnimationFrame(() => {
+        cards.forEach((card) => card.classList.add("wall-animate"));
+      });
+      return;
+    }
 
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        console.log('IntersectionObserver triggered, isIntersecting:', entry.isIntersecting);
-        if (entry.isIntersecting) {
-          setAnimationState((prev) => ({ ...prev, isInView: true }));
-          // Mark as animated in sessionStorage
-          sessionStorage.setItem("projectsWallAnimated", "true");
-          observer.disconnect();
-        }
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("wall-animate");
+            observer.unobserve(entry.target);
+          }
+        });
       },
       { threshold: 0.2, rootMargin: "0px 0px -10% 0px" }
     );
 
-    observer.observe(sectionRef.current);
+    cards.forEach((card) => observer.observe(card));
 
     return () => observer.disconnect();
-  }, [animationState.isInView]);
+  }, []);
 
   // Detect mobile for animation direction
   useEffect(() => {
@@ -80,8 +72,8 @@ export default function ProjectsWall() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="section bg-cream">
-      <div className="container mx-auto px-4">
+    <section className="section bg-cream">
+      <div className="container mx-auto px-4 pt-2">
         <div className="flex flex-wrap items-end mb-10">
           <div className="hidden md:block md:flex-1"></div>
           <h2 className="t-section uppercase italic w-full text-center md:w-auto md:flex-none">
@@ -98,10 +90,9 @@ export default function ProjectsWall() {
             const coverSrc = `/projects/${project.slug}/${cover}`;
             
             // Animation directions for each column
-            const desktopByColumn = [
-              { x: -80, y: 0 }, // left column
-              { x: 0, y: 70 },  // center column (from bottom)
-              { x: 80, y: 0 },  // right column
+            const desktopAlternate = [
+              { x: -80, y: 0 }, // left
+              { x: 80, y: 0 },  // right
             ];
             const mobilePattern = [
               { x: -70, y: 0 }, // left
@@ -110,28 +101,23 @@ export default function ProjectsWall() {
             
             const dir = isMobile
               ? mobilePattern[index % mobilePattern.length]
-              : desktopByColumn[index % 3];
+              : desktopAlternate[index % desktopAlternate.length];
 
             return (
               <Link
                 key={project.slug}
                 href={`/projects/${project.slug}`}
-                className="group"
+                className="group cursor-pointer"
               >
                 <article
-                  className="relative overflow-hidden rounded-[var(--radius-card)] bg-transparent transition-transform duration-500 ease-out group-hover:-translate-y-2 sm:group-hover:-translate-y-3"
+                  ref={(el) => {
+                    cardRefs.current[index] = el;
+                  }}
+                  className="wall-card relative overflow-hidden rounded-[var(--radius-card)] bg-transparent"
                   style={{
                     "--from-x": `${dir.x}px`,
                     "--from-y": `${dir.y}px`,
-                    // Animate only if shouldAnimate is true AND isInView is true
-                    animation: animationState.shouldAnimate && animationState.isInView
-                      ? `wallSlideIn 0.95s cubic-bezier(0.2,0.8,0.2,1) ${index * 120}ms both`
-                      : "none",
-                    // Show immediately if not animating, or if animation is complete
-                    opacity: animationState.isInView ? 1 : 0,
-                    transform: animationState.isInView
-                      ? "translate(0, 0)"
-                      : `translate(${dir.x}px, ${dir.y}px)`,
+                    "--wall-delay": `${index * 120}ms`,
                   }}
                 >
                   <div className="relative w-full h-[260px] sm:h-[280px]">
@@ -140,16 +126,26 @@ export default function ProjectsWall() {
                       alt={`${project.title} cover`}
                       fill
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      className="object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+                      className="object-cover opacity-0 transition-[opacity,transform] duration-1000 ease-[cubic-bezier(0.2,0.8,0.2,1)] data-[loaded=true]:opacity-100 group-hover:scale-[1.015] transform-gpu will-change-transform"
+                      data-loaded="false"
+                      placeholder="blur"
+                      blurDataURL={`data:image/svg+xml;base64,${toBase64(
+                        shimmer(700, 500)
+                      )}`}
+                      priority={index < 2}
+                      quality={85}
+                      onLoadingComplete={(img) => {
+                        img.setAttribute("data-loaded", "true");
+                      }}
                     />
 
-                    <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/35 to-foreground/10 opacity-0 transition-opacity duration-500 group-hover:opacity-90"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/35 to-foreground/10 opacity-0 transition-opacity duration-700 ease-out group-hover:opacity-90"></div>
 
-                    <div className="absolute inset-0 flex flex-col justify-end p-6 transition-transform duration-500 ease-out group-hover:-translate-y-2">
-                      <h3 className="t-project text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.55)] transition-all duration-500 ease-out translate-y-0 opacity-100 sm:translate-y-3 sm:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100">
+                    <div className="absolute inset-0 flex flex-col justify-end p-6">
+                      <h3 className="t-project text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.55)] transition-all duration-700 ease-out translate-y-0 opacity-100 sm:translate-y-3 sm:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100">
                         {project.title}
                       </h3>
-                      <p className="t-body text-white/95 mt-3 drop-shadow-[0_4px_10px_rgba(0,0,0,0.55)] transition-all duration-500 ease-out delay-75 translate-y-0 opacity-100 sm:translate-y-3 sm:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100">
+                      <p className="t-body text-white/95 mt-3 drop-shadow-[0_4px_10px_rgba(0,0,0,0.55)] transition-all duration-700 ease-out delay-75 translate-y-0 opacity-100 sm:translate-y-3 sm:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100">
                         {project.description}
                       </p>
                     </div>
@@ -160,6 +156,41 @@ export default function ProjectsWall() {
           })}
         </div>
       </div>
+      <style jsx>{`
+        @keyframes wallSlideIn {
+          from {
+            opacity: 0;
+            transform: translate3d(
+              var(--from-x, 0px),
+              var(--from-y, 16px),
+              0
+            );
+          }
+          to {
+            opacity: 1;
+            transform: translate3d(0, 0, 0);
+          }
+        }
+
+        .wall-card {
+          opacity: 0;
+          transform: translate3d(var(--from-x, 0px), var(--from-y, 16px), 0);
+          will-change: transform, opacity;
+        }
+
+        .wall-card.wall-animate {
+          animation: wallSlideIn 0.95s cubic-bezier(0.2, 0.8, 0.2, 1)
+            var(--wall-delay, 0ms) both;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .wall-card {
+            opacity: 1;
+            transform: none;
+            animation: none;
+          }
+        }
+      `}</style>
     </section>
   );
 }

@@ -20,7 +20,7 @@
   --shadow-soft: 0 12px 30px rgba(0,0,0,.18);
 
   /* ритм секцій */
-  --section-y: 88px;
+  --section-y: 20px;
 }
 
 /* =================================
@@ -58,7 +58,7 @@ body {
 
   /* секції */
   .section {
-    padding-block: var(--section-y);
+    padding: 30px 0;
   }
 
   /* картки (проєкти, блоки) */
@@ -137,7 +137,7 @@ body {
   }
 
   .hero-copy {
-    @apply rounded-[20px] border border-white/70 bg-white/65 px-5 py-4 md:px-7 md:py-6;
+    @apply rounded-[20px] border border-white/70 bg-white/65 px-5 py-2 md:px-7 md:py-4;
     box-shadow: var(--shadow-soft);
   }
 
@@ -239,17 +239,6 @@ body {
   .hero-image-wrap {
     animation: none;
     transform: none;
-  }
-}
-
-@keyframes wallSlideIn {
-  from {
-    opacity: 0;
-    transform: translate(var(--from-x, 0px), var(--from-y, 16px));
-  }
-  to {
-    opacity: 1;
-    transform: translate(0, 0);
   }
 }
 
