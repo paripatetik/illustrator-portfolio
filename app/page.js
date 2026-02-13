@@ -1,5 +1,7 @@
 import HeroBanner from "@/components/mainPage/HeroBanner";
 import ProjectsWall from "@/components/mainPage/ProjectsWall";
+import About from "@/components/mainPage/About";
+import Contact from "@/components/Contact";
 
 export default function Home() {
   return (
@@ -7,15 +9,15 @@ export default function Home() {
       <main>
         {/* Hero Banner з анімованими фото */}
         <HeroBanner />
-        
-        {/* Секція Projects Wall (поки закоментована, додаси пізніше) */}
+
+        {/* Секція Projects Wall */}
         <ProjectsWall />
-        
-        {/* Секція About (поки закоментована) */}
-        {/* <About /> */}
-        
-        {/* Секція Contact (поки закоментована) */}
-        {/* <Contact /> */}
+
+        {/* Секція About */}
+        <About />
+
+        {/* Секція Contact */}
+        <Contact />
       </main>
     </div>
   );

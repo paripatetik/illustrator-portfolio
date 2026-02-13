@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 function getHeroImage(images = []) {
   return images.find((image) => image.startsWith("01")) || images[0];
@@ -28,6 +28,7 @@ const toBase64 = (str) =>
 export default function ProjectHero({ project, folder }) {
   const heroImage = getHeroImage(project.images);
   const metaLine = [project.client, project.year].filter(Boolean).join(" • ");
+  const [heroAspect, setHeroAspect] = useState(16 / 10);
   const frameRef = useRef(null);
   const imgRef = useRef(null);
   const rafRef = useRef(null);
@@ -124,14 +125,21 @@ export default function ProjectHero({ project, folder }) {
               style={{ animation: "fadeIn 0.9s ease both", animationDelay: "0.1s" }}
             >
               <div
-                className="relative w-full max-w-[1400px] overflow-hidden img-rounded hero-frame group"
+                className="relative overflow-hidden img-rounded hero-frame group"
                 ref={frameRef}
                 onMouseEnter={handleHeroEnter}
                 onMouseMove={handleHeroMove}
                 onMouseLeave={handleHeroLeave}
+                style={{
+                  width: `min(100%, ${75 * heroAspect}vh)`,
+                  maxHeight: "75vh",
+                }}
               >
                 <div
-                  className="relative w-full hero-motion aspect-[4/3] sm:aspect-[3/2] lg:aspect-[16/10]"
+                  className="relative w-full hero-motion"
+                  style={{
+                    aspectRatio: heroAspect,
+                  }}
                   data-loaded="false"
                 >
                   <span
@@ -143,7 +151,7 @@ export default function ProjectHero({ project, folder }) {
                     src={`/projects/${folder}/${heroImage}`}
                     alt={`${project.title} hero`}
                     fill
-                    className="hero-image block object-cover opacity-0 scale-[1.01] transition-[opacity,transform,filter] duration-700 ease-out data-[loaded=true]:opacity-100 data-[loaded=true]:scale-100"
+                    className="hero-image block object-contain opacity-0 transition-[opacity,transform,filter] duration-700 ease-out data-[loaded=true]:opacity-100"
                     data-loaded="false"
                     sizes="(max-width: 768px) 92vw, (max-width: 1280px) 70vw, 60vw"
                     priority
@@ -153,6 +161,10 @@ export default function ProjectHero({ project, folder }) {
                       shimmer(900, 900)
                     )}`}
                     onLoad={(e) => {
+                      const { naturalWidth, naturalHeight } = e.currentTarget;
+                      if (naturalWidth && naturalHeight) {
+                        setHeroAspect(naturalWidth / naturalHeight);
+                      }
                       e.currentTarget.setAttribute("data-loaded", "true");
                       e.currentTarget.parentElement?.setAttribute(
                         "data-loaded",
@@ -234,7 +246,7 @@ export default function ProjectHero({ project, folder }) {
         }
 
         .hero-motion {
-          transform: translate3d(var(--img-x, 0px), var(--img-y, 0px), 0);
+          transform: translate3d(0, 0, 0);
           transition: transform 0.28s ease-out;
           will-change: transform;
         }
@@ -254,6 +266,16 @@ export default function ProjectHero({ project, folder }) {
             transition: opacity 0.3s ease;
             z-index: 10;
           }
+        }
+
+        /* Keep full artwork visible on project pages (no zoom-crop). */
+        .hero-image {
+          animation: none;
+          transform: none !important;
+        }
+
+        .hero-frame:hover .hero-image {
+          transform: none !important;
         }
 
         @media (prefers-reduced-motion: reduce) {

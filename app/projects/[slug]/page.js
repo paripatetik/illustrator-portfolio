@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import projects from "@/data/projects.json";
+import ProjectHeader from "@/components/projectPage/ProjectHeader";
 import ProjectHero from "@/components/projectPage/ProjectHero";
 import ProjectCards from "@/components/projectPage/ProjectCards";
 
@@ -44,6 +45,7 @@ export default async function ProjectPage({ params }) {
 
   return (
     <main className="bg-cream text-foreground">
+      <ProjectHeader />
       <ProjectHero project={project} folder={project.slug} />
       <ProjectCards
         images={project.images}

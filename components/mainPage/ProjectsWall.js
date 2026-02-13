@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import projects from "@/data/projects.json";
+import imageDimensions from "@/data/imageDimensions.json";
 
 function getProjectCover(images = []) {
   return images.find((image) => image.includes("-cover")) || images[0];
@@ -84,10 +85,15 @@ export default function ProjectsWall() {
           </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="columns-1 [column-gap:2rem] min-[776px]:columns-2 lg:columns-3">
           {projects.map((project, index) => {
             const cover = getProjectCover(project.images);
             const coverSrc = `/projects/${project.slug}/${cover}`;
+            const dimensionKey = `projects/${project.slug}/${cover}`;
+            const dimensions = imageDimensions[dimensionKey] || {
+              width: 700,
+              height: 500,
+            };
             
             // Animation directions for each column
             const desktopAlternate = [
@@ -107,7 +113,7 @@ export default function ProjectsWall() {
               <Link
                 key={project.slug}
                 href={`/projects/${project.slug}`}
-                className="group cursor-pointer"
+                className="group block w-full cursor-pointer mb-8 [break-inside:avoid] [page-break-inside:avoid] [column-break-inside:avoid] align-top"
               >
                 <article
                   ref={(el) => {
@@ -120,17 +126,18 @@ export default function ProjectsWall() {
                     "--wall-delay": `${index * 120}ms`,
                   }}
                 >
-                  <div className="relative w-full h-[260px] sm:h-[280px]">
+                  <div className="relative">
                     <Image
                       src={coverSrc}
                       alt={`${project.title} cover`}
-                      fill
+                      width={dimensions.width}
+                      height={dimensions.height}
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      className="object-cover opacity-0 transition-[opacity,transform] duration-1000 ease-[cubic-bezier(0.2,0.8,0.2,1)] data-[loaded=true]:opacity-100 group-hover:scale-[1.015] transform-gpu will-change-transform"
+                      className="h-auto w-full object-cover opacity-0 transition-[opacity,transform] duration-1000 ease-[cubic-bezier(0.2,0.8,0.2,1)] data-[loaded=true]:opacity-100 group-hover:scale-[1.015] transform-gpu will-change-transform"
                       data-loaded="false"
                       placeholder="blur"
                       blurDataURL={`data:image/svg+xml;base64,${toBase64(
-                        shimmer(700, 500)
+                        shimmer(dimensions.width, dimensions.height)
                       )}`}
                       priority={index < 2}
                       quality={85}

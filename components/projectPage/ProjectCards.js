@@ -365,7 +365,7 @@ export default function ProjectCards({ images, folder, title }) {
             <div className="relative flex items-center justify-center">
               <div
                 ref={zoomFrameRef}
-                className={`relative overflow-hidden rounded-[28px] bg-black/20 ring-1 ring-white/10 transition-shadow duration-300 select-none inline-block ${
+                className={`relative overflow-hidden rounded-[28px] ring-1 ring-white/10 transition-shadow duration-300 select-none inline-block ${
                   isZoomed 
                     ? isDragging 
                       ? "cursor-grabbing shadow-2xl" 
@@ -433,7 +433,7 @@ export default function ProjectCards({ images, folder, title }) {
                 }}
               >
                 <div
-                  className="relative aspect-[4/3] sm:aspect-[3/2] lg:aspect-[16/10] w-[92vw] max-w-6xl overflow-hidden rounded-[24px] lightbox-frame"
+                  className="relative overflow-hidden rounded-[24px] lightbox-frame"
                   data-loaded={lightboxLoaded ? "true" : "false"}
                 >
                   <span
@@ -444,7 +444,7 @@ export default function ProjectCards({ images, folder, title }) {
                     ref={zoomImgRef}
                     src={lightboxSrc}
                     alt={`${title} detail ${lightboxIndex + 1}`}
-                    className={`absolute inset-0 w-full h-full object-contain rounded-[24px] transition-[transform,opacity,filter] duration-600 ease-out ${
+                    className={`block w-auto h-auto max-w-[92vw] max-h-[82vh] object-contain rounded-[24px] transition-[transform,opacity,filter] duration-600 ease-out ${
                       lightboxLoaded
                         ? "opacity-100 scale-100 blur-0"
                         : "opacity-0 scale-[1.01] blur-[6px]"
