@@ -6,13 +6,15 @@
 
 :root {
   /* базові кольори */
-  --foreground: #484745;   /* темний для тексту */
-  --background: #ffffff;   /* чистий білий (картки) */
+  --foreground: #ffffff;   /* світлий текст */
+  --background: #ffffff;   /* світла поверхня */
 
   /* бренд-палітра */
-  --accent: #FF6B7A;       /* кораловий/рожевий */
-  --mint: #8FD5C7;         /* м'ятний/бірюзовий */
-  --cream: #FFF4EA;        /* кремовий/світло-бежевий фон */
+  --accent: #d8585d;       /* глибший червоний */
+  --mint: #f2a2a6;         /* додатковий рожевий */
+  --cream: #f3b3b6;        /* основний рожевий фон */
+  --surface-rose: #c84f59; /* темніший фон для форм/блоків */
+  --blob-light: #f7b7bb;   /* плямки на фоні */
 
   /* форма + глибина */
   --radius-card: 24px;
@@ -21,6 +23,10 @@
 
   /* ритм секцій */
   --section-y: 20px;
+
+  /* шрифти */
+  --font-heading: var(--font-display, "Blushing");
+  --font-body: var(--font-fun, "Seed");
 }
 
 /* =================================
@@ -35,9 +41,7 @@
   --color-mint: var(--mint);
   --color-cream: var(--cream);
 
-  /* тут пізніше можна прив'язати шрифти */
-  /* --font-fun: var(--font-...); */
-  /* --font-display: var(--font-...); */
+  /* тут пізніше можна прив'язати додаткові токени */
 }
 
 /* ================================
@@ -45,8 +49,23 @@
    ================================ */
 
 body {
-  background: var(--cream);   /* основний фон сайту */
+  background-color: var(--cream);   /* основний фон сайту */
+  background-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='2600' height='2000' viewBox='0 0 2600 2000'><path d='M260 260c-90 50-110 170-40 250 70 84 204 108 292 44 84-62 102-184 44-262-58-76-206-92-296-32z' fill='rgba(255,255,255,0.18)'/><path d='M2020 240c-98 44-146 164-92 258 54 96 190 146 296 102 108-46 160-176 108-286-54-112-206-154-312-74z' fill='rgba(255,255,255,0.17)'/><path d='M300 790c-74 42-112 124-94 206 18 88 92 164 184 184 94 20 194-24 244-110 50-84 36-196-34-268-72-74-212-92-300-12z' fill='rgba(255,255,255,0.17)'/><path d='M1980 760c-108 44-174 166-144 278 28 108 138 194 260 202 118 8 230-58 280-166 52-112 22-248-72-324-90-74-212-90-324-10z' fill='rgba(255,255,255,0.17)'/><path d='M240 1420c-64 42-96 122-80 196 18 82 90 150 176 168 88 18 184-14 236-84 52-70 58-172 12-248-46-76-140-116-224-108-46 4-86 20-120 76z' fill='rgba(255,255,255,0.16)'/><path d='M1990 1420c-80 34-140 106-152 190-12 90 28 186 104 242 78 56 188 72 282 40 96-34 170-118 182-218 12-96-30-194-110-252-84-60-208-72-306-2z' fill='rgba(255,255,255,0.16)'/></svg>");
+  background-repeat: repeat;
+  background-size: 2600px 2000px;
+  background-position: 0 0;
   color: var(--foreground);
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading), ui-serif, serif;
 }
 
 /* ================================
@@ -54,6 +73,21 @@ body {
    ================================ */
 
 @layer components {
+  .wall-card {
+    opacity: 0;
+    transform: translate3d(var(--from-x, 0px), var(--from-y, 16px), 0);
+    will-change: transform, opacity;
+  }
+
+  .wall-card.wall-animate {
+    animation: wallSlideIn 0.95s cubic-bezier(0.2, 0.8, 0.2, 1)
+      var(--wall-delay, 0ms) both;
+  }
+
+  .bg-cream {
+    background-color: transparent !important;
+    background-image: none !important;
+  }
 
 
   /* секції */
@@ -93,13 +127,15 @@ body {
     @apply border border-foreground/25 text-foreground hover:bg-foreground/5;
   }
 
-  /* заголовки (поки без кастомних шрифтів) */
+  /* заголовки */
   .h-display {
     @apply text-5xl md:text-7xl leading-[1.05] font-serif;
+    font-family: var(--font-heading), ui-serif, serif;
   }
 
   .h-fun {
     @apply text-2xl md:text-3xl font-sans;
+    font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
   }
 
   /* приглушений текст */
@@ -109,31 +145,40 @@ body {
 
   .t-hero {
     @apply text-5xl md:text-7xl leading-[1.05];
-    font-family: var(--font-display), ui-serif, serif;
+    font-family: var(--font-heading), ui-serif, serif;
   }
 
-  /* HERO: підпис тим самим serif */
+  /* HERO: підпис */
   .t-hero-sub {
     @apply text-lg md:text-2xl leading-snug;
-    font-family: var(--font-display), ui-serif, serif;
+    font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
   }
 
-  /* Заголовки секцій: serif, трохи менше */
+  /* Заголовки секцій */
   .t-section {
     @apply text-3xl md:text-4xl leading-tight;
-    font-family: var(--font-display), ui-serif, serif;
+    font-family: var(--font-heading), ui-serif, serif;
+    font-weight: 700;
   }
 
-  /* Назви проєктів: Fredoka */
+  .section-title {
+    @apply mx-auto w-full text-center text-5xl sm:text-7xl md:text-8xl leading-tight;
+    font-family: var(--font-heading), ui-serif, serif;
+    font-weight: 700;
+    text-transform: none;
+    letter-spacing: 0.02em;
+  }
+
+  /* Назви проєктів */
   .t-project {
     @apply text-2xl md:text-3xl leading-tight;
-    font-family: var(--font-fun), ui-sans-serif, system-ui, sans-serif;
+    font-family: var(--font-heading), ui-serif, serif;
   }
 
-  /* Основний текст: Fredoka */
+  /* Основний текст */
   .t-body {
     @apply text-base md:text-lg leading-relaxed;
-    font-family: var(--font-fun), ui-sans-serif, system-ui, sans-serif;
+    font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
   }
 
   .hero-copy {
@@ -194,18 +239,33 @@ body {
     --spot-opacity: 1;
   }
 
-  .about-grid {
-    @apply grid items-center gap-6 md:grid-cols-[1fr_1.1fr] md:gap-3;
+  .about-title {
+    @apply mx-auto max-w-[32ch];
+    color: var(--foreground);
+  }
+
+  .about-stack {
+    @apply mt-10 flex flex-col items-center gap-8;
+    max-width: 680px;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .about-image-wrap {
-    @apply relative flex items-end justify-center min-h-[260px] bg-transparent px-0 md:min-h-[420px] md:px-2;
+    @apply relative flex items-center justify-center;
+    width: min(82vw, 400px);
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 16px 30px rgba(156, 46, 68, 0.28);
+    padding: 10px;
     animation: aboutFloat 8s ease-in-out infinite;
+    will-change: transform;
   }
 
   .about-image {
-    @apply h-auto w-full max-w-[640px] object-contain;
-    mix-blend-mode: multiply;
+    @apply h-auto w-full object-cover;
+    border-radius: 18px;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
     transition: transform 320ms ease, filter 320ms ease, drop-shadow 320ms ease;
     filter: saturate(1) brightness(1);
     will-change: transform;
@@ -216,14 +276,29 @@ body {
     filter: saturate(1.05) brightness(1.02) drop-shadow(0 14px 22px rgba(0, 0, 0, 0.18));
   }
 
+  .about-bookmark {
+    @apply absolute left-5 -top-4;
+    width: 40px;
+    height: 58px;
+    filter: drop-shadow(0 6px 12px rgba(156, 46, 68, 0.3));
+  }
+
+  .about-bookmark svg {
+    width: 100%;
+    height: 100%;
+  }
+
   .about-copy {
-    @apply px-6 py-10 text-center md:px-10 lg:px-14;
+    @apply px-6 text-center;
+    max-width: 60ch;
   }
 
   .about-text {
-    @apply mx-auto mt-8 max-w-[32ch] text-xl leading-snug text-[#b2593f] sm:text-2xl md:text-[2rem];
-    font-family: var(--font-fun), ui-sans-serif, system-ui, sans-serif;
+    @apply mx-auto mt-6 text-lg leading-snug sm:text-xl;
+    color: var(--foreground);
+    font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
   }
+
 
   .contact-grid {
     @apply grid items-start gap-10 md:grid-cols-[1fr_1fr] md:gap-12;
@@ -243,8 +318,8 @@ body {
 
   .contact-icon {
     @apply inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full md:h-12 md:w-12;
-    background: #788fc7;
-    color: #f5e7d3;
+    background: #c84b53;
+    color: var(--foreground);
     animation: contactIconFloat 2.8s ease-in-out infinite;
     animation-delay: var(--icon-delay, 0s);
     transition: transform 260ms ease, box-shadow 260ms ease;
@@ -253,7 +328,7 @@ body {
 
   .contact-item:hover .contact-icon {
     transform: scale(1.08) rotate(-4deg);
-    box-shadow: 0 10px 18px rgba(120, 143, 199, 0.28);
+    box-shadow: 0 10px 18px rgba(200, 75, 83, 0.35);
   }
 
   .contact-svg {
@@ -265,67 +340,66 @@ body {
 
   .contact-text {
     @apply text-lg leading-tight sm:text-xl md:text-2xl;
-    color: #b2593f;
-    font-family: var(--font-fun), ui-sans-serif, system-ui, sans-serif;
+    color: var(--foreground);
+    font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
   }
 
   .contact-form {
-    @apply w-full rounded-[20px] border border-[#e8d7c1] bg-[#f9eddd]/80 p-5 md:order-1 md:p-7;
+    @apply w-full rounded-[20px] border p-5 md:order-1 md:p-7;
+    border-color: rgba(255, 246, 241, 0.38);
+    background: var(--surface-rose);
   }
 
   .contact-form-title {
     @apply text-2xl sm:text-3xl;
-    color: #b2593f;
-    font-family: var(--font-fun), ui-sans-serif, system-ui, sans-serif;
+    color: var(--foreground);
+    font-family: var(--font-heading), ui-serif, serif;
   }
 
   .contact-label {
     @apply mt-4 block text-base sm:text-lg;
-    color: #b2593f;
-    font-family: var(--font-fun), ui-sans-serif, system-ui, sans-serif;
+    color: var(--foreground);
+    font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
   }
 
   .contact-input,
   .contact-textarea {
-    @apply mt-2 w-full rounded-xl border border-[#d9c3ad] bg-white/85 px-4 py-3 outline-none transition;
-    color: #7f4a39;
-    font-family: var(--font-fun), ui-sans-serif, system-ui, sans-serif;
+    @apply mt-2 w-full rounded-xl border px-4 py-3 outline-none transition;
+    border-color: rgba(255, 255, 255, 0.32);
+    background: rgba(255, 255, 255, 0.14);
+    color: var(--foreground);
+    font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
   }
 
   .contact-input:focus,
   .contact-textarea:focus {
-    @apply border-[#788fc7];
-    box-shadow: 0 0 0 3px rgba(120, 143, 199, 0.16);
+    border-color: rgba(255, 255, 255, 0.7);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
   }
 
   .contact-submit {
     @apply mt-5 inline-flex items-center justify-center rounded-full px-6 py-3 text-lg transition hover:translate-y-[-1px];
-    background: #788fc7;
-    color: #fff;
-    font-family: var(--font-fun), ui-sans-serif, system-ui, sans-serif;
+    background: var(--cream);
+    color: var(--foreground);
+    font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
   }
 }
 
 @media (max-width: 760px) {
   .about-image-wrap {
-    min-height: 220px;
-    padding-left: 0;
-    padding-right: 0;
+    width: min(88vw, 360px);
   }
 
   .about-image {
-    max-width: min(86vw, 460px);
+    border-radius: 20px;
   }
 
   .about-copy {
-    padding: 0.5rem 0.5rem 0;
+    padding: 0.25rem 0.5rem 0;
   }
 
   .about-text {
     margin-top: 1rem;
-    max-width: 30ch;
-    font-size: 1.375rem;
-    line-height: 1.28;
   }
 }
 
@@ -392,14 +466,30 @@ body {
   }
 }
 
+@keyframes wallSlideIn {
+  from {
+    opacity: 0;
+    transform: translate3d(var(--from-x, 0px), var(--from-y, 16px), 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .hero-image,
   .hero-image-wrap,
   .about-image-wrap,
   .about-image,
-  .contact-icon {
+  .contact-icon,
+  .wall-card {
     animation: none;
     transform: none;
+  }
+
+  .wall-card {
+    opacity: 1;
   }
 }
 

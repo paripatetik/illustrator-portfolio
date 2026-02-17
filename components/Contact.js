@@ -66,9 +66,9 @@ function LocationIcon() {
 
 export default function Contact() {
   return (
-    <section className="section bg-cream">
+    <section className="section bg-cream" id="contact">
       <div className="container mx-auto px-4">
-        <h2 className="t-section uppercase italic w-full text-center mb-10">Contacts</h2>
+        <h2 className="section-title mb-10">Let&apos;s connect!</h2>
 
         <div className="contact-grid">
           <div className="contact-list">

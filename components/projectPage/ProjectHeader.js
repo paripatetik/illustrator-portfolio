@@ -28,7 +28,7 @@ export default function ProjectHeader() {
           <h2
             className="w-full text-2xl sm:text-3xl md:text-4xl leading-tight text-center italic"
             style={{
-              fontFamily: "var(--font-display), ui-serif, serif",
+              fontFamily: "var(--font-heading), ui-serif, serif",
               fontWeight: 500,
             }}
           >

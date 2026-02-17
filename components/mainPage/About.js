@@ -4,21 +4,29 @@ export default function About() {
   return (
     <section className="section bg-cream">
       <div className="container mx-auto px-4">
-        <h2 className="t-section uppercase italic w-full text-center mb-10">
+        <h2 className="section-title about-title">
           The artist behind the stories
         </h2>
 
-        <div className="about-grid">
+        <div className="about-stack">
           <div className="about-image-wrap">
             <Image
-              src="/olena-2.png?v=2"
-              alt="Olena holding a fish in a water bag"
-              width={720}
-              height={520}
+              src="/olena.jpg"
+              alt="Olena portrait"
+              width={620}
+              height={760}
               className="about-image"
               priority
               unoptimized
             />
+            <span className="about-bookmark" aria-hidden="true">
+              <svg viewBox="0 0 40 58" role="presentation" focusable="false">
+                <path
+                  d="M8 4h24a3 3 0 0 1 3 3v45l-15-9-15 9V7a3 3 0 0 1 3-3z"
+                  fill="#ffffff"
+                />
+              </svg>
+            </span>
           </div>
 
           <div className="about-copy">
@@ -32,6 +40,7 @@ export default function About() {
               cozy storytelling worlds.
             </p>
           </div>
+
         </div>
       </div>
     </section>

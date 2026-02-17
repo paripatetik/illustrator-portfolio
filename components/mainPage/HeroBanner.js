@@ -133,24 +133,26 @@ export default function HeroBanner() {
         <div className="relative z-10 flex flex-col items-center text-center">
           {/* Ім'я */}
           <h1
-            className="text-6xl md:text-8xl lg:text-9xl mb-16 md:mb-20 relative inline-block cursor-default text-foreground uppercase italic"
+            className="group text-6xl md:text-8xl lg:text-9xl mb-16 md:mb-20 relative inline-block cursor-default text-foreground uppercase tracking-[0.08em]"
             style={{
-              fontFamily: "var(--font-display), ui-serif, serif",
+              fontFamily: "var(--font-heading), ui-serif, serif",
               fontWeight: 600,
               textShadow: "0 2px 8px rgba(0,0,0,0.08)",
               animation: "fadeInUp 0.8s ease-out both",
             }}
           >
-            <span className="relative inline-block group">
-              Olena Oprich
-              {/* Анімоване підкреслення */}
-              <span 
-                className="absolute left-0 w-0 h-[6px] md:h-[8px] bg-accent transition-all duration-700 ease-out group-hover:w-full"
-                style={{ 
-                  bottom: '-0.15em',
-                  boxShadow: "0 2px 8px rgba(240, 70, 99, 0.3)",
-                }}
-              ></span>
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute left-[-1.4rem] md:left-[-2.4rem] top-1/2 -translate-y-1/2 -translate-x-2 text-accent text-2xl md:text-4xl opacity-0 scale-75 transition-all duration-300 ease-out group-hover:opacity-100 group-hover:translate-x-0 group-hover:scale-100 group-hover:animate-pulse"
+            >
+              ❤
+            </span>
+            Olena Oprich
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute right-[-1.4rem] md:right-[-2.4rem] top-1/2 -translate-y-1/2 translate-x-2 text-accent text-2xl md:text-4xl opacity-0 scale-75 transition-all duration-300 ease-out group-hover:opacity-100 group-hover:translate-x-0 group-hover:scale-100 group-hover:animate-pulse"
+            >
+              ❤
             </span>
           </h1>
 
@@ -219,26 +221,15 @@ export default function HeroBanner() {
           </div>
 
           {/* Підпис */}
+          <div className="mt-4 h-[3px] bg-foreground/60 w-3/5 max-w-[420px]" />
           <p
-            className="mt-5 text-4xl text-foreground relative inline-block cursor-default"
+            className="mt-4 t-body text-foreground text-2xl md:text-3xl relative inline-block cursor-default"
             style={{
-              fontFamily: "var(--font-display), ui-serif, serif",
-              fontWeight: 400,
               textShadow: "0 1px 4px rgba(0,0,0,0.06)",
               animation: "fadeInUp 0.8s ease-out 0.5s both",
             }}
           >
-            <span className="relative inline-block group">
-              Passionate Illustrator
-              {/* Анімоване підкреслення */}
-              <span 
-                className="absolute left-0 w-0 h-[4px] md:h-[5px] bg-accent transition-all duration-700 ease-out group-hover:w-full"
-                style={{ 
-                  bottom: '-0.2em',
-                  boxShadow: "0 2px 6px rgba(240, 70, 99, 0.25)",
-                }}
-              ></span>
-            </span>
+            Hi there!
           </p>
 
           {/* Мобільна сітка фото (під підписом) */}

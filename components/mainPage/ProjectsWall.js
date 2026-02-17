@@ -75,15 +75,13 @@ export default function ProjectsWall() {
   return (
     <section className="section bg-cream">
       <div className="container mx-auto px-4 pt-2">
-        <div className="flex flex-wrap items-end mb-10">
-          <div className="hidden md:block md:flex-1"></div>
-          <h2 className="t-section uppercase italic w-full text-center md:w-auto md:flex-none">
-            My Projects
+       
+          
+          <h2 className="mb-10 section-title">
+            Books
           </h2>
-          <span className="muted t-body w-full text-center md:w-auto md:flex-1 md:text-right">
-            Selected illustration series
-          </span>
-        </div>
+          
+    
 
         <div className="columns-1 [column-gap:2rem] min-[776px]:columns-2 lg:columns-3">
           {projects.map((project, index) => {
@@ -146,7 +144,7 @@ export default function ProjectsWall() {
                       }}
                     />
 
-                    <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/35 to-foreground/10 opacity-90 sm:opacity-0 transition-opacity duration-700 ease-out sm:group-hover:opacity-90"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/35 to-black/10 opacity-90 sm:opacity-0 transition-opacity duration-700 ease-out sm:group-hover:opacity-90"></div>
 
                     <div className="absolute inset-0 flex flex-col justify-end p-6">
                       <h3 className="t-project text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.55)] transition-all duration-700 ease-out translate-y-0 opacity-100 sm:translate-y-3 sm:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100">
@@ -163,41 +161,6 @@ export default function ProjectsWall() {
           })}
         </div>
       </div>
-      <style jsx>{`
-        @keyframes wallSlideIn {
-          from {
-            opacity: 0;
-            transform: translate3d(
-              var(--from-x, 0px),
-              var(--from-y, 16px),
-              0
-            );
-          }
-          to {
-            opacity: 1;
-            transform: translate3d(0, 0, 0);
-          }
-        }
-
-        .wall-card {
-          opacity: 0;
-          transform: translate3d(var(--from-x, 0px), var(--from-y, 16px), 0);
-          will-change: transform, opacity;
-        }
-
-        .wall-card.wall-animate {
-          animation: wallSlideIn 0.95s cubic-bezier(0.2, 0.8, 0.2, 1)
-            var(--wall-delay, 0ms) both;
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-          .wall-card {
-            opacity: 1;
-            transform: none;
-            animation: none;
-          }
-        }
-      `}</style>
     </section>
   );
 }

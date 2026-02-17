@@ -105,7 +105,7 @@ export default function ProjectHero({ project, folder }) {
           <h1
             className="text-4xl sm:text-5xl mb-4"
             style={{
-              fontFamily: "var(--font-fun), ui-sans-serif, sans-serif",
+              fontFamily: "var(--font-heading), ui-serif, serif",
               fontWeight: 600,
             }}
           >
@@ -185,7 +185,7 @@ export default function ProjectHero({ project, folder }) {
                 <h1
                   className="text-4xl xl:text-5xl mb-4 leading-tight"
                   style={{
-                    fontFamily: "var(--font-fun), ui-sans-serif, sans-serif",
+                    fontFamily: "var(--font-heading), ui-serif, serif",
                     fontWeight: 600,
                   }}
                 >
