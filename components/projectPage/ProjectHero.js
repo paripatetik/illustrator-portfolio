@@ -125,7 +125,7 @@ export default function ProjectHero({ project, folder }) {
               style={{ animation: "fadeIn 0.9s ease both", animationDelay: "0.1s" }}
             >
               <div
-                className="relative overflow-hidden img-rounded hero-frame group"
+                className="relative overflow-hidden img-rounded hero-frame project-hero-frame group"
                 ref={frameRef}
                 onMouseEnter={handleHeroEnter}
                 onMouseMove={handleHeroMove}
@@ -135,26 +135,26 @@ export default function ProjectHero({ project, folder }) {
                   maxHeight: "75vh",
                 }}
               >
-                <div
-                  className="relative w-full hero-motion"
-                  style={{
-                    aspectRatio: heroAspect,
-                  }}
-                  data-loaded="false"
+                  <div
+                    className="relative w-full hero-motion project-hero-motion"
+                    style={{
+                      aspectRatio: heroAspect,
+                    }}
+                    data-loaded="false"
                 >
                   <span
                     aria-hidden="true"
                     className="absolute inset-0 rounded-[var(--radius-card)] bg-foreground/5 animate-pulse transition-opacity duration-500 data-[loaded=true]:opacity-0"
                   />
-                  <Image
-                    ref={imgRef}
-                    src={`/projects/${folder}/${heroImage}`}
-                    alt={`${project.title} hero`}
-                    fill
-                    className="hero-image block object-contain opacity-0 transition-[opacity,transform,filter] duration-700 ease-out data-[loaded=true]:opacity-100"
-                    data-loaded="false"
-                    sizes="(max-width: 768px) 92vw, (max-width: 1280px) 70vw, 60vw"
-                    priority
+                    <Image
+                      ref={imgRef}
+                      src={`/projects/${folder}/${heroImage}`}
+                      alt={`${project.title} hero`}
+                      fill
+                      className="hero-image project-hero-image block object-contain opacity-0 transition-[opacity,transform,filter] duration-700 ease-out data-[loaded=true]:opacity-100"
+                      data-loaded="false"
+                      sizes="(max-width: 768px) 92vw, (max-width: 1280px) 70vw, 60vw"
+                      priority
                     quality={85}
                     placeholder="blur"
                     blurDataURL={`data:image/svg+xml;base64,${toBase64(
@@ -219,72 +219,6 @@ export default function ProjectHero({ project, folder }) {
         </div>
       </div>
 
-      {/* Animations */}
-      <style jsx>{`
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
-        }
-
-        .hero-frame {
-          position: relative;
-        }
-
-        .hero-motion {
-          transform: translate3d(0, 0, 0);
-          transition: transform 0.28s ease-out;
-          will-change: transform;
-        }
-
-        @media (min-width: 768px) {
-          .hero-frame::before {
-            content: '';
-            position: absolute;
-            top: var(--spot-y, 50%);
-            left: var(--spot-x, 50%);
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle, rgba(255, 107, 122, 0.15) 0%, transparent 70%);
-            transform: translate(-50%, -50%);
-            pointer-events: none;
-            opacity: var(--spot-opacity, 0);
-            transition: opacity 0.3s ease;
-            z-index: 10;
-          }
-        }
-
-        /* Keep full artwork visible on project pages (no zoom-crop). */
-        .hero-image {
-          animation: none;
-          transform: none !important;
-        }
-
-        .hero-frame:hover .hero-image {
-          transform: none !important;
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-          .hero-motion {
-            transform: none;
-            transition: none;
-          }
-        }
-      `}</style>
     </section>
   );
 }

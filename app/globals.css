@@ -50,13 +50,51 @@
 
 body {
   background-color: var(--cream);   /* основний фон сайту */
-  background-image:
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='2600' height='2000' viewBox='0 0 2600 2000'><path d='M260 260c-90 50-110 170-40 250 70 84 204 108 292 44 84-62 102-184 44-262-58-76-206-92-296-32z' fill='rgba(255,255,255,0.18)'/><path d='M2020 240c-98 44-146 164-92 258 54 96 190 146 296 102 108-46 160-176 108-286-54-112-206-154-312-74z' fill='rgba(255,255,255,0.17)'/><path d='M300 790c-74 42-112 124-94 206 18 88 92 164 184 184 94 20 194-24 244-110 50-84 36-196-34-268-72-74-212-92-300-12z' fill='rgba(255,255,255,0.17)'/><path d='M1980 760c-108 44-174 166-144 278 28 108 138 194 260 202 118 8 230-58 280-166 52-112 22-248-72-324-90-74-212-90-324-10z' fill='rgba(255,255,255,0.17)'/><path d='M240 1420c-64 42-96 122-80 196 18 82 90 150 176 168 88 18 184-14 236-84 52-70 58-172 12-248-46-76-140-116-224-108-46 4-86 20-120 76z' fill='rgba(255,255,255,0.16)'/><path d='M1990 1420c-80 34-140 106-152 190-12 90 28 186 104 242 78 56 188 72 282 40 96-34 170-118 182-218 12-96-30-194-110-252-84-60-208-72-306-2z' fill='rgba(255,255,255,0.16)'/></svg>");
-  background-repeat: repeat;
-  background-size: 2600px 2000px;
-  background-position: 0 0;
   color: var(--foreground);
   font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  position: relative;
+  isolation: isolate;
+}
+
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  width: min(35vw, 430px);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.88;
+}
+
+body::before {
+  left: 0;
+  background-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='620' height='2500' viewBox='0 0 620 2500'><path d='M58 172c28-46 86-72 140-66 50 6 92 38 104 84 14 52-8 106-48 138-42 34-104 44-156 22-50-22-84-78-70-132 6-18 12-28 30-46z' fill='rgba(255,255,255,0.19)'/><path d='M124 548c30-42 84-68 134-62 48 6 86 40 96 84 10 48-12 98-50 128-40 30-96 40-146 24-48-16-84-64-80-116 4-22 12-34 46-58z' fill='rgba(255,255,255,0.17)'/><path d='M72 946c22-36 66-58 110-56 44 2 82 30 98 70 16 42 6 90-26 122-36 34-90 46-136 30-46-16-78-60-72-108 2-20 8-30 26-58z' fill='rgba(255,255,255,0.16)'/><path d='M136 1388c30-46 90-74 146-66 54 8 98 46 110 96 14 56-12 114-56 148-46 34-110 44-166 24-54-20-90-72-82-128 4-24 12-34 48-74z' fill='rgba(255,255,255,0.18)'/><path d='M68 1856c24-34 66-54 106-50 40 4 74 30 86 68 14 40 2 86-30 112-34 28-84 34-126 16-42-18-70-62-62-106 4-20 10-24 26-40z' fill='rgba(255,255,255,0.16)'/><path d='M118 2240c26-36 72-56 116-50 42 6 76 36 84 76 10 44-12 90-48 118-40 30-94 34-138 14-44-20-70-66-58-112 4-18 10-22 28-46z' fill='rgba(255,255,255,0.17)'/></svg>"),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='520' height='2100' viewBox='0 0 520 2100'><path d='M204 262c30-34 78-52 122-46 42 6 76 36 84 76 10 42-10 88-44 114-36 28-86 36-130 20-44-16-74-58-66-102 2-14 10-22 34-38z' fill='rgba(255,255,255,0.13)'/><path d='M236 892c34-32 86-46 132-34 44 12 78 48 82 92 4 46-24 90-64 114-42 24-96 24-138 0-40-24-66-70-54-116 2-12 10-18 42-56z' fill='rgba(255,255,255,0.12)'/><path d='M210 1558c30-30 76-46 120-40 44 6 80 36 90 78 10 46-10 94-48 124-40 30-94 38-142 20-46-18-78-64-72-112 2-16 6-22 28-42z' fill='rgba(255,255,255,0.12)'/></svg>");
+  background-repeat: repeat-y, repeat-y;
+  background-size: 620px 2600px, 520px 2100px;
+  background-position: 0 0, 42px 360px;
+  mask-image: linear-gradient(to right, #000 0%, #000 66%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, #000 0%, #000 66%, transparent 100%);
+}
+
+body::after {
+  right: 0;
+  background-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='620' height='2500' viewBox='0 0 620 2500'><path d='M506 178c-30-48-90-74-146-66-52 8-94 44-104 92-12 52 12 106 54 136 44 32 106 38 158 16 52-22 82-78 68-132-4-16-10-26-30-46z' fill='rgba(255,255,255,0.19)'/><path d='M474 554c-30-42-88-66-140-56-50 8-88 42-96 90-10 50 14 98 54 126 42 28 98 32 146 12 50-20 78-68 68-118-2-20-12-30-32-54z' fill='rgba(255,255,255,0.17)'/><path d='M530 950c-24-36-72-56-120-50-44 6-78 36-88 78-12 44 8 90 44 116 40 28 94 30 138 8 46-22 70-68 58-114-4-16-10-26-28-38z' fill='rgba(255,255,255,0.16)'/><path d='M468 1390c-30-48-92-72-150-62-56 10-100 48-112 100-12 56 16 114 62 146 48 34 114 38 170 14 56-24 86-84 70-142-4-20-10-28-40-56z' fill='rgba(255,255,255,0.18)'/><path d='M542 1860c-24-36-70-56-114-50-42 6-76 34-88 74-12 42 6 88 40 114 38 28 88 34 132 16 46-18 72-64 62-110-2-14-10-20-32-44z' fill='rgba(255,255,255,0.16)'/><path d='M496 2242c-26-38-76-58-124-50-44 8-80 40-90 84-12 46 12 92 50 118 42 28 96 30 142 10 46-22 70-70 56-118-4-14-8-20-34-44z' fill='rgba(255,255,255,0.17)'/></svg>"),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='520' height='2100' viewBox='0 0 520 2100'><path d='M314 266c-32-34-82-50-126-42-42 8-74 40-82 82-10 44 12 88 48 112 38 24 88 30 130 14 44-16 70-60 60-104-2-12-10-20-30-38z' fill='rgba(255,255,255,0.13)'/><path d='M296 896c-36-32-90-46-138-34-46 12-78 50-80 96-4 48 24 90 64 112 44 22 98 20 138-6 40-26 62-74 48-120-2-10-8-16-32-48z' fill='rgba(255,255,255,0.12)'/><path d='M304 1562c-32-30-82-44-128-34-44 10-78 42-88 86-10 46 10 92 50 118 42 28 98 32 144 12 46-20 72-68 62-116-2-14-8-20-40-66z' fill='rgba(255,255,255,0.12)'/></svg>");
+  background-repeat: repeat-y, repeat-y;
+  background-size: 620px 2600px, 520px 2100px;
+  background-position: right 0 top 120px, right 38px top 560px;
+  mask-image: linear-gradient(to left, #000 0%, #000 66%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to left, #000 0%, #000 66%, transparent 100%);
+}
+
+body > * {
+  position: relative;
+  z-index: 1;
 }
 
 h1,
@@ -84,6 +122,12 @@ h6 {
       var(--wall-delay, 0ms) both;
   }
 
+  .wall-card.wall-static {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+    animation: none;
+  }
+
   .bg-cream {
     background-color: transparent !important;
     background-image: none !important;
@@ -107,6 +151,61 @@ h6 {
     border-radius: var(--radius-card);
     box-shadow: var(--shadow-soft);
     @apply border border-white/70;
+  }
+
+  .gallery-shimmer {
+    background: linear-gradient(
+      100deg,
+      rgba(0, 0, 0, 0.03) 20%,
+      rgba(0, 0, 0, 0.08) 40%,
+      rgba(0, 0, 0, 0.03) 60%
+    );
+    background-size: 200% 100%;
+    animation: galleryShimmer 1.8s ease-in-out infinite;
+    transition: opacity 0.7s ease;
+  }
+
+  .gallery-lightbox-frame {
+    -webkit-mask-image: -webkit-radial-gradient(white, black);
+    mask-image: radial-gradient(white, black);
+  }
+
+  .gallery-loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+
+  .gallery-loading-ring {
+    width: 42px;
+    height: 42px;
+    border-radius: 999px;
+    border: 2px solid rgba(255, 255, 255, 0.35);
+    border-top-color: rgba(255, 255, 255, 0.9);
+    animation: gallerySpin 0.9s linear infinite;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.18);
+  }
+
+  .lightbox-loading-overlay {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  .lightbox-loading-spinner {
+    width: 52px;
+    height: 52px;
+    border-radius: 999px;
+    border: 2px solid rgba(255, 255, 255, 0.25);
+    border-top-color: rgba(255, 255, 255, 0.95);
+    animation: gallerySpin 0.9s linear infinite;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.22);
   }
 
   /* кнопки */
@@ -227,6 +326,47 @@ h6 {
     transform: scale(1.03) translate3d(0, 0, 0);
     transform-origin: center;
     will-change: transform;
+  }
+
+  .project-hero-frame {
+    position: relative;
+  }
+
+  .project-hero-motion {
+    transform: translate3d(0, 0, 0);
+    transition: transform 0.28s ease-out;
+    will-change: transform;
+  }
+
+  /* Keep full artwork visible on project pages (no zoom-crop). */
+  .project-hero-image {
+    animation: none;
+    transform: none !important;
+  }
+
+  .project-hero-frame:hover .project-hero-image {
+    transform: none !important;
+  }
+
+  @media (min-width: 768px) {
+    .project-hero-frame::before {
+      content: "";
+      position: absolute;
+      top: var(--spot-y, 50%);
+      left: var(--spot-x, 50%);
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(
+        circle,
+        rgba(255, 107, 122, 0.15) 0%,
+        transparent 70%
+      );
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      opacity: var(--spot-opacity, 0);
+      transition: opacity 0.3s ease;
+      z-index: 10;
+    }
   }
 
   .hero-frame:hover .hero-image {
@@ -480,6 +620,7 @@ h6 {
 @media (prefers-reduced-motion: reduce) {
   .hero-image,
   .hero-image-wrap,
+  .project-hero-motion,
   .about-image-wrap,
   .about-image,
   .contact-icon,
@@ -490,6 +631,14 @@ h6 {
 
   .wall-card {
     opacity: 1;
+  }
+
+  .project-hero-motion {
+    transition: none;
+  }
+
+  .gallery-shimmer {
+    animation: none;
   }
 }
 
@@ -510,6 +659,21 @@ h6 {
   }
   to {
     opacity: 1;
+  }
+}
+
+@keyframes galleryShimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+@keyframes gallerySpin {
+  to {
+    transform: rotate(360deg);
   }
 }
 

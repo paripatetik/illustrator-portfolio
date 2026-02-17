@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import projects from "@/data/projects.json";
 import imageDimensions from "@/data/imageDimensions.json";
 
@@ -31,18 +31,43 @@ const toBase64 = (str) =>
 export default function ProjectsWall() {
   const [isMobile, setIsMobile] = useState(false);
   const cardRefs = useRef([]);
+  const hasAnimatedRef = useRef(false);
+  const skipAnimationRef = useRef(false);
+
+  useLayoutEffect(() => {
+    if (typeof window === "undefined") return;
+    if (window.__projectsWallAnimated !== true) return;
+    skipAnimationRef.current = true;
+    const cards = cardRefs.current.filter(Boolean);
+    cards.forEach((card) => {
+      card.classList.add("wall-static");
+      card.classList.remove("wall-animate");
+    });
+  }, []);
 
   // Animate cards when they enter the viewport
   useEffect(() => {
     if (typeof window === "undefined") return;
 
+    if (skipAnimationRef.current) return;
+
     const cards = cardRefs.current.filter(Boolean);
     if (!cards.length) return;
+
+    const alreadyAnimated = window.__projectsWallAnimated === true;
+    if (alreadyAnimated) {
+      cards.forEach((card) => {
+        card.classList.add("wall-static");
+        card.classList.remove("wall-animate");
+      });
+      return;
+    }
 
     if (!("IntersectionObserver" in window)) {
       requestAnimationFrame(() => {
         cards.forEach((card) => card.classList.add("wall-animate"));
       });
+      window.__projectsWallAnimated = true;
       return;
     }
 
@@ -51,6 +76,10 @@ export default function ProjectsWall() {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             entry.target.classList.add("wall-animate");
+            if (!hasAnimatedRef.current) {
+              hasAnimatedRef.current = true;
+              window.__projectsWallAnimated = true;
+            }
             observer.unobserve(entry.target);
           }
         });

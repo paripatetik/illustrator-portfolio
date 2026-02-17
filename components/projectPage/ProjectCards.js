@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import imageDimensions from "@/data/imageDimensions.json";
 
@@ -18,12 +18,20 @@ export default function ProjectCards({ images, folder, title }) {
   const [hasDragged, setHasDragged] = useState(false);
   const [loadedMap, setLoadedMap] = useState({});
   const [lightboxLoaded, setLightboxLoaded] = useState(false);
+  const [lightboxPreviewSrc, setLightboxPreviewSrc] = useState("");
+  const [lightboxShowLoader, setLightboxShowLoader] = useState(false);
+  const [lightboxBox, setLightboxBox] = useState(null);
   
   const cardRefs = useRef([]);
   const zoomFrameRef = useRef(null);
-  const zoomImgRef = useRef(null);
   const dragStartRef = useRef(null);
   const lastTapRef = useRef(0);
+  const preloadedLightboxRef = useRef(new Set());
+  const loadingLightboxRef = useRef(new Set());
+  const loaderTimeoutRef = useRef(null);
+  const currentLightboxNameRef = useRef(null);
+  const showPrevRef = useRef(null);
+  const showNextRef = useRef(null);
 
   const galleryImages = useMemo(() => {
     const heroImage = getHeroImage(images);
@@ -36,27 +44,122 @@ export default function ProjectCards({ images, folder, title }) {
     lightboxIndex !== null
       ? `/projects/${folder}/${galleryImages[lightboxIndex]}`
       : "";
+  const lightboxImageName =
+    lightboxIndex !== null ? galleryImages[lightboxIndex] : null;
+  const lightboxDimensionKey = lightboxImageName
+    ? `projects/${folder}/${lightboxImageName}`
+    : null;
+  const lightboxDimensions = lightboxDimensionKey
+    ? imageDimensions[lightboxDimensionKey]
+    : null;
+  const lightboxWidth = lightboxDimensions?.width || 1600;
+  const lightboxHeight = lightboxDimensions?.height || 1066;
 
-  const openLightbox = (index) => {
-    setLightboxLoaded(false);
+  const getLightboxDimensions = useCallback(
+    (imageName) => {
+      if (!imageName) return { width: 1600, height: 1066 };
+      const dimensionKey = `projects/${folder}/${imageName}`;
+      const dims = imageDimensions[dimensionKey];
+      if (dims?.width && dims?.height) return dims;
+      return { width: 1600, height: 1066 };
+    },
+    [folder]
+  );
+
+  const computeLightboxBox = useCallback(
+    (dims) => {
+      if (typeof window === "undefined") return null;
+      const ratio = dims.width / dims.height;
+      const viewportWidth = window.visualViewport?.width || window.innerWidth;
+      const viewportHeight = window.visualViewport?.height || window.innerHeight;
+      const maxWidth = viewportWidth * 0.92;
+      const maxHeight = viewportHeight * (isMobile ? 0.7 : 0.82);
+      let width = Math.min(maxWidth, maxHeight * ratio);
+      let height = width / ratio;
+      if (height > maxHeight) {
+        height = maxHeight;
+        width = height * ratio;
+      }
+      return {
+        width: Math.round(width),
+        height: Math.round(height),
+      };
+    },
+    [isMobile]
+  );
+
+  const updateLightboxBox = useCallback(
+    (imageName) => {
+      const dims = getLightboxDimensions(imageName);
+      const nextBox = computeLightboxBox(dims);
+      if (nextBox) setLightboxBox(nextBox);
+    },
+    [computeLightboxBox, getLightboxDimensions]
+  );
+
+  const preloadLightboxImage = useCallback(
+    (imageName) => {
+      if (!imageName || typeof window === "undefined") return;
+      const src = `/projects/${folder}/${imageName}`;
+      if (preloadedLightboxRef.current.has(src)) return;
+      if (loadingLightboxRef.current.has(src)) return;
+      loadingLightboxRef.current.add(src);
+      const preload = new window.Image();
+      preload.onload = () => {
+        loadingLightboxRef.current.delete(src);
+        preloadedLightboxRef.current.add(src);
+      };
+      preload.onerror = () => {
+        loadingLightboxRef.current.delete(src);
+      };
+      preload.src = src;
+    },
+    [folder]
+  );
+
+  const openLightbox = (index, previewSrc = "") => {
+    const imageName = galleryImages[index];
+    const src = `/projects/${folder}/${imageName}`;
+    preloadLightboxImage(imageName);
+    const isPreloaded = preloadedLightboxRef.current.has(src);
+    setLightboxPreviewSrc(previewSrc);
+    setLightboxLoaded(isPreloaded);
+    setLightboxShowLoader(!isPreloaded);
+    currentLightboxNameRef.current = imageName;
+    updateLightboxBox(imageName);
     setLightboxIndex(index);
   };
 
-  const closeLightbox = () => {
+  const closeLightbox = useCallback(() => {
     setLightboxIndex(null);
     setIsZoomed(false);
     setDragOffset({ x: 0, y: 0 });
     setZoomOrigin({ x: 50, y: 50 });
     setIsDragging(false);
     setHasDragged(false);
+    setLightboxPreviewSrc("");
     setLightboxLoaded(false);
-  };
+    setLightboxShowLoader(false);
+    setLightboxBox(null);
+    if (loaderTimeoutRef.current) {
+      clearTimeout(loaderTimeoutRef.current);
+      loaderTimeoutRef.current = null;
+    }
+  }, []);
 
   const showPrev = (e) => {
     if (e) e.stopPropagation();
     if (lightboxIndex === null) return;
-    setLightboxLoaded(false);
-    setLightboxIndex((prev) => (prev === 0 ? totalImages - 1 : prev - 1));
+    const prevIndex = lightboxIndex === 0 ? totalImages - 1 : lightboxIndex - 1;
+    const imageName = galleryImages[prevIndex];
+    const src = `/projects/${folder}/${imageName}`;
+    const isPreloaded = preloadedLightboxRef.current.has(src);
+    setLightboxPreviewSrc("");
+    setLightboxLoaded(isPreloaded);
+    setLightboxShowLoader(!isPreloaded);
+    currentLightboxNameRef.current = imageName;
+    updateLightboxBox(imageName);
+    setLightboxIndex(prevIndex);
     setIsZoomed(false);
     setDragOffset({ x: 0, y: 0 });
     setZoomOrigin({ x: 50, y: 50 });
@@ -66,8 +169,16 @@ export default function ProjectCards({ images, folder, title }) {
   const showNext = (e) => {
     if (e) e.stopPropagation();
     if (lightboxIndex === null) return;
-    setLightboxLoaded(false);
-    setLightboxIndex((prev) => (prev === totalImages - 1 ? 0 : prev + 1));
+    const nextIndex = lightboxIndex === totalImages - 1 ? 0 : lightboxIndex + 1;
+    const imageName = galleryImages[nextIndex];
+    const src = `/projects/${folder}/${imageName}`;
+    const isPreloaded = preloadedLightboxRef.current.has(src);
+    setLightboxPreviewSrc("");
+    setLightboxLoaded(isPreloaded);
+    setLightboxShowLoader(!isPreloaded);
+    currentLightboxNameRef.current = imageName;
+    updateLightboxBox(imageName);
+    setLightboxIndex(nextIndex);
     setIsZoomed(false);
     setDragOffset({ x: 0, y: 0 });
     setZoomOrigin({ x: 50, y: 50 });
@@ -75,31 +186,66 @@ export default function ProjectCards({ images, folder, title }) {
   };
 
   useEffect(() => {
-    if (lightboxIndex === null) return;
+    showPrevRef.current = showPrev;
+    showNextRef.current = showNext;
+  });
 
-    const current = galleryImages[lightboxIndex];
+  useEffect(() => {
+    if (lightboxIndex === null || !lightboxLoaded) return;
+
     const next = galleryImages[(lightboxIndex + 1) % totalImages];
     const prev = galleryImages[(lightboxIndex - 1 + totalImages) % totalImages];
 
-    [current, next, prev].forEach((img) => {
+    [next, prev].forEach((img) => {
       if (!img) return;
-      const preload = new window.Image();
-      preload.src = `/projects/${folder}/${img}`;
+      preloadLightboxImage(img);
     });
-  }, [lightboxIndex, folder, galleryImages, totalImages]);
+  }, [
+    lightboxIndex,
+    lightboxLoaded,
+    galleryImages,
+    totalImages,
+    preloadLightboxImage,
+  ]);
+
+  useEffect(() => {
+    if (lightboxIndex === null) return;
+    const handleResize = () => {
+      const imageName = currentLightboxNameRef.current;
+      if (imageName) updateLightboxBox(imageName);
+    };
+    window.addEventListener("resize", handleResize);
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", handleResize);
+    }
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener("resize", handleResize);
+      }
+    };
+  }, [galleryImages, lightboxIndex, updateLightboxBox]);
+
+  // Prime first images on mobile to reduce first-open delay.
+  useEffect(() => {
+    const imagesToPrime = isMobile
+      ? galleryImages.slice(0, 4)
+      : galleryImages.slice(0, 1);
+    imagesToPrime.forEach((img) => preloadLightboxImage(img));
+  }, [galleryImages, isMobile, preloadLightboxImage]);
 
   // Keyboard navigation
   useEffect(() => {
     const handleKey = (event) => {
       if (lightboxIndex === null) return;
       if (event.key === "Escape") closeLightbox();
-      if (event.key === "ArrowLeft") showPrev();
-      if (event.key === "ArrowRight") showNext();
+      if (event.key === "ArrowLeft") showPrevRef.current?.();
+      if (event.key === "ArrowRight") showNextRef.current?.();
     };
 
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, [lightboxIndex, totalImages]);
+  }, [lightboxIndex, closeLightbox]);
 
   // Detect mobile
   useEffect(() => {
@@ -138,24 +284,7 @@ export default function ProjectCards({ images, folder, title }) {
   // Handle click to zoom (desktop)
   const handleImageClick = (e) => {
     if (isMobile) return; // Mobile uses double tap
-    
-    // Check if click is within the actual image bounds
-    if (zoomImgRef.current) {
-      const imgRect = zoomImgRef.current.getBoundingClientRect();
-      const clickX = e.clientX;
-      const clickY = e.clientY;
-      
-      // Check if click is outside the actual rendered image
-      if (
-        clickX < imgRect.left ||
-        clickX > imgRect.right ||
-        clickY < imgRect.top ||
-        clickY > imgRect.bottom
-      ) {
-        return; // Click is outside the image
-      }
-    }
-    
+
     if (!zoomFrameRef.current) return;
     const rect = zoomFrameRef.current.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
@@ -263,7 +392,11 @@ export default function ProjectCards({ images, folder, title }) {
             <button
               key={image}
               type="button"
-              onClick={() => openLightbox(index)}
+              onClick={(e) => {
+                const previewSrc =
+                  e.currentTarget.querySelector("img")?.currentSrc || "";
+                openLightbox(index, previewSrc);
+              }}
               ref={(el) => {
                 cardRefs.current[index] = el;
               }}
@@ -280,7 +413,7 @@ export default function ProjectCards({ images, folder, title }) {
               >
                 <span
                   aria-hidden="true"
-                  className="shimmer absolute inset-0 transition-opacity duration-700 data-[loaded=true]:opacity-0"
+                  className="gallery-shimmer absolute inset-0 transition-opacity duration-700 data-[loaded=true]:opacity-0"
                 />
                 <Image
                   src={`/projects/${folder}/${image}`}
@@ -313,11 +446,16 @@ export default function ProjectCards({ images, folder, title }) {
       {/* Lightbox */}
       {lightboxIndex !== null && (
         <div
-          className="fixed inset-0 z-[80] bg-black/90 backdrop-blur-sm flex items-center justify-center px-4 py-6 animate-[fadeIn_0.25s_ease-out] motion-reduce:animate-none"
+          className="fixed inset-0 z-[80] bg-black/90 md:backdrop-blur-sm animate-none md:animate-[fadeIn_0.2s_ease-out] motion-reduce:animate-none"
           role="dialog"
           aria-modal="true"
           aria-label={`${title} gallery lightbox`}
         >
+          {lightboxShowLoader && (
+            <div className="lightbox-loading-overlay" aria-hidden="true">
+              <span className="lightbox-loading-spinner" />
+            </div>
+          )}
           {/* Background close */}
           <button
             type="button"
@@ -328,50 +466,56 @@ export default function ProjectCards({ images, folder, title }) {
           />
           
           {/* Content container */}
-          <div className="relative z-[1] w-full max-w-7xl">
-            {/* Top bar */}
-            <div className="flex items-center justify-between mb-4 px-2">
-              <span className="text-white/70 text-sm font-medium">
-                {currentNumber} / {totalImages}
-              </span>
-              <div className="flex items-center gap-3">
-                {isMobile && (
-                  <span className="text-white/50 text-xs">
+          <div className="relative z-[1] flex min-h-[100dvh] w-full items-center justify-center px-3 py-6">
+            <div className="relative inline-block max-w-full">
+              {/* Top info just above the image */}
+              <div className="mb-2 flex items-center justify-between">
+                <span className="min-w-[4ch] rounded-full bg-black/35 px-2 py-1 text-xs font-medium text-white/80 backdrop-blur-sm tabular-nums">
+                  {currentNumber} / {totalImages}
+                </span>
+                <div className="flex items-center gap-3">
+                  <span className="rounded-full bg-black/35 px-2 py-1 text-[11px] text-white/65 backdrop-blur-sm md:hidden">
                     Double tap to zoom
                   </span>
-                )}
-                <button
-                  type="button"
-                  onClick={closeLightbox}
-                  className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 active:bg-white/25 text-white flex items-center justify-center transition-colors"
-                  aria-label="Close lightbox"
-                >
-                  <svg
-                    viewBox="0 0 24 24"
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+                  <button
+                    type="button"
+                    onClick={closeLightbox}
+                    className="w-9 h-9 rounded-full bg-black/35 hover:bg-black/45 active:bg-black/50 text-white flex items-center justify-center transition-colors backdrop-blur-sm"
+                    aria-label="Close lightbox"
                   >
-                    <path d="M18 6L6 18M6 6l12 12" />
-                  </svg>
-                </button>
+                    <svg
+                      viewBox="0 0 24 24"
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M18 6L6 18M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
               </div>
-            </div>
 
-            {/* Image container */}
-            <div className="relative flex items-center justify-center">
               <div
                 ref={zoomFrameRef}
                 className={`relative overflow-hidden rounded-[28px] ring-1 ring-white/10 transition-shadow duration-300 select-none inline-block ${
-                  isZoomed 
-                    ? isDragging 
-                      ? "cursor-grabbing shadow-2xl" 
+                  isZoomed
+                    ? isDragging
+                      ? "cursor-grabbing shadow-2xl"
                       : "cursor-grab shadow-2xl"
                     : "cursor-zoom-in shadow-xl"
                 }`}
+                style={{
+                  width: lightboxBox?.width,
+                  height: lightboxBox?.height,
+                  touchAction: isZoomed ? "none" : "auto",
+                  userSelect: "none",
+                  WebkitUserSelect: "none",
+                  maxWidth: "92vw",
+                  maxHeight: isMobile ? "70svh" : "82vh",
+                }}
                 onPointerDown={!isMobile ? (e) => {
                   if (isZoomed) {
                     // Only start drag tracking when already zoomed
@@ -389,19 +533,19 @@ export default function ProjectCards({ images, folder, title }) {
                 onPointerMove={!isMobile ? (e) => {
                   if (!isDragging || !dragStartRef.current) return;
                   e.preventDefault();
-                  
+
                   const movedDistance = Math.hypot(
                     e.clientX - dragStartRef.current.startX,
                     e.clientY - dragStartRef.current.startY
                   );
-                  
+
                   if (movedDistance > 5) {
                     setHasDragged(true);
                   }
-                  
+
                   const newX = e.clientX - dragStartRef.current.x;
                   const newY = e.clientY - dragStartRef.current.y;
-                  
+
                   const maxDrag = 250;
                   setDragOffset({
                     x: Math.max(-maxDrag, Math.min(maxDrag, newX)),
@@ -416,7 +560,7 @@ export default function ProjectCards({ images, folder, title }) {
                     dragStartRef.current = null;
                     return;
                   }
-                  
+
                   // Otherwise it's a click - toggle zoom
                   setIsDragging(false);
                   dragStartRef.current = null;
@@ -425,183 +569,144 @@ export default function ProjectCards({ images, folder, title }) {
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
-                style={{ 
-                  touchAction: isZoomed ? 'none' : 'auto',
-                  userSelect: 'none',
-                  WebkitUserSelect: 'none',
-                  maxWidth: '100%',
-                }}
               >
                 <div
-                  className="relative overflow-hidden rounded-[24px] lightbox-frame"
+                  className="relative h-full w-full overflow-hidden rounded-[24px] gallery-lightbox-frame"
                   data-loaded={lightboxLoaded ? "true" : "false"}
                 >
                   <span
                     aria-hidden="true"
-                    className="shimmer absolute inset-0 rounded-[24px] transition-opacity duration-700 data-[loaded=true]:opacity-0"
+                    className="gallery-shimmer absolute inset-0 rounded-[24px] transition-opacity duration-700 data-[loaded=true]:opacity-0"
                   />
-                  <img
-                    ref={zoomImgRef}
+                  {!lightboxLoaded && (
+                    <span className="gallery-loading" aria-hidden="true">
+                      <span className="gallery-loading-ring" />
+                    </span>
+                  )}
+                  {!lightboxLoaded && lightboxPreviewSrc && (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                      src={lightboxPreviewSrc}
+                      alt=""
+                      aria-hidden="true"
+                      className="pointer-events-none absolute inset-0 h-full w-full object-contain rounded-[24px]"
+                      decoding="async"
+                      draggable={false}
+                    />
+                  )}
+                  <Image
                     src={lightboxSrc}
                     alt={`${title} detail ${lightboxIndex + 1}`}
-                    className={`block w-auto h-auto max-w-[92vw] max-h-[82vh] object-contain rounded-[24px] transition-[transform,opacity,filter] duration-600 ease-out ${
+                    width={lightboxWidth}
+                    height={lightboxHeight}
+                    sizes="(max-width: 768px) 92vw, 82vw"
+                    quality={isMobile ? 70 : 82}
+                    priority
+                    className={`block h-full w-full object-contain rounded-[24px] transition-[transform,opacity,filter] ${
+                      isMobile ? "duration-120" : "duration-280"
+                    } ease-out ${
                       lightboxLoaded
                         ? "opacity-100 scale-100 blur-0"
-                        : "opacity-0 scale-[1.01] blur-[6px]"
+                        : isMobile
+                          ? "opacity-0 scale-[1.005] blur-0"
+                          : "opacity-0 scale-[1.01] blur-[4px]"
                     }`}
-                    decoding="async"
+                    decoding="sync"
                     style={{
-                      transform: isZoomed 
+                      transform: isZoomed
                         ? `scale(2) translate(${dragOffset.x / 2}px, ${dragOffset.y / 2}px)`
-                        : 'scale(1)',
+                        : "scale(1)",
                       transformOrigin: `${zoomOrigin.x}% ${zoomOrigin.y}%`,
                     }}
                     onLoad={() => {
+                      preloadedLightboxRef.current.add(lightboxSrc);
                       requestAnimationFrame(() => {
                         setLightboxLoaded(true);
                       });
+                      if (loaderTimeoutRef.current) {
+                        clearTimeout(loaderTimeoutRef.current);
+                      }
+                      loaderTimeoutRef.current = setTimeout(() => {
+                        setLightboxShowLoader(false);
+                        loaderTimeoutRef.current = null;
+                      }, 120);
                     }}
-                    onError={() => setLightboxLoaded(true)}
+                    onError={() => {
+                      setLightboxLoaded(true);
+                      setLightboxShowLoader(false);
+                      if (loaderTimeoutRef.current) {
+                        clearTimeout(loaderTimeoutRef.current);
+                        loaderTimeoutRef.current = null;
+                      }
+                    }}
                     draggable={false}
                   />
                 </div>
-                
+
                 {/* Zoom indicator */}
                 {isZoomed && (
                   <div className="absolute bottom-4 right-4 px-3 py-2 rounded-full bg-black/50 backdrop-blur-sm text-white text-xs font-medium flex items-center gap-2 animate-[fadeIn_0.2s_ease-out]">
-                    <svg 
-                      viewBox="0 0 24 24" 
-                      className="w-4 h-4" 
-                      fill="none" 
-                      stroke="currentColor" 
+                    <svg
+                      viewBox="0 0 24 24"
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
                       strokeWidth="2"
                     >
-                      <circle cx="11" cy="11" r="8"/>
-                      <path d="M21 21l-4.35-4.35"/>
-                      <path d="M11 8v6M8 11h6"/>
+                      <circle cx="11" cy="11" r="8" />
+                      <path d="M21 21l-4.35-4.35" />
+                      <path d="M11 8v6M8 11h6" />
                     </svg>
                     <span>Drag to pan • Click to zoom out</span>
                   </div>
                 )}
+
               </div>
 
-              {/* Desktop navigation arrows */}
-              <button
-                type="button"
-                onClick={showPrev}
-                className="hidden md:flex fixed left-8 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/15 hover:bg-white/25 active:bg-white/30 backdrop-blur-md text-white items-center justify-center transition-all shadow-xl border border-white/10 z-10"
-                aria-label="Previous image"
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
+              {/* Controls just below the image */}
+              <div className="mt-3 flex items-center justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={showPrev}
+                  className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/35 hover:bg-black/45 active:bg-black/50 backdrop-blur-sm text-white flex items-center justify-center transition-all shadow-lg border border-white/10"
+                  aria-label="Previous image"
                 >
-                  <path d="M15 18l-6-6 6-6" />
-                </svg>
-              </button>
-              
-              <button
-                type="button"
-                onClick={showNext}
-                className="hidden md:flex fixed right-8 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/15 hover:bg-white/25 active:bg-white/30 backdrop-blur-md text-white items-center justify-center transition-all shadow-xl border border-white/10 z-10"
-                aria-label="Next image"
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M9 6l6 6-6 6" />
-                </svg>
-              </button>
-            </div>
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="w-5 h-5 md:w-6 md:h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M15 18l-6-6 6-6" />
+                  </svg>
+                </button>
 
-            {/* Mobile navigation buttons */}
-            <div className="mt-4 flex items-center justify-center gap-4 md:hidden">
-              <button
-                type="button"
-                onClick={showPrev}
-                className="w-12 h-12 rounded-full bg-white/15 hover:bg-white/25 active:bg-white/30 backdrop-blur-md text-white flex items-center justify-center transition-all shadow-xl border border-white/10"
-                aria-label="Previous image"
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
+                <button
+                  type="button"
+                  onClick={showNext}
+                  className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/35 hover:bg-black/45 active:bg-black/50 backdrop-blur-sm text-white flex items-center justify-center transition-all shadow-lg border border-white/10"
+                  aria-label="Next image"
                 >
-                  <path d="M15 18l-6-6 6-6" />
-                </svg>
-              </button>
-              
-              <button
-                type="button"
-                onClick={showNext}
-                className="w-12 h-12 rounded-full bg-white/15 hover:bg-white/25 active:bg-white/30 backdrop-blur-md text-white flex items-center justify-center transition-all shadow-xl border border-white/10"
-                aria-label="Next image"
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M9 6l6 6-6 6" />
-                </svg>
-              </button>
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="w-5 h-5 md:w-6 md:h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M9 6l6 6-6 6" />
+                  </svg>
+                </button>
+              </div>
             </div>
           </div>
         </div>
       )}
-
-      <style jsx>{`
-        .shimmer {
-          background: linear-gradient(
-            100deg,
-            rgba(0, 0, 0, 0.03) 20%,
-            rgba(0, 0, 0, 0.08) 40%,
-            rgba(0, 0, 0, 0.03) 60%
-          );
-          background-size: 200% 100%;
-          animation: shimmer 1.8s ease-in-out infinite;
-          transition: opacity 0.7s ease;
-        }
-
-        @keyframes shimmer {
-          0% {
-            background-position: 100% 0;
-          }
-          100% {
-            background-position: -100% 0;
-          }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-          .shimmer {
-            animation: none;
-          }
-        }
-
-        .lightbox-frame {
-          -webkit-mask-image: -webkit-radial-gradient(white, black);
-          mask-image: radial-gradient(white, black);
-        }
-      `}</style>
     </section>
   );
 }
