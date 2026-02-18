@@ -19,16 +19,14 @@ export default function ProjectCards({ images, folder, title }) {
   const [loadedMap, setLoadedMap] = useState({});
   const [lightboxLoaded, setLightboxLoaded] = useState(false);
   const [lightboxPreviewSrc, setLightboxPreviewSrc] = useState("");
-  const [lightboxShowLoader, setLightboxShowLoader] = useState(false);
-  const [lightboxBox, setLightboxBox] = useState(null);
   
   const cardRefs = useRef([]);
   const zoomFrameRef = useRef(null);
+  const lightboxImgRef = useRef(null);
   const dragStartRef = useRef(null);
   const lastTapRef = useRef(0);
   const preloadedLightboxRef = useRef(new Set());
   const loadingLightboxRef = useRef(new Set());
-  const loaderTimeoutRef = useRef(null);
   const currentLightboxNameRef = useRef(null);
   const showPrevRef = useRef(null);
   const showNextRef = useRef(null);
@@ -54,48 +52,7 @@ export default function ProjectCards({ images, folder, title }) {
     : null;
   const lightboxWidth = lightboxDimensions?.width || 1600;
   const lightboxHeight = lightboxDimensions?.height || 1066;
-
-  const getLightboxDimensions = useCallback(
-    (imageName) => {
-      if (!imageName) return { width: 1600, height: 1066 };
-      const dimensionKey = `projects/${folder}/${imageName}`;
-      const dims = imageDimensions[dimensionKey];
-      if (dims?.width && dims?.height) return dims;
-      return { width: 1600, height: 1066 };
-    },
-    [folder]
-  );
-
-  const computeLightboxBox = useCallback(
-    (dims) => {
-      if (typeof window === "undefined") return null;
-      const ratio = dims.width / dims.height;
-      const viewportWidth = window.visualViewport?.width || window.innerWidth;
-      const viewportHeight = window.visualViewport?.height || window.innerHeight;
-      const maxWidth = viewportWidth * 0.92;
-      const maxHeight = viewportHeight * (isMobile ? 0.7 : 0.82);
-      let width = Math.min(maxWidth, maxHeight * ratio);
-      let height = width / ratio;
-      if (height > maxHeight) {
-        height = maxHeight;
-        width = height * ratio;
-      }
-      return {
-        width: Math.round(width),
-        height: Math.round(height),
-      };
-    },
-    [isMobile]
-  );
-
-  const updateLightboxBox = useCallback(
-    (imageName) => {
-      const dims = getLightboxDimensions(imageName);
-      const nextBox = computeLightboxBox(dims);
-      if (nextBox) setLightboxBox(nextBox);
-    },
-    [computeLightboxBox, getLightboxDimensions]
-  );
+  const lightboxRatio = lightboxWidth / lightboxHeight;
 
   const preloadLightboxImage = useCallback(
     (imageName) => {
@@ -119,14 +76,18 @@ export default function ProjectCards({ images, folder, title }) {
 
   const openLightbox = (index, previewSrc = "") => {
     const imageName = galleryImages[index];
-    const src = `/projects/${folder}/${imageName}`;
     preloadLightboxImage(imageName);
+    const src = `/projects/${folder}/${imageName}`;
     const isPreloaded = preloadedLightboxRef.current.has(src);
     setLightboxPreviewSrc(previewSrc);
     setLightboxLoaded(isPreloaded);
-    setLightboxShowLoader(!isPreloaded);
     currentLightboxNameRef.current = imageName;
-    updateLightboxBox(imageName);
+    if (totalImages > 1) {
+      const next = galleryImages[(index + 1) % totalImages];
+      const prev = galleryImages[(index - 1 + totalImages) % totalImages];
+      preloadLightboxImage(next);
+      preloadLightboxImage(prev);
+    }
     setLightboxIndex(index);
   };
 
@@ -139,12 +100,6 @@ export default function ProjectCards({ images, folder, title }) {
     setHasDragged(false);
     setLightboxPreviewSrc("");
     setLightboxLoaded(false);
-    setLightboxShowLoader(false);
-    setLightboxBox(null);
-    if (loaderTimeoutRef.current) {
-      clearTimeout(loaderTimeoutRef.current);
-      loaderTimeoutRef.current = null;
-    }
   }, []);
 
   const showPrev = (e) => {
@@ -156,9 +111,13 @@ export default function ProjectCards({ images, folder, title }) {
     const isPreloaded = preloadedLightboxRef.current.has(src);
     setLightboxPreviewSrc("");
     setLightboxLoaded(isPreloaded);
-    setLightboxShowLoader(!isPreloaded);
     currentLightboxNameRef.current = imageName;
-    updateLightboxBox(imageName);
+    if (totalImages > 1) {
+      const next = galleryImages[(prevIndex + 1) % totalImages];
+      const prev = galleryImages[(prevIndex - 1 + totalImages) % totalImages];
+      preloadLightboxImage(next);
+      preloadLightboxImage(prev);
+    }
     setLightboxIndex(prevIndex);
     setIsZoomed(false);
     setDragOffset({ x: 0, y: 0 });
@@ -175,9 +134,13 @@ export default function ProjectCards({ images, folder, title }) {
     const isPreloaded = preloadedLightboxRef.current.has(src);
     setLightboxPreviewSrc("");
     setLightboxLoaded(isPreloaded);
-    setLightboxShowLoader(!isPreloaded);
     currentLightboxNameRef.current = imageName;
-    updateLightboxBox(imageName);
+    if (totalImages > 1) {
+      const next = galleryImages[(nextIndex + 1) % totalImages];
+      const prev = galleryImages[(nextIndex - 1 + totalImages) % totalImages];
+      preloadLightboxImage(next);
+      preloadLightboxImage(prev);
+    }
     setLightboxIndex(nextIndex);
     setIsZoomed(false);
     setDragOffset({ x: 0, y: 0 });
@@ -207,24 +170,6 @@ export default function ProjectCards({ images, folder, title }) {
     totalImages,
     preloadLightboxImage,
   ]);
-
-  useEffect(() => {
-    if (lightboxIndex === null) return;
-    const handleResize = () => {
-      const imageName = currentLightboxNameRef.current;
-      if (imageName) updateLightboxBox(imageName);
-    };
-    window.addEventListener("resize", handleResize);
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener("resize", handleResize);
-    }
-    return () => {
-      window.removeEventListener("resize", handleResize);
-      if (window.visualViewport) {
-        window.visualViewport.removeEventListener("resize", handleResize);
-      }
-    };
-  }, [galleryImages, lightboxIndex, updateLightboxBox]);
 
   // Prime first images on mobile to reduce first-open delay.
   useEffect(() => {
@@ -284,11 +229,22 @@ export default function ProjectCards({ images, folder, title }) {
   // Handle click to zoom (desktop)
   const handleImageClick = (e) => {
     if (isMobile) return; // Mobile uses double tap
-
-    if (!zoomFrameRef.current) return;
-    const rect = zoomFrameRef.current.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    const imgEl = lightboxImgRef.current;
+    if (!imgEl) return;
+    const rect = imgEl.getBoundingClientRect();
+    if (
+      e.clientX < rect.left ||
+      e.clientX > rect.right ||
+      e.clientY < rect.top ||
+      e.clientY > rect.bottom
+    ) {
+      return;
+    }
+    const frame = zoomFrameRef.current;
+    if (!frame) return;
+    const frameRect = frame.getBoundingClientRect();
+    const x = ((e.clientX - frameRect.left) / frameRect.width) * 100;
+    const y = ((e.clientY - frameRect.top) / frameRect.height) * 100;
     
     if (!isZoomed) {
       setZoomOrigin({ 
@@ -305,20 +261,31 @@ export default function ProjectCards({ images, folder, title }) {
   // Handle double tap to zoom (mobile)
   const handleTouchEnd = (e) => {
     if (!isMobile) return;
-    
+
     const now = Date.now();
     const timeSinceLastTap = now - lastTapRef.current;
-    
+
     if (timeSinceLastTap < 300 && timeSinceLastTap > 0) {
       // Double tap detected
       e.preventDefault();
-      
+
       const touch = e.changedTouches[0];
-      const rect = zoomFrameRef.current?.getBoundingClientRect();
-      if (!rect) return;
-      
-      const x = ((touch.clientX - rect.left) / rect.width) * 100;
-      const y = ((touch.clientY - rect.top) / rect.height) * 100;
+      const imgEl = lightboxImgRef.current;
+      if (!imgEl) return;
+      const imgRect = imgEl.getBoundingClientRect();
+      if (
+        touch.clientX < imgRect.left ||
+        touch.clientX > imgRect.right ||
+        touch.clientY < imgRect.top ||
+        touch.clientY > imgRect.bottom
+      ) {
+        return;
+      }
+      const frameRect = zoomFrameRef.current?.getBoundingClientRect();
+      if (!frameRect) return;
+
+      const x = ((touch.clientX - frameRect.left) / frameRect.width) * 100;
+      const y = ((touch.clientY - frameRect.top) / frameRect.height) * 100;
       
       if (!isZoomed) {
         setZoomOrigin({ 
@@ -451,7 +418,7 @@ export default function ProjectCards({ images, folder, title }) {
           aria-modal="true"
           aria-label={`${title} gallery lightbox`}
         >
-          {lightboxShowLoader && (
+          {!lightboxLoaded && (
             <div className="lightbox-loading-overlay" aria-hidden="true">
               <span className="lightbox-loading-spinner" />
             </div>
@@ -500,21 +467,21 @@ export default function ProjectCards({ images, folder, title }) {
 
               <div
                 ref={zoomFrameRef}
-                className={`relative overflow-hidden rounded-[28px] ring-1 ring-white/10 transition-shadow duration-300 select-none inline-block ${
+                className={`relative overflow-hidden select-none inline-block ${
                   isZoomed
                     ? isDragging
-                      ? "cursor-grabbing shadow-2xl"
-                      : "cursor-grab shadow-2xl"
-                    : "cursor-zoom-in shadow-xl"
+                      ? "cursor-grabbing"
+                      : "cursor-grab"
+                    : "cursor-zoom-in"
                 }`}
                 style={{
-                  width: lightboxBox?.width,
-                  height: lightboxBox?.height,
+                  width: isMobile ? "92vw" : "min(82vw, 1200px)",
+                  aspectRatio: `${lightboxRatio}`,
+                  maxHeight: isMobile ? "70svh" : "82vh",
+                  height: "auto",
                   touchAction: isZoomed ? "none" : "auto",
                   userSelect: "none",
                   WebkitUserSelect: "none",
-                  maxWidth: "92vw",
-                  maxHeight: isMobile ? "70svh" : "82vh",
                 }}
                 onPointerDown={!isMobile ? (e) => {
                   if (isZoomed) {
@@ -570,19 +537,11 @@ export default function ProjectCards({ images, folder, title }) {
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
               >
-                <div
-                  className="relative h-full w-full overflow-hidden rounded-[24px] gallery-lightbox-frame"
-                  data-loaded={lightboxLoaded ? "true" : "false"}
-                >
+                <div className="relative overflow-hidden" data-loaded={lightboxLoaded ? "true" : "false"}>
                   <span
                     aria-hidden="true"
                     className="gallery-shimmer absolute inset-0 rounded-[24px] transition-opacity duration-700 data-[loaded=true]:opacity-0"
                   />
-                  {!lightboxLoaded && (
-                    <span className="gallery-loading" aria-hidden="true">
-                      <span className="gallery-loading-ring" />
-                    </span>
-                  )}
                   {!lightboxLoaded && lightboxPreviewSrc && (
                     /* eslint-disable-next-line @next/next/no-img-element */
                     <img
@@ -594,23 +553,17 @@ export default function ProjectCards({ images, folder, title }) {
                       draggable={false}
                     />
                   )}
-                  <Image
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    ref={lightboxImgRef}
                     src={lightboxSrc}
                     alt={`${title} detail ${lightboxIndex + 1}`}
                     width={lightboxWidth}
                     height={lightboxHeight}
-                    sizes="(max-width: 768px) 92vw, 82vw"
-                    quality={isMobile ? 70 : 82}
-                    priority
-                    className={`block h-full w-full object-contain rounded-[24px] transition-[transform,opacity,filter] ${
-                      isMobile ? "duration-120" : "duration-280"
-                    } ease-out ${
-                      lightboxLoaded
-                        ? "opacity-100 scale-100 blur-0"
-                        : isMobile
-                          ? "opacity-0 scale-[1.005] blur-0"
-                          : "opacity-0 scale-[1.01] blur-[4px]"
-                    }`}
+                    loading="eager"
+                    className={`block h-full w-full object-contain transition-opacity ${
+                      isMobile ? "duration-120" : "duration-220"
+                    } ease-out ${lightboxLoaded ? "opacity-100" : "opacity-0"}`}
                     decoding="sync"
                     style={{
                       transform: isZoomed
@@ -623,21 +576,9 @@ export default function ProjectCards({ images, folder, title }) {
                       requestAnimationFrame(() => {
                         setLightboxLoaded(true);
                       });
-                      if (loaderTimeoutRef.current) {
-                        clearTimeout(loaderTimeoutRef.current);
-                      }
-                      loaderTimeoutRef.current = setTimeout(() => {
-                        setLightboxShowLoader(false);
-                        loaderTimeoutRef.current = null;
-                      }, 120);
                     }}
                     onError={() => {
                       setLightboxLoaded(true);
-                      setLightboxShowLoader(false);
-                      if (loaderTimeoutRef.current) {
-                        clearTimeout(loaderTimeoutRef.current);
-                        loaderTimeoutRef.current = null;
-                      }
                     }}
                     draggable={false}
                   />
