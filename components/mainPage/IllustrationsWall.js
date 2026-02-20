@@ -132,7 +132,7 @@ export default function IllustrationsWall() {
   if (!illustrationList.length) return null;
 
   return (
-    <section className="section bg-cream">
+    <section className="section bg-cream overflow-x-hidden">
       <div className="container mx-auto px-4 pt-2">
         <h2 className="mb-10 section-title">Illustrations</h2>
 
@@ -148,8 +148,7 @@ export default function IllustrationsWall() {
               { x: 80, y: 0 },
             ];
             const mobilePattern = [
-              { x: -70, y: 0 },
-              { x: 70, y: 0 },
+              { x: 0, y: 24 },
             ];
 
             const dir = isMobile

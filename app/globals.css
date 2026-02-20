@@ -57,9 +57,8 @@ body {
   isolation: isolate;
 }
 
-body::before {
-  content: "";
-  position: absolute;
+.global-bg {
+  position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 0;
@@ -70,14 +69,14 @@ body::before {
 }
 
 @media (max-width: 900px) {
-  body::before {
+  .global-bg {
     background-image: url("/background/spots-page-map-mobile-v7.svg?v=12");
     background-size: 100% 100%;
     background-position: 0 0;
   }
 }
 
-body > * {
+.app-shell {
   position: relative;
   z-index: 1;
 }

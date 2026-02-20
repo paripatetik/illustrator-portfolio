@@ -102,7 +102,7 @@ export default function ProjectsWall() {
   }, []);
 
   return (
-    <section className="section bg-cream">
+    <section className="section bg-cream overflow-x-hidden">
       <div className="container mx-auto px-4 pt-2">
        
           
@@ -128,8 +128,7 @@ export default function ProjectsWall() {
               { x: 80, y: 0 },  // right
             ];
             const mobilePattern = [
-              { x: -70, y: 0 }, // left
-              { x: 70, y: 0 },  // right
+              { x: 0, y: 24 }, // vertical reveal only on mobile to prevent horizontal overflow
             ];
             
             const dir = isMobile

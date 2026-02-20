@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
+import imageDimensions from "@/data/imageDimensions.json";
 
 function getHeroImage(images = []) {
   return images.find((image) => image.startsWith("01")) || images[0];
@@ -28,7 +29,9 @@ const toBase64 = (str) =>
 export default function ProjectHero({ project, folder }) {
   const heroImage = getHeroImage(project.images);
   const metaLine = [project.client, project.year].filter(Boolean).join(" • ");
-  const [heroAspect, setHeroAspect] = useState(16 / 10);
+  const heroDimensionKey = `projects/${folder}/${heroImage}`;
+  const heroDimensions = imageDimensions[heroDimensionKey] || { width: 1600, height: 1000 };
+  const heroAspect = heroDimensions.width / heroDimensions.height;
   const frameRef = useRef(null);
   const imgRef = useRef(null);
   const rafRef = useRef(null);
@@ -157,10 +160,6 @@ export default function ProjectHero({ project, folder }) {
                       shimmer(900, 900)
                     )}`}
                     onLoad={(e) => {
-                      const { naturalWidth, naturalHeight } = e.currentTarget;
-                      if (naturalWidth && naturalHeight) {
-                        setHeroAspect(naturalWidth / naturalHeight);
-                      }
                       e.currentTarget.setAttribute("data-loaded", "true");
                       e.currentTarget.parentElement?.setAttribute(
                         "data-loaded",

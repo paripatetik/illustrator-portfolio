@@ -49,7 +49,8 @@ export default function RootLayout({ children }) {
   return (
     <html lang="uk" className={`${displayFont.variable} ${funFont.variable}`}>
       <body>
-        {children}
+        <div aria-hidden="true" className="global-bg" />
+        <div className="app-shell">{children}</div>
       </body>
     </html>
   );
