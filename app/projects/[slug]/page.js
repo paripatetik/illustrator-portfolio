@@ -29,33 +29,29 @@ export default async function ProjectPage({ params }) {
 
   if (!project) {
     return (
-      <div>
-        <main className="section text-foreground">
-          <div className="container mx-auto px-4">
-            <h1 className="section-title">Project Not Found</h1>
-            <p className="t-body text-foreground/80 mt-4">
-              Requested slug: <span className="font-semibold">{cleanedSlug}</span>
-            </p>
-            <p className="t-body text-foreground/70 mt-2">
-              Available slugs: {projectsList.map((item) => item.slug).join(", ")}
-            </p>
-          </div>
-        </main>
-      </div>
+      <main className="bg-cream text-foreground section">
+        <div className="container mx-auto px-4">
+          <h1 className="section-title">Project Not Found</h1>
+          <p className="t-body text-foreground/80 mt-4">
+            Requested slug: <span className="font-semibold">{cleanedSlug}</span>
+          </p>
+          <p className="t-body text-foreground/70 mt-2">
+            Available slugs: {projectsList.map((item) => item.slug).join(", ")}
+          </p>
+        </div>
+      </main>
     );
   }
 
   return (
-    <div>
-      <main>
-        <ProjectHeader />
-        <ProjectHero project={project} folder={project.slug} />
-        <ProjectCards
-          images={project.images}
-          folder={project.slug}
-          title={project.title}
-        />
-      </main>
-    </div>
+    <main className="bg-cream text-foreground">
+      <ProjectHeader />
+      <ProjectHero project={project} folder={project.slug} />
+      <ProjectCards
+        images={project.images}
+        folder={project.slug}
+        title={project.title}
+      />
+    </main>
   );
 }
