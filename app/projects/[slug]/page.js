@@ -31,7 +31,7 @@ export default async function ProjectPage({ params }) {
     return (
       <main className="bg-cream text-foreground section">
         <div className="container mx-auto px-4">
-          <h1 className="t-section">Project Not Found</h1>
+          <h1 className="section-title">Project Not Found</h1>
           <p className="t-body text-foreground/80 mt-4">
             Requested slug: <span className="font-semibold">{cleanedSlug}</span>
           </p>

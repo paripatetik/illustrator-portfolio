@@ -1,4 +1,5 @@
 import HeroBanner from "@/components/mainPage/HeroBanner";
+import IllustrationsWall from "@/components/mainPage/IllustrationsWall";
 import ProjectsWall from "@/components/mainPage/ProjectsWall";
 import About from "@/components/mainPage/About";
 import Contact from "@/components/Contact";
@@ -9,6 +10,8 @@ export default function Home() {
       <main>
         {/* Hero Banner з анімованими фото */}
         <HeroBanner />
+
+        <IllustrationsWall />
 
         {/* Секція Projects Wall */}
         <ProjectsWall />

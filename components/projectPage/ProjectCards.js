@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import imageDimensions from "@/data/imageDimensions.json";
+import GalleryLightbox from "@/components/shared/GalleryLightbox";
 
 function getHeroImage(images = []) {
   return images.find((image) => image.startsWith("01")) || images[0];
@@ -10,26 +11,10 @@ function getHeroImage(images = []) {
 
 export default function ProjectCards({ images, folder, title }) {
   const [lightboxIndex, setLightboxIndex] = useState(null);
-  const [isZoomed, setIsZoomed] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  const [zoomOrigin, setZoomOrigin] = useState({ x: 50, y: 50 });
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
-  const [hasDragged, setHasDragged] = useState(false);
-  const [loadedMap, setLoadedMap] = useState({});
-  const [lightboxLoaded, setLightboxLoaded] = useState(false);
   const [lightboxPreviewSrc, setLightboxPreviewSrc] = useState("");
-  
+  const [loadedMap, setLoadedMap] = useState({});
+
   const cardRefs = useRef([]);
-  const zoomFrameRef = useRef(null);
-  const lightboxImgRef = useRef(null);
-  const dragStartRef = useRef(null);
-  const lastTapRef = useRef(0);
-  const preloadedLightboxRef = useRef(new Set());
-  const loadingLightboxRef = useRef(new Set());
-  const currentLightboxNameRef = useRef(null);
-  const showPrevRef = useRef(null);
-  const showNextRef = useRef(null);
 
   const galleryImages = useMemo(() => {
     const heroImage = getHeroImage(images);
@@ -37,172 +22,28 @@ export default function ProjectCards({ images, folder, title }) {
   }, [images]);
 
   const totalImages = galleryImages.length;
-  const currentNumber = lightboxIndex !== null ? lightboxIndex + 1 : 1;
-  const lightboxSrc =
-    lightboxIndex !== null
-      ? `/projects/${folder}/${galleryImages[lightboxIndex]}`
-      : "";
-  const lightboxImageName =
-    lightboxIndex !== null ? galleryImages[lightboxIndex] : null;
-  const lightboxDimensionKey = lightboxImageName
-    ? `projects/${folder}/${lightboxImageName}`
-    : null;
-  const lightboxDimensions = lightboxDimensionKey
-    ? imageDimensions[lightboxDimensionKey]
-    : null;
-  const lightboxWidth = lightboxDimensions?.width || 1600;
-  const lightboxHeight = lightboxDimensions?.height || 1066;
-  const lightboxRatio = lightboxWidth / lightboxHeight;
-
-  const preloadLightboxImage = useCallback(
-    (imageName) => {
-      if (!imageName || typeof window === "undefined") return;
-      const src = `/projects/${folder}/${imageName}`;
-      if (preloadedLightboxRef.current.has(src)) return;
-      if (loadingLightboxRef.current.has(src)) return;
-      loadingLightboxRef.current.add(src);
-      const preload = new window.Image();
-      preload.onload = () => {
-        loadingLightboxRef.current.delete(src);
-        preloadedLightboxRef.current.add(src);
-      };
-      preload.onerror = () => {
-        loadingLightboxRef.current.delete(src);
-      };
-      preload.src = src;
-    },
-    [folder]
-  );
 
   const openLightbox = (index, previewSrc = "") => {
-    const imageName = galleryImages[index];
-    preloadLightboxImage(imageName);
-    const src = `/projects/${folder}/${imageName}`;
-    const isPreloaded = preloadedLightboxRef.current.has(src);
+    if (index < 0 || index >= totalImages) return;
     setLightboxPreviewSrc(previewSrc);
-    setLightboxLoaded(isPreloaded);
-    currentLightboxNameRef.current = imageName;
-    if (totalImages > 1) {
-      const next = galleryImages[(index + 1) % totalImages];
-      const prev = galleryImages[(index - 1 + totalImages) % totalImages];
-      preloadLightboxImage(next);
-      preloadLightboxImage(prev);
-    }
     setLightboxIndex(index);
   };
 
-  const closeLightbox = useCallback(() => {
+  const closeLightbox = () => {
     setLightboxIndex(null);
-    setIsZoomed(false);
-    setDragOffset({ x: 0, y: 0 });
-    setZoomOrigin({ x: 50, y: 50 });
-    setIsDragging(false);
-    setHasDragged(false);
     setLightboxPreviewSrc("");
-    setLightboxLoaded(false);
-  }, []);
-
-  const showPrev = (e) => {
-    if (e) e.stopPropagation();
-    if (lightboxIndex === null) return;
-    const prevIndex = lightboxIndex === 0 ? totalImages - 1 : lightboxIndex - 1;
-    const imageName = galleryImages[prevIndex];
-    const src = `/projects/${folder}/${imageName}`;
-    const isPreloaded = preloadedLightboxRef.current.has(src);
-    setLightboxPreviewSrc("");
-    setLightboxLoaded(isPreloaded);
-    currentLightboxNameRef.current = imageName;
-    if (totalImages > 1) {
-      const next = galleryImages[(prevIndex + 1) % totalImages];
-      const prev = galleryImages[(prevIndex - 1 + totalImages) % totalImages];
-      preloadLightboxImage(next);
-      preloadLightboxImage(prev);
-    }
-    setLightboxIndex(prevIndex);
-    setIsZoomed(false);
-    setDragOffset({ x: 0, y: 0 });
-    setZoomOrigin({ x: 50, y: 50 });
-    setHasDragged(false);
   };
 
-  const showNext = (e) => {
-    if (e) e.stopPropagation();
-    if (lightboxIndex === null) return;
-    const nextIndex = lightboxIndex === totalImages - 1 ? 0 : lightboxIndex + 1;
-    const imageName = galleryImages[nextIndex];
-    const src = `/projects/${folder}/${imageName}`;
-    const isPreloaded = preloadedLightboxRef.current.has(src);
-    setLightboxPreviewSrc("");
-    setLightboxLoaded(isPreloaded);
-    currentLightboxNameRef.current = imageName;
-    if (totalImages > 1) {
-      const next = galleryImages[(nextIndex + 1) % totalImages];
-      const prev = galleryImages[(nextIndex - 1 + totalImages) % totalImages];
-      preloadLightboxImage(next);
-      preloadLightboxImage(prev);
-    }
-    setLightboxIndex(nextIndex);
-    setIsZoomed(false);
-    setDragOffset({ x: 0, y: 0 });
-    setZoomOrigin({ x: 50, y: 50 });
-    setHasDragged(false);
-  };
+  const getLightboxSrc = useCallback(
+    (image) => `/projects/${folder}/${image}`,
+    [folder]
+  );
 
-  useEffect(() => {
-    showPrevRef.current = showPrev;
-    showNextRef.current = showNext;
-  });
+  const getLightboxDimensions = useCallback(
+    (image) => imageDimensions[`projects/${folder}/${image}`],
+    [folder]
+  );
 
-  useEffect(() => {
-    if (lightboxIndex === null || !lightboxLoaded) return;
-
-    const next = galleryImages[(lightboxIndex + 1) % totalImages];
-    const prev = galleryImages[(lightboxIndex - 1 + totalImages) % totalImages];
-
-    [next, prev].forEach((img) => {
-      if (!img) return;
-      preloadLightboxImage(img);
-    });
-  }, [
-    lightboxIndex,
-    lightboxLoaded,
-    galleryImages,
-    totalImages,
-    preloadLightboxImage,
-  ]);
-
-  // Prime first images on mobile to reduce first-open delay.
-  useEffect(() => {
-    const imagesToPrime = isMobile
-      ? galleryImages.slice(0, 4)
-      : galleryImages.slice(0, 1);
-    imagesToPrime.forEach((img) => preloadLightboxImage(img));
-  }, [galleryImages, isMobile, preloadLightboxImage]);
-
-  // Keyboard navigation
-  useEffect(() => {
-    const handleKey = (event) => {
-      if (lightboxIndex === null) return;
-      if (event.key === "Escape") closeLightbox();
-      if (event.key === "ArrowLeft") showPrevRef.current?.();
-      if (event.key === "ArrowRight") showNextRef.current?.();
-    };
-
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, [lightboxIndex, closeLightbox]);
-
-  // Detect mobile
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const media = window.matchMedia("(max-width: 767px)");
-    const update = () => setIsMobile(media.matches);
-    update();
-    media.addEventListener("change", update);
-    return () => media.removeEventListener("change", update);
-  }, []);
-
-  // Intersection observer for cards
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (!("IntersectionObserver" in window)) {
@@ -226,134 +67,16 @@ export default function ProjectCards({ images, folder, title }) {
     return () => observer.disconnect();
   }, [galleryImages.length]);
 
-  // Handle click to zoom (desktop)
-  const handleImageClick = (e) => {
-    if (isMobile) return; // Mobile uses double tap
-    const imgEl = lightboxImgRef.current;
-    if (!imgEl) return;
-    const rect = imgEl.getBoundingClientRect();
-    if (
-      e.clientX < rect.left ||
-      e.clientX > rect.right ||
-      e.clientY < rect.top ||
-      e.clientY > rect.bottom
-    ) {
-      return;
-    }
-    const frame = zoomFrameRef.current;
-    if (!frame) return;
-    const frameRect = frame.getBoundingClientRect();
-    const x = ((e.clientX - frameRect.left) / frameRect.width) * 100;
-    const y = ((e.clientY - frameRect.top) / frameRect.height) * 100;
-    
-    if (!isZoomed) {
-      setZoomOrigin({ 
-        x: Math.max(0, Math.min(100, x)), 
-        y: Math.max(0, Math.min(100, y)) 
-      });
-      setIsZoomed(true);
-    } else {
-      setIsZoomed(false);
-      setDragOffset({ x: 0, y: 0 });
-    }
-  };
-
-  // Handle double tap to zoom (mobile)
-  const handleTouchEnd = (e) => {
-    if (!isMobile) return;
-
-    const now = Date.now();
-    const timeSinceLastTap = now - lastTapRef.current;
-
-    if (timeSinceLastTap < 300 && timeSinceLastTap > 0) {
-      // Double tap detected
-      e.preventDefault();
-
-      const touch = e.changedTouches[0];
-      const imgEl = lightboxImgRef.current;
-      if (!imgEl) return;
-      const imgRect = imgEl.getBoundingClientRect();
-      if (
-        touch.clientX < imgRect.left ||
-        touch.clientX > imgRect.right ||
-        touch.clientY < imgRect.top ||
-        touch.clientY > imgRect.bottom
-      ) {
-        return;
-      }
-      const frameRect = zoomFrameRef.current?.getBoundingClientRect();
-      if (!frameRect) return;
-
-      const x = ((touch.clientX - frameRect.left) / frameRect.width) * 100;
-      const y = ((touch.clientY - frameRect.top) / frameRect.height) * 100;
-      
-      if (!isZoomed) {
-        setZoomOrigin({ 
-          x: Math.max(0, Math.min(100, x)), 
-          y: Math.max(0, Math.min(100, y)) 
-        });
-        setIsZoomed(true);
-      } else {
-        setIsZoomed(false);
-        setDragOffset({ x: 0, y: 0 });
-      }
-      
-      lastTapRef.current = 0;
-    } else {
-      lastTapRef.current = now;
-    }
-  };
-
-  // Touch pan when zoomed (mobile)
-  const handleTouchStart = (e) => {
-    if (!isZoomed || !isMobile) return;
-    dragStartRef.current = {
-      x: e.touches[0].clientX - dragOffset.x,
-      y: e.touches[0].clientY - dragOffset.y,
-    };
-  };
-
-  const handleTouchMove = (e) => {
-    if (!isZoomed || !dragStartRef.current || !isMobile) return;
-    e.preventDefault();
-    
-    const newX = e.touches[0].clientX - dragStartRef.current.x;
-    const newY = e.touches[0].clientY - dragStartRef.current.y;
-    
-    const maxDrag = 150;
-    setDragOffset({
-      x: Math.max(-maxDrag, Math.min(maxDrag, newX)),
-      y: Math.max(-maxDrag, Math.min(maxDrag, newY)),
-    });
-  };
-
-  // Clean up pointer capture
-  useEffect(() => {
-    if (!isZoomed) return;
-    
-    const handleGlobalPointerUp = () => {
-      setIsDragging(false);
-      dragStartRef.current = null;
-    };
-    
-    window.addEventListener("pointerup", handleGlobalPointerUp);
-    
-    return () => {
-      window.removeEventListener("pointerup", handleGlobalPointerUp);
-    };
-  }, [isZoomed]);
-
   return (
     <section className="section pt-0">
       <div className="container mx-auto px-4 max-w-7xl">
         <div className="flex flex-col items-center mb-8 text-center gap-3">
-          <h2 className="t-section">Gallery</h2>
+          <h2 className="section-title">Gallery</h2>
           <p className="text-sm text-foreground/55">
-            {totalImages} {totalImages === 1 ? 'image' : 'images'}
+            {totalImages} {totalImages === 1 ? "image" : "images"}
           </p>
         </div>
 
-        {/* Gallery Grid */}
         <div className="flex flex-wrap gap-4 sm:gap-5 w-full justify-center">
           {galleryImages.map((image, index) => (
             <button
@@ -367,12 +90,10 @@ export default function ProjectCards({ images, folder, title }) {
               ref={(el) => {
                 cardRefs.current[index] = el;
               }}
-              className="group relative w-full sm:flex-[0_1_calc(50%-12px)] overflow-hidden img-rounded bg-white/85 p-[6px] text-left transition-transform duration-300 hover:-translate-y-1 mb-4 sm:mb-5 opacity-0 translate-y-4 data-[visible=true]:opacity-100 data-[visible=true]:translate-y-0 data-[visible=true]:animate-[fadeInUp_0.8s_ease-out_var(--delay)_both] motion-reduce:opacity-100 motion-reduce:translate-y-0 motion-reduce:animate-none cursor-pointer"
+              className="group relative w-full sm:flex-[0_1_calc(50%-12px)] overflow-hidden img-rounded bg-white p-[6px] text-left transition-transform duration-300 hover:-translate-y-1 mb-4 sm:mb-5 opacity-0 translate-y-4 data-[visible=true]:opacity-100 data-[visible=true]:translate-y-0 data-[visible=true]:animate-[fadeInUp_0.8s_ease-out_var(--delay)_both] motion-reduce:opacity-100 motion-reduce:translate-y-0 motion-reduce:animate-none cursor-pointer"
               style={{ "--delay": `${index * 80}ms` }}
             >
-              <span className="sr-only">
-                Open image {index + 1} in lightbox
-              </span>
+              <span className="sr-only">Open image {index + 1} in lightbox</span>
               <span className="absolute inset-0 rounded-[22px] ring-1 ring-foreground/10 pointer-events-none" />
               <div
                 className="relative w-full aspect-[4/3] sm:aspect-[3/2] overflow-hidden rounded-[18px] bg-foreground/5"
@@ -410,244 +131,16 @@ export default function ProjectCards({ images, folder, title }) {
         </div>
       </div>
 
-      {/* Lightbox */}
-      {lightboxIndex !== null && (
-        <div
-          className="fixed inset-0 z-[80] bg-black/90 md:backdrop-blur-sm animate-none md:animate-[fadeIn_0.2s_ease-out] motion-reduce:animate-none"
-          role="dialog"
-          aria-modal="true"
-          aria-label={`${title} gallery lightbox`}
-        >
-          {!lightboxLoaded && (
-            <div className="lightbox-loading-overlay" aria-hidden="true">
-              <span className="lightbox-loading-spinner" />
-            </div>
-          )}
-          {/* Background close */}
-          <button
-            type="button"
-            onClick={closeLightbox}
-            className="absolute inset-0"
-            aria-label="Close lightbox"
-            tabIndex={-1}
-          />
-          
-          {/* Content container */}
-          <div className="relative z-[1] flex min-h-[100dvh] w-full items-center justify-center px-3 py-6">
-            <div className="relative inline-block max-w-full">
-              {/* Top info just above the image */}
-              <div className="mb-2 flex items-center justify-between">
-                <span className="min-w-[4ch] rounded-full bg-black/35 px-2 py-1 text-xs font-medium text-white/80 backdrop-blur-sm tabular-nums">
-                  {currentNumber} / {totalImages}
-                </span>
-                <div className="flex items-center gap-3">
-                  <span className="rounded-full bg-black/35 px-2 py-1 text-[11px] text-white/65 backdrop-blur-sm md:hidden">
-                    Double tap to zoom
-                  </span>
-                  <button
-                    type="button"
-                    onClick={closeLightbox}
-                    className="w-9 h-9 rounded-full bg-black/35 hover:bg-black/45 active:bg-black/50 text-white flex items-center justify-center transition-colors backdrop-blur-sm"
-                    aria-label="Close lightbox"
-                  >
-                    <svg
-                      viewBox="0 0 24 24"
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M18 6L6 18M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-
-              <div
-                ref={zoomFrameRef}
-                className={`relative overflow-hidden select-none inline-block ${
-                  isZoomed
-                    ? isDragging
-                      ? "cursor-grabbing"
-                      : "cursor-grab"
-                    : "cursor-zoom-in"
-                }`}
-                style={{
-                  width: isMobile ? "92vw" : "min(82vw, 1200px)",
-                  aspectRatio: `${lightboxRatio}`,
-                  maxHeight: isMobile ? "70svh" : "82vh",
-                  height: "auto",
-                  touchAction: isZoomed ? "none" : "auto",
-                  userSelect: "none",
-                  WebkitUserSelect: "none",
-                }}
-                onPointerDown={!isMobile ? (e) => {
-                  if (isZoomed) {
-                    // Only start drag tracking when already zoomed
-                    e.preventDefault();
-                    setIsDragging(true);
-                    setHasDragged(false);
-                    dragStartRef.current = {
-                      x: e.clientX - dragOffset.x,
-                      y: e.clientY - dragOffset.y,
-                      startX: e.clientX,
-                      startY: e.clientY,
-                    };
-                  }
-                } : undefined}
-                onPointerMove={!isMobile ? (e) => {
-                  if (!isDragging || !dragStartRef.current) return;
-                  e.preventDefault();
-
-                  const movedDistance = Math.hypot(
-                    e.clientX - dragStartRef.current.startX,
-                    e.clientY - dragStartRef.current.startY
-                  );
-
-                  if (movedDistance > 5) {
-                    setHasDragged(true);
-                  }
-
-                  const newX = e.clientX - dragStartRef.current.x;
-                  const newY = e.clientY - dragStartRef.current.y;
-
-                  const maxDrag = 250;
-                  setDragOffset({
-                    x: Math.max(-maxDrag, Math.min(maxDrag, newX)),
-                    y: Math.max(-maxDrag, Math.min(maxDrag, newY)),
-                  });
-                } : undefined}
-                onPointerUp={!isMobile ? (e) => {
-                  // If we were dragging and actually moved, don't zoom
-                  if (hasDragged) {
-                    setHasDragged(false);
-                    setIsDragging(false);
-                    dragStartRef.current = null;
-                    return;
-                  }
-
-                  // Otherwise it's a click - toggle zoom
-                  setIsDragging(false);
-                  dragStartRef.current = null;
-                  handleImageClick(e);
-                } : undefined}
-                onTouchStart={handleTouchStart}
-                onTouchMove={handleTouchMove}
-                onTouchEnd={handleTouchEnd}
-              >
-                <div className="relative overflow-hidden" data-loaded={lightboxLoaded ? "true" : "false"}>
-                  <span
-                    aria-hidden="true"
-                    className="gallery-shimmer absolute inset-0 rounded-[24px] transition-opacity duration-700 data-[loaded=true]:opacity-0"
-                  />
-                  {!lightboxLoaded && lightboxPreviewSrc && (
-                    /* eslint-disable-next-line @next/next/no-img-element */
-                    <img
-                      src={lightboxPreviewSrc}
-                      alt=""
-                      aria-hidden="true"
-                      className="pointer-events-none absolute inset-0 h-full w-full object-contain rounded-[24px]"
-                      decoding="async"
-                      draggable={false}
-                    />
-                  )}
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    ref={lightboxImgRef}
-                    src={lightboxSrc}
-                    alt={`${title} detail ${lightboxIndex + 1}`}
-                    width={lightboxWidth}
-                    height={lightboxHeight}
-                    loading="eager"
-                    className={`block h-full w-full object-contain transition-opacity ${
-                      isMobile ? "duration-120" : "duration-220"
-                    } ease-out ${lightboxLoaded ? "opacity-100" : "opacity-0"}`}
-                    decoding="sync"
-                    style={{
-                      transform: isZoomed
-                        ? `scale(2) translate(${dragOffset.x / 2}px, ${dragOffset.y / 2}px)`
-                        : "scale(1)",
-                      transformOrigin: `${zoomOrigin.x}% ${zoomOrigin.y}%`,
-                    }}
-                    onLoad={() => {
-                      preloadedLightboxRef.current.add(lightboxSrc);
-                      requestAnimationFrame(() => {
-                        setLightboxLoaded(true);
-                      });
-                    }}
-                    onError={() => {
-                      setLightboxLoaded(true);
-                    }}
-                    draggable={false}
-                  />
-                </div>
-
-                {/* Zoom indicator */}
-                {isZoomed && (
-                  <div className="absolute bottom-4 right-4 px-3 py-2 rounded-full bg-black/50 backdrop-blur-sm text-white text-xs font-medium flex items-center gap-2 animate-[fadeIn_0.2s_ease-out]">
-                    <svg
-                      viewBox="0 0 24 24"
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <circle cx="11" cy="11" r="8" />
-                      <path d="M21 21l-4.35-4.35" />
-                      <path d="M11 8v6M8 11h6" />
-                    </svg>
-                    <span>Drag to pan • Click to zoom out</span>
-                  </div>
-                )}
-
-              </div>
-
-              {/* Controls just below the image */}
-              <div className="mt-3 flex items-center justify-center gap-3">
-                <button
-                  type="button"
-                  onClick={showPrev}
-                  className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/35 hover:bg-black/45 active:bg-black/50 backdrop-blur-sm text-white flex items-center justify-center transition-all shadow-lg border border-white/10"
-                  aria-label="Previous image"
-                >
-                  <svg
-                    viewBox="0 0 24 24"
-                    className="w-5 h-5 md:w-6 md:h-6"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M15 18l-6-6 6-6" />
-                  </svg>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={showNext}
-                  className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/35 hover:bg-black/45 active:bg-black/50 backdrop-blur-sm text-white flex items-center justify-center transition-all shadow-lg border border-white/10"
-                  aria-label="Next image"
-                >
-                  <svg
-                    viewBox="0 0 24 24"
-                    className="w-5 h-5 md:w-6 md:h-6"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M9 6l6 6-6 6" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <GalleryLightbox
+        images={galleryImages}
+        openIndex={lightboxIndex}
+        previewSrc={lightboxPreviewSrc}
+        onClose={closeLightbox}
+        getImageSrc={getLightboxSrc}
+        getImageDimensions={getLightboxDimensions}
+        ariaLabel={`${title} gallery lightbox`}
+        getImageAlt={(index) => `${title} detail ${index + 1}`}
+      />
     </section>
   );
 }

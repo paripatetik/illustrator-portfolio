@@ -13,6 +13,7 @@
   --accent: #d8585d;       /* глибший червоний */
   --mint: #f2a2a6;         /* додатковий рожевий */
   --cream: #f3b3b6;        /* основний рожевий фон */
+  --pink-rich: #e98e95;    /* насиченіший рожевий для тексту */
   --surface-rose: #c84f59; /* темніший фон для форм/блоків */
   --blob-light: #f7b7bb;   /* плямки на фоні */
 
@@ -49,47 +50,31 @@
    ================================ */
 
 body {
-  background-color: var(--cream);   /* основний фон сайту */
+  background-color: #d7838f;   /* темніший рожевий базовий фон */
   color: var(--foreground);
   font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
   position: relative;
   isolation: isolate;
 }
 
-body::before,
-body::after {
+body::before {
   content: "";
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  width: min(35vw, 430px);
+  position: absolute;
+  inset: 0;
   pointer-events: none;
   z-index: 0;
-  opacity: 0.88;
+  background-image: url("/background/spots-page-map-v13.svg?v=16");
+  background-repeat: no-repeat;
+  background-position: 0 0;
+  background-size: 100% 100%;
 }
 
-body::before {
-  left: 0;
-  background-image:
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='620' height='2500' viewBox='0 0 620 2500'><path d='M58 172c28-46 86-72 140-66 50 6 92 38 104 84 14 52-8 106-48 138-42 34-104 44-156 22-50-22-84-78-70-132 6-18 12-28 30-46z' fill='rgba(255,255,255,0.19)'/><path d='M124 548c30-42 84-68 134-62 48 6 86 40 96 84 10 48-12 98-50 128-40 30-96 40-146 24-48-16-84-64-80-116 4-22 12-34 46-58z' fill='rgba(255,255,255,0.17)'/><path d='M72 946c22-36 66-58 110-56 44 2 82 30 98 70 16 42 6 90-26 122-36 34-90 46-136 30-46-16-78-60-72-108 2-20 8-30 26-58z' fill='rgba(255,255,255,0.16)'/><path d='M136 1388c30-46 90-74 146-66 54 8 98 46 110 96 14 56-12 114-56 148-46 34-110 44-166 24-54-20-90-72-82-128 4-24 12-34 48-74z' fill='rgba(255,255,255,0.18)'/><path d='M68 1856c24-34 66-54 106-50 40 4 74 30 86 68 14 40 2 86-30 112-34 28-84 34-126 16-42-18-70-62-62-106 4-20 10-24 26-40z' fill='rgba(255,255,255,0.16)'/><path d='M118 2240c26-36 72-56 116-50 42 6 76 36 84 76 10 44-12 90-48 118-40 30-94 34-138 14-44-20-70-66-58-112 4-18 10-22 28-46z' fill='rgba(255,255,255,0.17)'/></svg>"),
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='520' height='2100' viewBox='0 0 520 2100'><path d='M204 262c30-34 78-52 122-46 42 6 76 36 84 76 10 42-10 88-44 114-36 28-86 36-130 20-44-16-74-58-66-102 2-14 10-22 34-38z' fill='rgba(255,255,255,0.13)'/><path d='M236 892c34-32 86-46 132-34 44 12 78 48 82 92 4 46-24 90-64 114-42 24-96 24-138 0-40-24-66-70-54-116 2-12 10-18 42-56z' fill='rgba(255,255,255,0.12)'/><path d='M210 1558c30-30 76-46 120-40 44 6 80 36 90 78 10 46-10 94-48 124-40 30-94 38-142 20-46-18-78-64-72-112 2-16 6-22 28-42z' fill='rgba(255,255,255,0.12)'/></svg>");
-  background-repeat: repeat-y, repeat-y;
-  background-size: 620px 2600px, 520px 2100px;
-  background-position: 0 0, 42px 360px;
-  mask-image: linear-gradient(to right, #000 0%, #000 66%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to right, #000 0%, #000 66%, transparent 100%);
-}
-
-body::after {
-  right: 0;
-  background-image:
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='620' height='2500' viewBox='0 0 620 2500'><path d='M506 178c-30-48-90-74-146-66-52 8-94 44-104 92-12 52 12 106 54 136 44 32 106 38 158 16 52-22 82-78 68-132-4-16-10-26-30-46z' fill='rgba(255,255,255,0.19)'/><path d='M474 554c-30-42-88-66-140-56-50 8-88 42-96 90-10 50 14 98 54 126 42 28 98 32 146 12 50-20 78-68 68-118-2-20-12-30-32-54z' fill='rgba(255,255,255,0.17)'/><path d='M530 950c-24-36-72-56-120-50-44 6-78 36-88 78-12 44 8 90 44 116 40 28 94 30 138 8 46-22 70-68 58-114-4-16-10-26-28-38z' fill='rgba(255,255,255,0.16)'/><path d='M468 1390c-30-48-92-72-150-62-56 10-100 48-112 100-12 56 16 114 62 146 48 34 114 38 170 14 56-24 86-84 70-142-4-20-10-28-40-56z' fill='rgba(255,255,255,0.18)'/><path d='M542 1860c-24-36-70-56-114-50-42 6-76 34-88 74-12 42 6 88 40 114 38 28 88 34 132 16 46-18 72-64 62-110-2-14-10-20-32-44z' fill='rgba(255,255,255,0.16)'/><path d='M496 2242c-26-38-76-58-124-50-44 8-80 40-90 84-12 46 12 92 50 118 42 28 96 30 142 10 46-22 70-70 56-118-4-14-8-20-34-44z' fill='rgba(255,255,255,0.17)'/></svg>"),
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='520' height='2100' viewBox='0 0 520 2100'><path d='M314 266c-32-34-82-50-126-42-42 8-74 40-82 82-10 44 12 88 48 112 38 24 88 30 130 14 44-16 70-60 60-104-2-12-10-20-30-38z' fill='rgba(255,255,255,0.13)'/><path d='M296 896c-36-32-90-46-138-34-46 12-78 50-80 96-4 48 24 90 64 112 44 22 98 20 138-6 40-26 62-74 48-120-2-10-8-16-32-48z' fill='rgba(255,255,255,0.12)'/><path d='M304 1562c-32-30-82-44-128-34-44 10-78 42-88 86-10 46 10 92 50 118 42 28 98 32 144 12 46-20 72-68 62-116-2-14-8-20-40-66z' fill='rgba(255,255,255,0.12)'/></svg>");
-  background-repeat: repeat-y, repeat-y;
-  background-size: 620px 2600px, 520px 2100px;
-  background-position: right 0 top 120px, right 38px top 560px;
-  mask-image: linear-gradient(to left, #000 0%, #000 66%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to left, #000 0%, #000 66%, transparent 100%);
+@media (max-width: 900px) {
+  body::before {
+    background-image: url("/background/spots-page-map-mobile-v7.svg?v=12");
+    background-size: 100% 100%;
+    background-position: 0 0;
+  }
 }
 
 body > * {
@@ -195,19 +180,23 @@ h6 {
   /* кнопки */
   .btn {
     border-radius: var(--radius-pill);
-    @apply inline-flex items-center justify-center gap-2 px-6 py-3 font-medium transition;
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 text-lg font-semibold transition;
+  }
+
+  .btn-white {
+    @apply bg-white text-[color:var(--pink-rich)] hover:bg-white/90 border border-cream/60;
   }
 
   .btn-accent {
-    @apply bg-accent text-white hover:bg-accent/90;
+    @apply bg-white text-[color:var(--pink-rich)] hover:bg-white/90 border border-cream/60;
   }
 
   .btn-mint {
-    @apply bg-mint text-foreground hover:bg-mint/90;
+    @apply bg-white text-[color:var(--pink-rich)] hover:bg-white/90 border border-cream/60;
   }
 
   .btn-ghost {
-    @apply border border-foreground/25 text-foreground hover:bg-foreground/5;
+    @apply bg-white text-[color:var(--pink-rich)] hover:bg-white/90 border border-cream/60;
   }
 
   /* заголовки */
@@ -503,8 +492,10 @@ h6 {
 
   .contact-submit {
     @apply mt-5 inline-flex items-center justify-center rounded-full px-6 py-3 text-lg transition hover:translate-y-[-1px];
-    background: var(--cream);
-    color: var(--foreground);
+    background: #ffffff;
+    border: 1px solid rgba(243, 179, 182, 0.6);
+    color: var(--pink-rich);
+    font-weight: 600;
     font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
   }
 }

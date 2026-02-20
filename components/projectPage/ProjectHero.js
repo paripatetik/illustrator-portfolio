@@ -103,11 +103,7 @@ export default function ProjectHero({ project, folder }) {
           style={{ animation: "fadeInUp 0.8s ease both" }}
         >
           <h1
-            className="text-4xl sm:text-5xl mb-4"
-            style={{
-              fontFamily: "var(--font-heading), ui-serif, serif",
-              fontWeight: 600,
-            }}
+            className="section-title mb-4"
           >
             {project.title}
           </h1>
@@ -183,11 +179,7 @@ export default function ProjectHero({ project, folder }) {
             >
               <div>
                 <h1
-                  className="text-4xl xl:text-5xl mb-4 leading-tight"
-                  style={{
-                    fontFamily: "var(--font-heading), ui-serif, serif",
-                    fontWeight: 600,
-                  }}
+                  className="section-title mb-4"
                 >
                   {project.title}
                 </h1>
