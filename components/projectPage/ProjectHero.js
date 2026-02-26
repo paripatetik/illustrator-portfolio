@@ -106,7 +106,7 @@ export default function ProjectHero({ project, folder }) {
           style={{ animation: "fadeInUp 0.8s ease both" }}
         >
           <h1
-            className="section-title mb-4"
+            className="t-project mb-4"
           >
             {project.title}
           </h1>
@@ -178,18 +178,18 @@ export default function ProjectHero({ project, folder }) {
             >
               <div>
                 <h1
-                  className="section-title mb-4"
+                  className="t-project mb-4"
                 >
                   {project.title}
                 </h1>
                 {metaLine && (
-                  <p className="text-base text-foreground/50 mb-6">
+                  <p className="t-body text-foreground/50 mb-6">
                     {metaLine}
                   </p>
                 )}
               </div>
               
-              <p className="text-lg xl:text-xl leading-relaxed text-foreground/75">
+              <p className="t-body text-foreground/75">
                 {project.description}
               </p>
             </div>
@@ -205,7 +205,7 @@ export default function ProjectHero({ project, folder }) {
             {project.description}
           </p>
           {metaLine && (
-            <p className="text-sm text-foreground/50 mt-3">{metaLine}</p>
+            <p className="t-body text-foreground/50 mt-3">{metaLine}</p>
           )}
         </div>
       </div>

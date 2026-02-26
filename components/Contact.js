@@ -70,13 +70,13 @@ export default function Contact() {
       <div className="container mx-auto px-4">
         <h2 className="section-title mb-10">Let&apos;s connect!</h2>
 
-        <div className="contact-grid">
+        <div className="contact-grid t-body">
           <div className="contact-list">
             <a href="mailto:olenaoprich@gmail.com" className="contact-item">
               <span className="contact-icon" style={{ "--icon-delay": "0s" }}>
                 <MailIcon />
               </span>
-              <span className="contact-text">olenaoprich@gmail.com</span>
+              <span className="contact-text t-body">olenaoprich@gmail.com</span>
             </a>
 
             <a
@@ -88,7 +88,7 @@ export default function Contact() {
               <span className="contact-icon" style={{ "--icon-delay": "0.15s" }}>
                 <LinkedinIcon />
               </span>
-              <span className="contact-text">linkedin.com/in/olena-oprich</span>
+              <span className="contact-text t-body">linkedin.com/in/olena-oprich</span>
             </a>
 
             <a
@@ -100,14 +100,14 @@ export default function Contact() {
               <span className="contact-icon" style={{ "--icon-delay": "0.3s" }}>
                 <InstagramIcon />
               </span>
-              <span className="contact-text">oprich.art</span>
+              <span className="contact-text t-body">oprich.art</span>
             </a>
 
             <div className="contact-item">
               <span className="contact-icon" style={{ "--icon-delay": "0.45s" }}>
                 <LocationIcon />
               </span>
-              <span className="contact-text">Ukraine, Kyiv</span>
+              <span className="contact-text t-body">Ukraine, Kyiv</span>
             </div>
           </div>
 
@@ -119,17 +119,17 @@ export default function Contact() {
           >
             <h3 className="contact-form-title">Send me a letter</h3>
 
-            <label className="contact-label" htmlFor="contact-name">
+            <label className="contact-label t-body" htmlFor="contact-name">
               Name
             </label>
-            <input id="contact-name" name="name" type="text" required className="contact-input" />
+            <input id="contact-name" name="name" type="text" required className="contact-input t-body" />
 
-            <label className="contact-label" htmlFor="contact-email">
+            <label className="contact-label t-body" htmlFor="contact-email">
               Email
             </label>
-            <input id="contact-email" name="email" type="email" required className="contact-input" />
+            <input id="contact-email" name="email" type="email" required className="contact-input t-body" />
 
-            <label className="contact-label" htmlFor="contact-message">
+            <label className="contact-label t-body" htmlFor="contact-message">
               Message
             </label>
             <textarea
@@ -137,7 +137,7 @@ export default function Contact() {
               name="message"
               rows="5"
               required
-              className="contact-textarea"
+              className="contact-textarea t-body"
             />
 
             <button type="submit" className="contact-submit">

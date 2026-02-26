@@ -4,7 +4,7 @@ import "./globals.css";
 const displayFont = localFont({
   src: [
     {
-      path: "../lib/fonts/Blushing.ttf",
+      path: "../lib/fonts/BlushingApple-Regular.ttf",
       weight: "400",
       style: "normal",
     },
@@ -16,28 +16,8 @@ const displayFont = localFont({
 const funFont = localFont({
   src: [
     {
-      path: "../lib/fonts/line_seed/LINESeedSans_W_Th.woff2",
-      weight: "100",
-      style: "normal",
-    },
-    {
-      path: "../lib/fonts/line_seed/LINESeedSans_W_Rg.woff2",
+      path: "../lib/fonts/GrowingSeed-Regular.ttf",
       weight: "400",
-      style: "normal",
-    },
-    {
-      path: "../lib/fonts/line_seed/LINESeedSans_W_Bd.woff2",
-      weight: "700",
-      style: "normal",
-    },
-    {
-      path: "../lib/fonts/line_seed/LINESeedSans_W_XBd.woff2",
-      weight: "800",
-      style: "normal",
-    },
-    {
-      path: "../lib/fonts/line_seed/LINESeedSans_W_He.woff2",
-      weight: "900",
       style: "normal",
     },
   ],

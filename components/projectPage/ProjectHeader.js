@@ -18,11 +18,10 @@ export default function ProjectHeader() {
               }
               router.push("/");
             }}
-            className="contact-submit mt-0 max-[800px]:fixed max-[800px]:top-4 max-[800px]:right-4 max-[800px]:z-50 md:absolute md:left-0 inline-flex items-center gap-2 px-4 py-2 text-sm md:text-base"
+            className="contact-submit mt-0 max-[800px]:fixed max-[800px]:top-4 max-[800px]:right-4 max-[800px]:z-50 md:absolute md:left-0"
             aria-label="Back to main page"
           >
-            <span aria-hidden="true">←</span>
-            <span>Back</span>
+            Back
           </button>
 
           <h2 className="section-title">

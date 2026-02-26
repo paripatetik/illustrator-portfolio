@@ -29,7 +29,7 @@ export default function About() {
             </span>
           </div>
 
-          <div className="about-copy">
+          <div className="about-copy t-body">
             <p className="about-text">
               I&apos;m a children&apos;s book illustrator from Ukraine, creating
               warm and expressive illustrations filled with heart and color.

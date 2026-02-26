@@ -72,7 +72,7 @@ export default function ProjectCards({ images, folder, title }) {
       <div className="container mx-auto px-4 max-w-7xl">
         <div className="flex flex-col items-center mb-8 text-center gap-3">
           <h2 className="section-title">Gallery</h2>
-          <p className="text-sm text-foreground/55">
+          <p className="t-body text-foreground/55">
             {totalImages} {totalImages === 1 ? "image" : "images"}
           </p>
         </div>

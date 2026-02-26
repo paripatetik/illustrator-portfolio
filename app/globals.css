@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+html {
+  scrollbar-gutter: stable;
+}
+
 /* ================================
    1) ДИЗАЙН-ТОКЕНИ (міняєш тут)
    ================================ */
@@ -66,13 +70,13 @@ body::before {
   background-image: url("/background/spots-page-map-v13.svg?v=16");
   background-repeat: no-repeat;
   background-position: 0 0;
-  background-size: 100% 100%;
+  background-size: 100% auto;
 }
 
 @media (max-width: 900px) {
   body::before {
     background-image: url("/background/spots-page-map-mobile-v7.svg?v=12");
-    background-size: 100% 100%;
+    background-size: 100% auto;
     background-position: 0 0;
   }
 }
@@ -180,7 +184,7 @@ h6 {
   /* кнопки */
   .btn {
     border-radius: var(--radius-pill);
-    @apply inline-flex items-center justify-center gap-2 px-6 py-3 text-lg font-semibold transition;
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 font-semibold transition;
   }
 
   .btn-white {
@@ -200,41 +204,13 @@ h6 {
   }
 
   /* заголовки */
-  .h-display {
-    @apply text-5xl md:text-7xl leading-[1.05] font-serif;
-    font-family: var(--font-heading), ui-serif, serif;
-  }
-
-  .h-fun {
-    @apply text-2xl md:text-3xl font-sans;
-    font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
-  }
-
   /* приглушений текст */
   .muted {
     @apply text-foreground/70;
   }
 
-  .t-hero {
-    @apply text-5xl md:text-7xl leading-[1.05];
-    font-family: var(--font-heading), ui-serif, serif;
-  }
-
-  /* HERO: підпис */
-  .t-hero-sub {
-    @apply text-lg md:text-2xl leading-snug;
-    font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
-  }
-
-  /* Заголовки секцій */
-  .t-section {
-    @apply text-3xl md:text-4xl leading-tight;
-    font-family: var(--font-heading), ui-serif, serif;
-    font-weight: 700;
-  }
-
   .section-title {
-    @apply mx-auto w-full text-center text-5xl sm:text-7xl md:text-8xl leading-tight;
+    @apply mx-auto w-full text-center text-4xl sm:text-5xl md:text-6xl leading-tight;
     font-family: var(--font-heading), ui-serif, serif;
     font-weight: 700;
     text-transform: none;
@@ -243,13 +219,20 @@ h6 {
 
   /* Назви проєктів */
   .t-project {
-    @apply text-2xl md:text-3xl leading-tight;
+    @apply text-3xl sm:text-4xl md:text-5xl leading-tight;
     font-family: var(--font-heading), ui-serif, serif;
+    font-weight: 700;
+  }
+
+  .t-project-card {
+    @apply text-2xl sm:text-3xl md:text-4xl leading-tight;
+    font-family: var(--font-heading), ui-serif, serif;
+    font-weight: 700;
   }
 
   /* Основний текст */
   .t-body {
-    @apply text-base md:text-lg leading-relaxed;
+    @apply text-2xl sm:text-3xl md:text-4xl leading-tight;
     font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
   }
 
@@ -407,7 +390,7 @@ h6 {
   }
 
   .about-text {
-    @apply mx-auto mt-6 text-lg leading-snug sm:text-xl;
+    @apply mx-auto mt-6;
     color: var(--foreground);
     font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
   }
@@ -452,7 +435,6 @@ h6 {
   }
 
   .contact-text {
-    @apply text-lg leading-tight sm:text-xl md:text-2xl;
     color: var(--foreground);
     font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
   }
@@ -464,13 +446,13 @@ h6 {
   }
 
   .contact-form-title {
-    @apply text-2xl sm:text-3xl;
+    @apply text-2xl sm:text-3xl md:text-4xl leading-tight;
     color: var(--foreground);
     font-family: var(--font-heading), ui-serif, serif;
   }
 
   .contact-label {
-    @apply mt-4 block text-base sm:text-lg;
+    @apply mt-4 block;
     color: var(--foreground);
     font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
   }
@@ -491,7 +473,8 @@ h6 {
   }
 
   .contact-submit {
-    @apply mt-5 inline-flex items-center justify-center rounded-full px-6 py-3 text-lg transition hover:translate-y-[-1px];
+    @apply mt-5 inline-flex items-center justify-center rounded-full px-6 py-3 leading-none transition hover:translate-y-[-1px];
+    font-size: clamp(1.5rem, 2.8vw, 2.25rem);
     background: #ffffff;
     border: 1px solid rgba(243, 179, 182, 0.6);
     color: var(--pink-rich);

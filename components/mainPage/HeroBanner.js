@@ -133,7 +133,7 @@ export default function HeroBanner() {
         <div className="relative z-10 flex flex-col items-center text-center">
           {/* Ім'я */}
           <h1
-            className="group text-6xl md:text-8xl lg:text-9xl mb-16 md:mb-20 relative inline-block cursor-default text-foreground uppercase tracking-[0.08em]"
+            className="group mb-16 md:mb-20 relative inline-block w-auto max-w-none cursor-default text-foreground uppercase tracking-[0.08em] text-6xl sm:text-7xl md:text-8xl lg:text-9xl"
             style={{
               fontFamily: "var(--font-heading), ui-serif, serif",
               fontWeight: 600,
@@ -143,14 +143,16 @@ export default function HeroBanner() {
           >
             <span
               aria-hidden="true"
-              className="pointer-events-none absolute left-[-1.4rem] md:left-[-2.4rem] top-1/2 -translate-y-1/2 -translate-x-2 text-accent text-2xl md:text-4xl opacity-0 scale-75 transition-all duration-300 ease-out group-hover:opacity-100 group-hover:translate-x-0 group-hover:scale-100 group-hover:animate-pulse"
+              className="pointer-events-none absolute left-[-1.4rem] md:left-[-2.4rem] top-1/2 -translate-y-1/2 -translate-x-2 text-accent opacity-0 scale-75 transition-all duration-300 ease-out group-hover:opacity-100 group-hover:translate-x-0 group-hover:scale-100 group-hover:animate-pulse"
+              style={{ fontSize: "clamp(1.5rem, 3.5vw, 2.25rem)" }}
             >
               ❤
             </span>
             Olena Oprich
             <span
               aria-hidden="true"
-              className="pointer-events-none absolute right-[-1.4rem] md:right-[-2.4rem] top-1/2 -translate-y-1/2 translate-x-2 text-accent text-2xl md:text-4xl opacity-0 scale-75 transition-all duration-300 ease-out group-hover:opacity-100 group-hover:translate-x-0 group-hover:scale-100 group-hover:animate-pulse"
+              className="pointer-events-none absolute right-[-1.4rem] md:right-[-2.4rem] top-1/2 -translate-y-1/2 translate-x-2 text-accent opacity-0 scale-75 transition-all duration-300 ease-out group-hover:opacity-100 group-hover:translate-x-0 group-hover:scale-100 group-hover:animate-pulse"
+              style={{ fontSize: "clamp(1.5rem, 3.5vw, 2.25rem)" }}
             >
               ❤
             </span>
@@ -223,8 +225,9 @@ export default function HeroBanner() {
           {/* Підпис */}
           <div className="mt-4 h-[3px] bg-foreground/60 w-3/5 max-w-[420px]" />
           <p
-            className="mt-4 t-body text-foreground text-2xl md:text-3xl relative inline-block cursor-default"
+            className="mt-4 text-foreground relative inline-block cursor-default text-3xl sm:text-4xl md:text-5xl"
             style={{
+              fontFamily: "var(--font-body), ui-sans-serif, system-ui, sans-serif",
               textShadow: "0 1px 4px rgba(0,0,0,0.06)",
               animation: "fadeInUp 0.8s ease-out 0.5s both",
             }}

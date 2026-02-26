@@ -198,5 +198,101 @@
   "projects/guardians/01.webp": {
     "width": 5100,
     "height": 2550
+  },
+  "illustration/01.webp": {
+    "width": 2550,
+    "height": 3300
+  },
+  "illustration/02.webp": {
+    "width": 4800,
+    "height": 3000
+  },
+  "illustration/03.webp": {
+    "width": 2480,
+    "height": 3508
+  },
+  "illustration/04.webp": {
+    "width": 4800,
+    "height": 3000
+  },
+  "illustration/05.webp": {
+    "width": 3508,
+    "height": 2480
+  },
+  "illustration/06.webp": {
+    "width": 5100,
+    "height": 3300
+  },
+  "illustration/07.webp": {
+    "width": 4800,
+    "height": 3000
+  },
+  "illustration/08.webp": {
+    "width": 5175,
+    "height": 2625
+  },
+  "illustration/09.webp": {
+    "width": 4875,
+    "height": 3075
+  },
+  "illustration/10.webp": {
+    "width": 3508,
+    "height": 2480
+  },
+  "illustration/11.webp": {
+    "width": 2550,
+    "height": 2550
+  },
+  "illustration/12.webp": {
+    "width": 5250,
+    "height": 2625
+  },
+  "illustration/13.webp": {
+    "width": 5250,
+    "height": 2625
+  },
+  "illustration/14.webp": {
+    "width": 3600,
+    "height": 4500
+  },
+  "illustration/15.webp": {
+    "width": 5100,
+    "height": 3300
+  },
+  "illustration/16.webp": {
+    "width": 5100,
+    "height": 3300
+  },
+  "illustration/17.webp": {
+    "width": 5100,
+    "height": 3300
+  },
+  "illustration/18.webp": {
+    "width": 4800,
+    "height": 2700
+  },
+  "illustration/19.webp": {
+    "width": 6150,
+    "height": 3075
+  },
+  "illustration/20.webp": {
+    "width": 6150,
+    "height": 3075
+  },
+  "illustration/21.webp": {
+    "width": 6150,
+    "height": 3075
+  },
+  "illustration/22.webp": {
+    "width": 4800,
+    "height": 3000
+  },
+  "illustration/23.webp": {
+    "width": 2480,
+    "height": 3508
+  },
+  "illustration/24.webp": {
+    "width": 3446,
+    "height": 2714
   }
 }

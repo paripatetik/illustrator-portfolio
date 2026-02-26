@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 export default function GalleryLightbox({
   images,
@@ -8,7 +8,6 @@ export default function GalleryLightbox({
   previewSrc = "",
   onClose,
   getImageSrc,
-  getImageDimensions,
   ariaLabel = "Gallery lightbox",
   getImageAlt = (index) => `Image detail ${index + 1}`,
 }) {
@@ -26,6 +25,7 @@ export default function GalleryLightbox({
   const [hasDragged, setHasDragged] = useState(false);
   const [lightboxLoaded, setLightboxLoaded] = useState(false);
   const [currentPreviewSrc, setCurrentPreviewSrc] = useState("");
+  const [viewportSize, setViewportSize] = useState({ width: 0, height: 0 });
 
   const zoomFrameRef = useRef(null);
   const lightboxImgRef = useRef(null);
@@ -39,8 +39,22 @@ export default function GalleryLightbox({
   const currentImage = isOpen ? images[currentIndex] : null;
   const lightboxSrc = currentImage ? getImageSrc(currentImage) : "";
   const currentNumber = currentIndex + 1;
-  const frameWidth = isMobile ? "92vw" : "min(86vw, 1320px)";
-  const frameHeight = isMobile ? "calc(100svh - 185px)" : "calc(100svh - 155px)";
+  const frameDimensions = useMemo(() => {
+    const viewportWidth = viewportSize.width || 1280;
+    const viewportHeight = viewportSize.height || 720;
+    const width = isMobile
+      ? viewportWidth * 0.92
+      : Math.min(viewportWidth * 0.86, 1320);
+    const height = Math.max(180, viewportHeight - (isMobile ? 330 : 250));
+    return {
+      width: Math.max(160, Math.floor(width)),
+      height: Math.max(160, Math.floor(height)),
+    };
+  }, [
+    isMobile,
+    viewportSize.height,
+    viewportSize.width,
+  ]);
 
   const preloadLightboxImage = useCallback(
     (image) => {
@@ -181,10 +195,17 @@ export default function GalleryLightbox({
   useEffect(() => {
     if (typeof window === "undefined") return;
     const media = window.matchMedia("(max-width: 767px)");
-    const update = () => setIsMobile(media.matches);
+    const update = () => {
+      setIsMobile(media.matches);
+      setViewportSize({ width: window.innerWidth, height: window.innerHeight });
+    };
     update();
     media.addEventListener("change", update);
-    return () => media.removeEventListener("change", update);
+    window.addEventListener("resize", update);
+    return () => {
+      media.removeEventListener("change", update);
+      window.removeEventListener("resize", update);
+    };
   }, []);
 
   useEffect(() => {
@@ -250,6 +271,31 @@ export default function GalleryLightbox({
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
   }, [isOpen, onClose, closeLightbox]);
+
+  useEffect(() => {
+    if (!isOpen || typeof document === "undefined") return;
+
+    const { body, documentElement } = document;
+    const previousBodyOverflow = body.style.overflow;
+    const previousBodyOverscrollBehavior = body.style.overscrollBehavior;
+    const previousHtmlOverflow = documentElement.style.overflow;
+    const previousHtmlOverscrollBehavior = documentElement.style.overscrollBehavior;
+    const previousHtmlScrollbarGutter = documentElement.style.scrollbarGutter;
+
+    body.style.overflow = "hidden";
+    body.style.overscrollBehavior = "none";
+    documentElement.style.overflow = "hidden";
+    documentElement.style.overscrollBehavior = "none";
+    documentElement.style.scrollbarGutter = "auto";
+
+    return () => {
+      body.style.overflow = previousBodyOverflow;
+      body.style.overscrollBehavior = previousBodyOverscrollBehavior;
+      documentElement.style.overflow = previousHtmlOverflow;
+      documentElement.style.overscrollBehavior = previousHtmlOverscrollBehavior;
+      documentElement.style.scrollbarGutter = previousHtmlScrollbarGutter;
+    };
+  }, [isOpen]);
 
   useEffect(() => {
     if (!isZoomed) return;
@@ -358,7 +404,7 @@ export default function GalleryLightbox({
 
   return (
     <div
-      className="fixed inset-0 z-[80] bg-black/90 md:backdrop-blur-sm animate-none md:animate-[fadeIn_0.2s_ease-out] motion-reduce:animate-none"
+      className="fixed left-0 top-0 z-[80] h-[100dvh] w-screen bg-black/90 md:backdrop-blur-sm animate-none md:animate-[fadeIn_0.2s_ease-out] motion-reduce:animate-none"
       role="dialog"
       aria-modal="true"
       aria-label={ariaLabel}
@@ -389,9 +435,10 @@ export default function GalleryLightbox({
           }
         }}
       >
-        <div className="relative inline-block max-w-full">
+        <div className="mx-auto flex min-h-full w-fit items-center">
+          <div className="relative inline-block max-w-full">
           <div className="mb-2 flex items-center justify-between">
-            <span className="min-w-[4ch] rounded-full bg-black/35 px-2 py-1 text-xs font-medium text-white/80 backdrop-blur-sm tabular-nums">
+            <span className="min-w-[5ch] rounded-full bg-[color:var(--surface-rose)] px-3 py-1.5 text-sm md:text-base font-semibold text-white border border-white/30 backdrop-blur-sm tabular-nums leading-none">
               {currentNumber} / {totalImages}
             </span>
             <div className="flex items-center gap-3">
@@ -421,13 +468,13 @@ export default function GalleryLightbox({
 
           <div
             ref={zoomFrameRef}
-            className={`relative overflow-hidden select-none inline-block ${
+            className={`relative select-none inline-block ${
               isZoomed ? (isDragging ? "cursor-grabbing" : "cursor-grab") : "cursor-zoom-in"
             }`}
             style={{
-              width: frameWidth,
-              height: frameHeight,
-              overflow: "hidden",
+              width: `${frameDimensions.width}px`,
+              height: `${frameDimensions.height}px`,
+              overflow: isZoomed ? "hidden" : "visible",
               touchAction: isZoomed ? "none" : "auto",
               userSelect: "none",
               WebkitUserSelect: "none",
@@ -495,7 +542,7 @@ export default function GalleryLightbox({
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
           >
-            <div className="relative h-full w-full grid place-items-center" data-loaded={lightboxLoaded ? "true" : "false"}>
+            <div className="relative h-full w-full" data-loaded={lightboxLoaded ? "true" : "false"}>
               <span
                 aria-hidden="true"
                 className="gallery-shimmer absolute inset-0 transition-opacity duration-700 data-[loaded=true]:opacity-0"
@@ -506,7 +553,7 @@ export default function GalleryLightbox({
                   src={currentPreviewSrc}
                   alt=""
                   aria-hidden="true"
-                  className="pointer-events-none [grid-area:1/1] block h-full w-full object-contain"
+                  className="pointer-events-none absolute inset-0 m-auto block h-auto w-auto max-h-full max-w-full object-contain object-center"
                   decoding="async"
                   draggable={false}
                 />
@@ -517,7 +564,7 @@ export default function GalleryLightbox({
                 src={lightboxSrc}
                 alt={getImageAlt(currentIndex, currentImage)}
                 loading="eager"
-                className={`[grid-area:1/1] block h-full w-full object-contain transition-opacity ${
+                className={`absolute inset-0 m-auto block h-auto w-auto max-h-full max-w-full object-contain object-center transition-opacity ${
                   isMobile ? "duration-180" : "duration-300"
                 } ease-out ${lightboxLoaded ? "opacity-100" : "opacity-0"}`}
                 decoding="sync"
@@ -597,6 +644,7 @@ export default function GalleryLightbox({
               </svg>
             </button>
           </div>
+        </div>
         </div>
       </div>
     </div>
