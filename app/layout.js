@@ -27,10 +27,14 @@ const funFont = localFont({
 
 export default function RootLayout({ children }) {
   return (
+
     <html lang="uk" className={`${displayFont.variable} ${funFont.variable}`}>
       <body>
-        {children}
+          
+          {children}
+        
       </body>
     </html>
+  
   );
 }

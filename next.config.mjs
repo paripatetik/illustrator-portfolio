@@ -5,6 +5,9 @@ const nextConfig = {
   images: {
     qualities: [75, 85],
   },
+  experimental: {
+    viewTransition: true,
+  },
 };
 
 export default nextConfig;
