@@ -32,6 +32,7 @@ export default function ProjectHero({ project, folder }) {
   const heroDimensionKey = `projects/${folder}/${heroImage}`;
   const heroDimensions = imageDimensions[heroDimensionKey] || { width: 1600, height: 1000 };
   const heroAspect = heroDimensions.width / heroDimensions.height;
+  const needsTallerHeroFrame = heroAspect > 1.45;
   const frameRef = useRef(null);
   const imgRef = useRef(null);
   const rafRef = useRef(null);
@@ -138,6 +139,9 @@ export default function ProjectHero({ project, folder }) {
                     className="relative w-full hero-motion project-hero-motion"
                     style={{
                       aspectRatio: heroAspect,
+                      minHeight: needsTallerHeroFrame
+                        ? "clamp(16rem, 32vw, 26rem)"
+                        : undefined,
                     }}
                     data-loaded="false"
                 >
@@ -150,7 +154,9 @@ export default function ProjectHero({ project, folder }) {
                       src={`/projects/${folder}/${heroImage}`}
                       alt={`${project.title} hero`}
                       fill
-                      className="hero-image project-hero-image block object-contain opacity-0 transition-[opacity,transform,filter] duration-700 ease-out data-[loaded=true]:opacity-100"
+                      className={`hero-image project-hero-image block opacity-0 transition-[opacity,transform,filter] duration-700 ease-out data-[loaded=true]:opacity-100 ${
+                        needsTallerHeroFrame ? "object-cover" : "object-contain"
+                      }`}
                       data-loaded="false"
                       sizes="(max-width: 768px) 92vw, (max-width: 1280px) 70vw, 60vw"
                       priority

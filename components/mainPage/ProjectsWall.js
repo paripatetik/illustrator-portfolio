@@ -159,7 +159,10 @@ export default function ProjectsWall() {
                       width={dimensions.width}
                       height={dimensions.height}
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      className="h-auto w-full object-cover opacity-0 transition-[opacity,transform] duration-1000 ease-[cubic-bezier(0.2,0.8,0.2,1)] data-[loaded=true]:opacity-100 group-hover:scale-[1.015] transform-gpu will-change-transform"
+                      className="block h-auto w-full object-cover opacity-0 transition-[opacity,transform] duration-1000 ease-[cubic-bezier(0.2,0.8,0.2,1)] data-[loaded=true]:opacity-100 group-hover:scale-[1.015] transform-gpu will-change-transform"
+                      style={{
+                        minHeight: "clamp(15rem, 24vw, 19rem)",
+                      }}
                       data-loaded="false"
                       placeholder="blur"
                       blurDataURL={`data:image/svg+xml;base64,${toBase64(

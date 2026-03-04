@@ -140,7 +140,7 @@ export default function Contact() {
               className="contact-textarea t-body"
             />
 
-            <button type="submit" className="contact-submit">
+            <button type="submit" className="btn">
               Send Letter
             </button>
           </form>

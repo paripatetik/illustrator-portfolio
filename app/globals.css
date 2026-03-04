@@ -184,7 +184,12 @@ h6 {
   /* кнопки */
   .btn {
     border-radius: var(--radius-pill);
-    @apply inline-flex items-center justify-center gap-2 px-6 py-3 font-semibold transition;
+    @apply mt-5 inline-flex items-center justify-center gap-2 px-6 py-3 font-semibold leading-none transition hover:translate-y-[-1px];
+    font-size: clamp(1.5rem, 2.8vw, 2.25rem);
+    background: #ffffff;
+    border: 1px solid rgba(243, 179, 182, 0.6);
+    color: var(--pink-rich);
+    font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
   }
 
   .btn-white {
@@ -472,15 +477,6 @@ h6 {
     box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
   }
 
-  .contact-submit {
-    @apply mt-5 inline-flex items-center justify-center rounded-full px-6 py-3 leading-none transition hover:translate-y-[-1px];
-    font-size: clamp(1.5rem, 2.8vw, 2.25rem);
-    background: #ffffff;
-    border: 1px solid rgba(243, 179, 182, 0.6);
-    color: var(--pink-rich);
-    font-weight: 600;
-    font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
-  }
 }
 
 @media (max-width: 760px) {
@@ -663,4 +659,3 @@ h6 {
     transform: translate3d(0, 0, 0) scale(1);
   }
 }
-

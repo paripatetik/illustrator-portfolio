@@ -419,17 +419,9 @@ export default function GalleryLightbox({
         </div>
       )}
 
-      <button
-        type="button"
-        onClick={closeLightbox}
-        className="absolute inset-0"
-        aria-label="Close lightbox"
-        tabIndex={-1}
-      />
-
       <div
         className="relative z-[1] flex min-h-[100dvh] w-full items-center justify-center px-3 py-6"
-        onPointerDown={(e) => {
+        onClick={(e) => {
           if (e.target === e.currentTarget) {
             closeLightbox();
           }
