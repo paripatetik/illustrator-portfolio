@@ -190,6 +190,7 @@ h6 {
     border: 1px solid rgba(243, 179, 182, 0.6);
     color: var(--pink-rich);
     font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+    text-align: center;
   }
 
   .btn-white {
@@ -293,20 +294,27 @@ h6 {
     position: relative;
   }
 
+  /* Disable project-hero glow overlays; keep only motion. */
+  .project-hero-frame::after,
+  .project-hero-frame::before {
+    display: none !important;
+  }
+
   .project-hero-motion {
-    transform: translate3d(0, 0, 0);
-    transition: transform 0.28s ease-out;
+    transform: translate3d(var(--img-x, 0px), var(--img-y, 0px), 0);
+    transition: transform 0.2s ease-out;
     will-change: transform;
   }
 
   /* Keep full artwork visible on project pages (no zoom-crop). */
   .project-hero-image {
-    animation: none;
     transform: none !important;
+    filter: saturate(1.02) brightness(1.01) contrast(1.01);
   }
 
   .project-hero-frame:hover .project-hero-image {
     transform: none !important;
+    filter: saturate(1.05) brightness(1.02) contrast(1.02);
   }
 
   @media (min-width: 768px) {
@@ -338,6 +346,17 @@ h6 {
   .hero-frame:hover {
     box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
     --spot-opacity: 1;
+  }
+
+  /* Project hero: keep motion, remove glow/brightening entirely. */
+  .project-hero-frame:hover {
+    --spot-opacity: 0 !important;
+  }
+
+  .project-hero-frame:hover .project-hero-image,
+  .project-hero-frame:hover .hero-image {
+    transform: none !important;
+    filter: saturate(1.02) brightness(1.01) contrast(1.01) !important;
   }
 
   .about-title {

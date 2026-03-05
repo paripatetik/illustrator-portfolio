@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import projects from "@/data/projects.json";
 import imageDimensions from "@/data/imageDimensions.json";
+import { saveHomeScrollPosition } from "@/lib/homeScrollMemory";
 
 function getProjectCover(images = []) {
   return images.find((image) => image.includes("-cover")) || images[0];
@@ -139,6 +140,7 @@ export default function ProjectsWall() {
               <Link
                 key={project.slug}
                 href={`/projects/${project.slug}`}
+                onClick={saveHomeScrollPosition}
                 className="group block w-full cursor-pointer mb-8 [break-inside:avoid] [page-break-inside:avoid] [column-break-inside:avoid] align-top"
               >
                 <article

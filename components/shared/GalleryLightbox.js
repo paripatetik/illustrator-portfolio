@@ -430,7 +430,7 @@ export default function GalleryLightbox({
         <div className="mx-auto flex min-h-full w-fit items-center">
           <div className="relative inline-block max-w-full">
           <div className="mb-2 flex items-center justify-between">
-            <span className="min-w-[5ch] rounded-full bg-[color:var(--surface-rose)] px-3 py-1.5 text-sm md:text-base font-semibold text-white border border-white/30 backdrop-blur-sm tabular-nums leading-none">
+            <span className="min-w-[5ch] rounded-full bg-[color:var(--surface-rose)] px-3 py-1.5 text-2xl font-bold  text-white border border-white/30 backdrop-blur-sm tabular-nums leading-none">
               {currentNumber} / {totalImages}
             </span>
             <div className="flex items-center gap-3">

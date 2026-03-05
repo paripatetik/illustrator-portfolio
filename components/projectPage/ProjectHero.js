@@ -33,11 +33,14 @@ export default function ProjectHero({ project, folder }) {
   const heroDimensions = imageDimensions[heroDimensionKey] || { width: 1600, height: 1000 };
   const heroAspect = heroDimensions.width / heroDimensions.height;
   const needsTallerHeroFrame = heroAspect > 1.45;
+  const mobileHeroAspect = needsTallerHeroFrame ? Math.min(heroAspect, 2.05) : heroAspect;
   const frameRef = useRef(null);
   const imgRef = useRef(null);
   const rafRef = useRef(null);
   const targetRef = useRef({ x: 50, y: 50 });
   const currentRef = useRef({ x: 50, y: 50 });
+  const isHoveringRef = useRef(false);
+  const loopStartRef = useRef(0);
   
   const handleHeroMove = (event) => {
     const img = imgRef.current;
@@ -50,49 +53,57 @@ export default function ProjectHero({ project, folder }) {
     targetRef.current = { x, y };
   };
 
-  const handleHeroEnter = (event) => {
+  const handleHeroEnter = () => {
+    isHoveringRef.current = true;
     if (frameRef.current) {
       frameRef.current.style.setProperty("--spot-opacity", "1");
     }
-    if (!rafRef.current) {
-      const tick = () => {
-        const frame = frameRef.current;
-        if (!frame) {
-          rafRef.current = null;
-          return;
-        }
-        const current = currentRef.current;
-        const target = targetRef.current;
-        const nextX = current.x + (target.x - current.x) * 0.18;
-        const nextY = current.y + (target.y - current.y) * 0.18;
-        currentRef.current = { x: nextX, y: nextY };
-        frame.style.setProperty("--spot-x", `${nextX.toFixed(2)}%`);
-        frame.style.setProperty("--spot-y", `${nextY.toFixed(2)}%`);
-        const offsetX = ((nextX - 50) / 50) * 20;
-        const offsetY = ((nextY - 50) / 50) * 14;
-        frame.style.setProperty("--img-x", `${offsetX.toFixed(2)}px`);
-        frame.style.setProperty("--img-y", `${offsetY.toFixed(2)}px`);
-        rafRef.current = requestAnimationFrame(tick);
-      };
-      rafRef.current = requestAnimationFrame(tick);
-    }
   };
 
-  const handleHeroLeave = (event) => {
+  const handleHeroLeave = () => {
+    isHoveringRef.current = false;
     if (frameRef.current) {
       frameRef.current.style.setProperty("--spot-opacity", "0");
-      frameRef.current.style.setProperty("--img-x", "0px");
-      frameRef.current.style.setProperty("--img-y", "0px");
     }
-    if (rafRef.current) {
-      cancelAnimationFrame(rafRef.current);
-      rafRef.current = null;
-    }
-    currentRef.current = { x: 50, y: 50 };
-    targetRef.current = { x: 50, y: 50 };
   };
 
   useEffect(() => {
+    loopStartRef.current = performance.now();
+    const tick = (time) => {
+      const frame = frameRef.current;
+      if (!frame) {
+        rafRef.current = null;
+        return;
+      }
+
+      // Idle drift on all devices so the hero feels "alive" even without hover.
+      if (!isHoveringRef.current) {
+        const elapsed = (time - loopStartRef.current) * 0.001;
+        targetRef.current = {
+          x: 50 + Math.sin(elapsed * 0.55) * 10,
+          y: 50 + Math.cos(elapsed * 0.72) * 7,
+        };
+      }
+
+      const current = currentRef.current;
+      const target = targetRef.current;
+      const nextX = current.x + (target.x - current.x) * 0.1;
+      const nextY = current.y + (target.y - current.y) * 0.1;
+
+      currentRef.current = { x: nextX, y: nextY };
+      frame.style.setProperty("--spot-x", `${nextX.toFixed(2)}%`);
+      frame.style.setProperty("--spot-y", `${nextY.toFixed(2)}%`);
+
+      const offsetX = ((nextX - 50) / 50) * 6;
+      const offsetY = ((nextY - 50) / 50) * 4;
+      frame.style.setProperty("--img-x", `${offsetX.toFixed(2)}px`);
+      frame.style.setProperty("--img-y", `${offsetY.toFixed(2)}px`);
+
+      rafRef.current = requestAnimationFrame(tick);
+    };
+
+    rafRef.current = requestAnimationFrame(tick);
+
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
@@ -135,15 +146,17 @@ export default function ProjectHero({ project, folder }) {
                   maxHeight: "75vh",
                 }}
               >
-                  <div
-                    className="relative w-full hero-motion project-hero-motion"
-                    style={{
-                      aspectRatio: heroAspect,
-                      minHeight: needsTallerHeroFrame
-                        ? "clamp(16rem, 32vw, 26rem)"
-                        : undefined,
-                    }}
-                    data-loaded="false"
+                <div
+                  className={`relative w-full hero-motion project-hero-motion [aspect-ratio:var(--hero-mobile-aspect)] md:[aspect-ratio:var(--hero-desktop-aspect)] ${
+                    needsTallerHeroFrame
+                      ? "md:min-h-[clamp(16rem,32vw,26rem)]"
+                      : ""
+                  }`}
+                  style={{
+                    "--hero-mobile-aspect": mobileHeroAspect,
+                    "--hero-desktop-aspect": heroAspect,
+                  }}
+                  data-loaded="false"
                 >
                   <span
                     aria-hidden="true"
@@ -155,7 +168,7 @@ export default function ProjectHero({ project, folder }) {
                       alt={`${project.title} hero`}
                       fill
                       className={`hero-image project-hero-image block opacity-0 transition-[opacity,transform,filter] duration-700 ease-out data-[loaded=true]:opacity-100 ${
-                        needsTallerHeroFrame ? "object-cover" : "object-contain"
+                        needsTallerHeroFrame ? "object-contain md:object-cover" : "object-contain"
                       }`}
                       data-loaded="false"
                       sizes="(max-width: 768px) 92vw, (max-width: 1280px) 70vw, 60vw"
