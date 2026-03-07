@@ -128,8 +128,8 @@ export default function HeroBanner() {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <section className="section bg-cream relative overflow-hidden min-h-[100vh] flex items-center justify-center py-20">
-      <div className="container mx-auto px-4">
+    <section className="relative overflow-hidden min-h-[100vh] flex items-center justify-center py-20">
+      <div className="container mx-auto">
         <div className="relative z-10 flex flex-col items-center text-center">
           {/* Ім'я */}
           <h1

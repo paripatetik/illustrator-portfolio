@@ -5,56 +5,48 @@ html {
 }
 
 /* ================================
-   1) ДИЗАЙН-ТОКЕНИ (міняєш тут)
+   1) ДИЗАЙН-ТОКЕНИ
    ================================ */
 
 :root {
-  /* базові кольори */
-  --foreground: #ffffff;   /* світлий текст */
-  --background: #ffffff;   /* світла поверхня */
+  --foreground: #ffffff;
+  --background: #ffffff;
 
-  /* бренд-палітра */
-  --accent: #d8585d;       /* глибший червоний */
-  --mint: #f2a2a6;         /* додатковий рожевий */
-  --cream: #f3b3b6;        /* основний рожевий фон */
-  --pink-rich: #e98e95;    /* насиченіший рожевий для тексту */
-  --surface-rose: #c84f59; /* темніший фон для форм/блоків */
-  --blob-light: #f7b7bb;   /* плямки на фоні */
+  --accent: #d8585d;
+  
+  --cream: #f3b3b6;
+  --pink-rich: #e98e95;
+  --surface-rose: #c84f59;
+  --blob-light: #f7b7bb;
 
-  /* форма + глибина */
   --radius-card: 24px;
   --radius-pill: 999px;
   --shadow-soft: 0 12px 30px rgba(0,0,0,.18);
 
-  /* ритм секцій */
   --section-y: 20px;
 
-  /* шрифти */
   --font-heading: var(--font-display, "Blushing");
   --font-body: var(--font-fun, "Seed");
 }
 
-/* =================================
-   2) МАПІНГ У TAILWIND THEME (v4)
-   ================================= */
+/* ================================
+   2) TAILWIND THEME MAPPING
+   ================================ */
 
 @theme inline {
   --color-foreground: var(--foreground);
   --color-background: var(--background);
-
   --color-accent: var(--accent);
   --color-mint: var(--mint);
   --color-cream: var(--cream);
-
-  /* тут пізніше можна прив'язати додаткові токени */
 }
 
 /* ================================
-   3) ГЛОБАЛЬНА БАЗА
+   3) БАЗА
    ================================ */
 
 body {
-  background-color: #d7838f;   /* темніший рожевий базовий фон */
+  background-color: #d7838f;
   color: var(--foreground);
   font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
   position: relative;
@@ -76,8 +68,6 @@ body::before {
 @media (max-width: 900px) {
   body::before {
     background-image: url("/background/spots-page-map-mobile-v7.svg?v=12");
-    background-size: 100% auto;
-    background-position: 0 0;
   }
 }
 
@@ -86,20 +76,85 @@ body > * {
   z-index: 1;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
+h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading), ui-serif, serif;
 }
 
 /* ================================
-   4) СЕМАНТИЧНІ КОМПОНЕНТИ
+   4) ГЛОБАЛЬНІ ПРИМІТИВИ
    ================================ */
 
 @layer components {
+
+  /* --- Ритм --- */
+  .section {
+    margin: 25px 0;
+    padding: 20px 15px;
+    
+  }
+
+  /* --- Типографія --- */
+  .section-title {
+    @apply mx-auto w-full text-center text-4xl sm:text-5xl md:text-6xl leading-tight;
+    font-family: var(--font-heading), ui-serif, serif;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    margin-top: 15px;
+  }
+
+  .t-project {
+    @apply text-3xl sm:text-4xl md:text-5xl leading-tight;
+    font-family: var(--font-heading), ui-serif, serif;
+    font-weight: 700;
+  }
+
+  .t-project-card {
+    @apply text-2xl sm:text-3xl md:text-4xl leading-tight;
+    font-family: var(--font-heading), ui-serif, serif;
+    font-weight: 700;
+  }
+
+  .t-body {
+    @apply text-2xl sm:text-3xl md:text-4xl leading-tight;
+    font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  }
+
+  /* --- Кнопка --- */
+  .btn {
+    border-radius: var(--radius-pill);
+    @apply mt-5 inline-flex items-center justify-center gap-2 px-6 py-3 font-semibold leading-none transition hover:translate-y-[-1px];
+    font-size: clamp(1.5rem, 2.8vw, 2.25rem);
+    background: #ffffff;
+    border: 1px solid rgba(243, 179, 182, 0.6);
+    color: var(--pink-rich);
+    font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+    text-align: center;
+  }
+
+  /* --- Зображення --- */
+  .img-rounded {
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+    @apply border border-white/70;
+  }
+
+  .card {
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+    @apply bg-white/90 border border-white/70;
+  }
+
+  .bg-cream {
+    background-color: transparent !important;
+    background-image: none !important;
+  }
+
+  /* ================================
+     5) АНІМАЦІЙНА ІНФРАСТРУКТУРА
+     (JS керує класами / CSS-змінними)
+     ================================ */
+
+  /* --- ProjectsWall анімація входу --- */
   .wall-card {
     opacity: 0;
     transform: translate3d(var(--from-x, 0px), var(--from-y, 16px), 0);
@@ -107,8 +162,7 @@ h6 {
   }
 
   .wall-card.wall-animate {
-    animation: wallSlideIn 0.95s cubic-bezier(0.2, 0.8, 0.2, 1)
-      var(--wall-delay, 0ms) both;
+    animation: wallSlideIn 0.95s cubic-bezier(0.2, 0.8, 0.2, 1) var(--wall-delay, 0ms) both;
   }
 
   .wall-card.wall-static {
@@ -117,44 +171,112 @@ h6 {
     animation: none;
   }
 
-  .bg-cream {
-    background-color: transparent !important;
-    background-image: none !important;
+  /* --- Hero (головна) --- */
+  .hero-frame {
+    perspective: 1000px;
+    position: relative;
+    isolation: isolate;
+    --spot-opacity: 0;
   }
 
-
-  /* секції */
-  .section {
-    padding: 30px 0;
+  .hero-frame::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      circle at var(--spot-x, 50%) var(--spot-y, 50%),
+      rgba(255,255,255,0.4) 0%,
+      rgba(255,255,255,0.2) 18%,
+      rgba(255,255,255,0.05) 30%,
+      transparent 45%
+    );
+    opacity: var(--spot-opacity, 0);
+    transition: opacity 200ms ease;
+    pointer-events: none;
+    mix-blend-mode: screen;
+    z-index: 2;
   }
 
-  /* картки (проєкти, блоки) */
-  .card {
-    border-radius: var(--radius-card);
-    box-shadow: var(--shadow-soft);
-    @apply bg-white/90 border border-white/70;
+  .hero-frame:hover {
+    box-shadow: 0 18px 40px rgba(0,0,0,0.22);
+    --spot-opacity: 1;
   }
 
-  /* картинки з м'яким стилем */
-  .img-rounded {
-    border-radius: var(--radius-card);
-    box-shadow: var(--shadow-soft);
-    @apply border border-white/70;
+  .hero-image {
+    animation: heroBreath 14s ease-in-out infinite alternate;
+    transition: filter 240ms ease, transform 400ms ease;
+    backface-visibility: hidden;
+    filter: saturate(1.01) brightness(1.005) contrast(1.01);
+    transform: scale(1.03) translate3d(0,0,0);
+    transform-origin: center;
+    will-change: transform;
   }
 
+  .hero-frame:hover .hero-image {
+    filter: saturate(1.06) brightness(1.03);
+    transform: scale(1.04);
+  }
+
+  /* --- Hero (сторінка проєкту) --- */
+  .project-hero-frame {
+    position: relative;
+  }
+
+  .project-hero-frame::after,
+  .project-hero-frame::before {
+    display: none !important;
+  }
+
+  .project-hero-frame:hover {
+    --spot-opacity: 0 !important;
+  }
+
+  .project-hero-motion {
+    transform: translate3d(var(--img-x, 0px), var(--img-y, 0px), 0);
+    transition: transform 0.2s ease-out;
+    will-change: transform;
+  }
+
+  .project-hero-image {
+    transform: none !important;
+    filter: saturate(1.02) brightness(1.01) contrast(1.01);
+  }
+
+  .project-hero-frame:hover .project-hero-image,
+  .project-hero-frame:hover .hero-image {
+    transform: none !important;
+    filter: saturate(1.02) brightness(1.01) contrast(1.01) !important;
+  }
+
+  @media (min-width: 768px) {
+    .project-hero-frame::before {
+      content: "";
+      position: absolute;
+      top: var(--spot-y, 50%);
+      left: var(--spot-x, 50%);
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(255,107,122,0.15) 0%, transparent 70%);
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      opacity: var(--spot-opacity, 0);
+      transition: opacity 0.3s ease;
+      z-index: 10;
+    }
+  }
+
+  /* --- Gallery --- */
   .gallery-shimmer {
     background: linear-gradient(
       100deg,
-      rgba(0, 0, 0, 0.03) 20%,
-      rgba(0, 0, 0, 0.08) 40%,
-      rgba(0, 0, 0, 0.03) 60%
+      rgba(0,0,0,0.03) 20%,
+      rgba(0,0,0,0.08) 40%,
+      rgba(0,0,0,0.03) 60%
     );
     background-size: 200% 100%;
     animation: galleryShimmer 1.8s ease-in-out infinite;
     transition: opacity 0.7s ease;
   }
-
-
 
   .lightbox-loading-overlay {
     position: absolute;
@@ -175,408 +297,43 @@ h6 {
     width: 52px;
     height: 52px;
     border-radius: 999px;
-    border: 2px solid rgba(255, 255, 255, 0.25);
-    border-top-color: rgba(255, 255, 255, 0.95);
+    border: 2px solid rgba(255,255,255,0.25);
+    border-top-color: rgba(255,255,255,0.95);
     animation: gallerySpin 0.9s linear infinite;
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.22);
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.22);
+  }
+}
+
+/* ================================
+   6) REDUCED MOTION
+   ================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-image,
+  .project-hero-motion,
+  .wall-card,
+  .gallery-shimmer {
+    animation: none;
+    transform: none;
   }
 
-  /* кнопки */
-  .btn {
-    border-radius: var(--radius-pill);
-    @apply mt-5 inline-flex items-center justify-center gap-2 px-6 py-3 font-semibold leading-none transition hover:translate-y-[-1px];
-    font-size: clamp(1.5rem, 2.8vw, 2.25rem);
-    background: #ffffff;
-    border: 1px solid rgba(243, 179, 182, 0.6);
-    color: var(--pink-rich);
-    font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
-    text-align: center;
-  }
-
-  .btn-white {
-    @apply bg-white text-[color:var(--pink-rich)] hover:bg-white/90 border border-cream/60;
-  }
-
-  .btn-accent {
-    @apply bg-white text-[color:var(--pink-rich)] hover:bg-white/90 border border-cream/60;
-  }
-
-  .btn-mint {
-    @apply bg-white text-[color:var(--pink-rich)] hover:bg-white/90 border border-cream/60;
-  }
-
-  .btn-ghost {
-    @apply bg-white text-[color:var(--pink-rich)] hover:bg-white/90 border border-cream/60;
-  }
-
-  /* заголовки */
-  /* приглушений текст */
-  .muted {
-    @apply text-foreground/70;
-  }
-
-  .section-title {
-    @apply mx-auto w-full text-center text-4xl sm:text-5xl md:text-6xl leading-tight;
-    font-family: var(--font-heading), ui-serif, serif;
-    font-weight: 700;
-    text-transform: none;
-    letter-spacing: 0.02em;
-  }
-
-  /* Назви проєктів */
-  .t-project {
-    @apply text-3xl sm:text-4xl md:text-5xl leading-tight;
-    font-family: var(--font-heading), ui-serif, serif;
-    font-weight: 700;
-  }
-
-  .t-project-card {
-    @apply text-2xl sm:text-3xl md:text-4xl leading-tight;
-    font-family: var(--font-heading), ui-serif, serif;
-    font-weight: 700;
-  }
-
-  /* Основний текст */
-  .t-body {
-    @apply text-2xl sm:text-3xl md:text-4xl leading-tight;
-    font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
-  }
-
-  .hero-copy {
-    @apply rounded-[20px] border border-white/70 bg-white/65 px-5 py-2 md:px-7 md:py-4;
-    box-shadow: var(--shadow-soft);
-  }
-
-  .hero-frame {
-    perspective: 1000px;
-    position: relative;
-    isolation: isolate;
-    --spot-opacity: 0;
-  }
-
-  .hero-frame::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(
-      circle at var(--spot-x, 50%) var(--spot-y, 50%),
-      rgba(255, 255, 255, 0.4) 0%,
-      rgba(255, 255, 255, 0.2) 18%,
-      rgba(255, 255, 255, 0.05) 30%,
-      transparent 45%
-    );
-    opacity: var(--spot-opacity, 0);
-    transition: opacity 200ms ease;
-    pointer-events: none;
-    mix-blend-mode: screen;
-    z-index: 2;
-  }
-
-  .hero-image-wrap {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    transform: translate3d(0, 0, 0);
-    will-change: transform;
-  }
-
-  .hero-image {
-    animation: heroBreath 14s ease-in-out infinite alternate;
-    transition: filter 240ms ease, transform 400ms ease;
-    backface-visibility: hidden;
-    filter: saturate(1.01) brightness(1.005) contrast(1.01);
-    transform: scale(1.03) translate3d(0, 0, 0);
-    transform-origin: center;
-    will-change: transform;
-  }
-
-  .project-hero-frame {
-    position: relative;
-  }
-
-  /* Disable project-hero glow overlays; keep only motion. */
-  .project-hero-frame::after,
-  .project-hero-frame::before {
-    display: none !important;
+  .wall-card {
+    opacity: 1;
   }
 
   .project-hero-motion {
-    transform: translate3d(var(--img-x, 0px), var(--img-y, 0px), 0);
-    transition: transform 0.2s ease-out;
-    will-change: transform;
-  }
-
-  /* Keep full artwork visible on project pages (no zoom-crop). */
-  .project-hero-image {
-    transform: none !important;
-    filter: saturate(1.02) brightness(1.01) contrast(1.01);
-  }
-
-  .project-hero-frame:hover .project-hero-image {
-    transform: none !important;
-    filter: saturate(1.05) brightness(1.02) contrast(1.02);
-  }
-
-  @media (min-width: 768px) {
-    .project-hero-frame::before {
-      content: "";
-      position: absolute;
-      top: var(--spot-y, 50%);
-      left: var(--spot-x, 50%);
-      width: 300px;
-      height: 300px;
-      background: radial-gradient(
-        circle,
-        rgba(255, 107, 122, 0.15) 0%,
-        transparent 70%
-      );
-      transform: translate(-50%, -50%);
-      pointer-events: none;
-      opacity: var(--spot-opacity, 0);
-      transition: opacity 0.3s ease;
-      z-index: 10;
-    }
-  }
-
-  .hero-frame:hover .hero-image {
-    filter: saturate(1.06) brightness(1.03);
-    transform: scale(1.04);
-  }
-
-  .hero-frame:hover {
-    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
-    --spot-opacity: 1;
-  }
-
-  /* Project hero: keep motion, remove glow/brightening entirely. */
-  .project-hero-frame:hover {
-    --spot-opacity: 0 !important;
-  }
-
-  .project-hero-frame:hover .project-hero-image,
-  .project-hero-frame:hover .hero-image {
-    transform: none !important;
-    filter: saturate(1.02) brightness(1.01) contrast(1.01) !important;
-  }
-
-  .about-title {
-    @apply mx-auto max-w-[32ch];
-    color: var(--foreground);
-  }
-
-  .about-stack {
-    @apply mt-10 flex flex-col items-center gap-8;
-    max-width: 680px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .about-image-wrap {
-    @apply relative flex items-center justify-center;
-    width: min(82vw, 400px);
-    border-radius: 24px;
-    background: rgba(255, 255, 255, 0.12);
-    box-shadow: 0 16px 30px rgba(156, 46, 68, 0.28);
-    padding: 10px;
-    animation: aboutFloat 8s ease-in-out infinite;
-    will-change: transform;
-  }
-
-  .about-image {
-    @apply h-auto w-full object-cover;
-    border-radius: 18px;
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
-    transition: transform 320ms ease, filter 320ms ease, drop-shadow 320ms ease;
-    filter: saturate(1) brightness(1);
-    will-change: transform;
-  }
-
-  .about-image-wrap:hover .about-image {
-    transform: translateY(-8px) scale(1.02) rotate(-1deg);
-    filter: saturate(1.05) brightness(1.02) drop-shadow(0 14px 22px rgba(0, 0, 0, 0.18));
-  }
-
-  .about-bookmark {
-    @apply absolute left-5 -top-4;
-    width: 40px;
-    height: 58px;
-    filter: drop-shadow(0 6px 12px rgba(156, 46, 68, 0.3));
-  }
-
-  .about-bookmark svg {
-    width: 100%;
-    height: 100%;
-  }
-
-  .about-copy {
-    @apply px-6 text-center;
-    max-width: 60ch;
-  }
-
-  .about-text {
-    @apply mx-auto mt-6;
-    color: var(--foreground);
-    font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
-  }
-
-
-  .contact-grid {
-    @apply grid items-start gap-10 md:grid-cols-[1fr_1fr] md:gap-12;
-  }
-
-  .contact-list {
-    @apply flex w-full flex-col gap-6 md:order-2 md:gap-7;
-  }
-
-  .contact-item {
-    @apply inline-flex items-center gap-4 no-underline transition-transform duration-300 md:gap-5;
-  }
-
-  .contact-item:hover {
-    transform: translateX(4px);
-  }
-
-  .contact-icon {
-    @apply inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full md:h-12 md:w-12;
-    background: #c84b53;
-    color: var(--foreground);
-    animation: contactIconFloat 2.8s ease-in-out infinite;
-    animation-delay: var(--icon-delay, 0s);
-    transition: transform 260ms ease, box-shadow 260ms ease;
-    overflow: hidden;
-  }
-
-  .contact-item:hover .contact-icon {
-    transform: scale(1.08) rotate(-4deg);
-    box-shadow: 0 10px 18px rgba(200, 75, 83, 0.35);
-  }
-
-  .contact-svg {
-    width: 1.45rem;
-    height: 1.45rem;
-    display: block;
-    flex: none;
-  }
-
-  .contact-text {
-    color: var(--foreground);
-    font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
-  }
-
-  .contact-form {
-    @apply w-full rounded-[20px] border p-5 md:order-1 md:p-7;
-    border-color: rgba(255, 246, 241, 0.38);
-    background: var(--surface-rose);
-  }
-
-  .contact-form-title {
-    @apply text-2xl sm:text-3xl md:text-4xl leading-tight;
-    color: var(--foreground);
-    font-family: var(--font-heading), ui-serif, serif;
-  }
-
-  .contact-label {
-    @apply mt-4 block;
-    color: var(--foreground);
-    font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
-  }
-
-  .contact-input,
-  .contact-textarea {
-    @apply mt-2 w-full rounded-xl border px-4 py-3 outline-none transition;
-    border-color: rgba(255, 255, 255, 0.32);
-    background: rgba(255, 255, 255, 0.14);
-    color: var(--foreground);
-    font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
-  }
-
-  .contact-input:focus,
-  .contact-textarea:focus {
-    border-color: rgba(255, 255, 255, 0.7);
-    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
-  }
-
-}
-
-@media (max-width: 760px) {
-  .about-image-wrap {
-    width: min(88vw, 360px);
-  }
-
-  .about-image {
-    border-radius: 20px;
-  }
-
-  .about-copy {
-    padding: 0.25rem 0.5rem 0;
-  }
-
-  .about-text {
-    margin-top: 1rem;
+    transition: none;
   }
 }
 
-@keyframes heroDrift {
-  0% {
-    transform: translate3d(-8px, 5px, 0);
-  }
-  35% {
-    transform: translate3d(8px, -5px, 0);
-  }
-  65% {
-    transform: translate3d(-6px, 8px, 0);
-  }
-  100% {
-    transform: translate3d(-8px, 5px, 0);
-  }
-}
-
-@keyframes heroDepth {
-  0% {
-    transform: scale(1.02);
-  }
-  50% {
-    transform: scale(1.06);
-  }
-  100% {
-    transform: scale(1.02);
-  }
-}
+/* ================================
+   7) KEYFRAMES
+   ================================ */
 
 @keyframes heroBreath {
-  0% {
-    transform: scale(1.03);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-  100% {
-    transform: scale(1.03);
-  }
-}
-
-@keyframes aboutFloat {
-  0% {
-    transform: translateY(0) rotate(0deg);
-  }
-  50% {
-    transform: translateY(-14px) rotate(-0.8deg);
-  }
-  100% {
-    transform: translateY(0) rotate(0deg);
-  }
-}
-
-@keyframes contactIconFloat {
-  0% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-4px);
-  }
-  100% {
-    transform: translateY(0);
-  }
+  0%   { transform: scale(1.03); }
+  50%  { transform: scale(1.05); }
+  100% { transform: scale(1.03); }
 }
 
 @keyframes wallSlideIn {
@@ -590,91 +347,39 @@ h6 {
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .hero-image,
-  .hero-image-wrap,
-  .project-hero-motion,
-  .about-image-wrap,
-  .about-image,
-  .contact-icon,
-  .wall-card {
-    animation: none;
-    transform: none;
-  }
-
-  .wall-card {
-    opacity: 1;
-  }
-
-  .project-hero-motion {
-    transition: none;
-  }
-
-  .gallery-shimmer {
-    animation: none;
-  }
-}
-
 @keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 @keyframes galleryShimmer {
-  0% {
-    background-position: 100% 0;
-  }
-  100% {
-    background-position: -100% 0;
-  }
+  0%   { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
 }
 
 @keyframes gallerySpin {
-  to {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
 }
 
 @keyframes pulseOutline {
-  0% {
-    transform: scale(1);
-    opacity: 0;
-  }
-  50% {
-    opacity: 0.8;
-  }
-  100% {
-    transform: scale(1.15);
-    opacity: 0;
-  }
+  0%   { transform: scale(1); opacity: 0; }
+  50%  { opacity: 0.8; }
+  100% { transform: scale(1.15); opacity: 0; }
 }
 
-@keyframes heroFloat {
-  0% {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-  40% {
-    transform: translate3d(0, -6px, 0) scale(1.02);
-  }
-  70% {
-    transform: translate3d(4px, 2px, 0) scale(1.01);
-  }
-  100% {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
+@keyframes aboutFloat {
+  0%   { transform: translateY(0) rotate(0deg); }
+  50%  { transform: translateY(-14px) rotate(-0.8deg); }
+  100% { transform: translateY(0) rotate(0deg); }
+}
+
+@keyframes contactIconFloat {
+  0%   { transform: translateY(0); }
+  50%  { transform: translateY(-4px); }
+  100% { transform: translateY(0); }
 }

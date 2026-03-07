@@ -73,8 +73,8 @@ export default function IllustrationsWall() {
   if (!visibleIllustrations.length) return null;
 
   return (
-    <section className="section bg-cream overflow-x-hidden">
-      <div className="container mx-auto px-4 pt-2">
+    <section className="section overflow-x-hidden">
+      <div className="container mx-auto">
         <h2 className="mb-10 section-title">Illustrations</h2>
 
         <div className="grid grid-cols-1 gap-8 min-[776px]:grid-cols-2 lg:grid-cols-3">

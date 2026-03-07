@@ -104,7 +104,7 @@ export default function ProjectsWall() {
 
   return (
     <section className="section bg-cream overflow-x-hidden">
-      <div className="container mx-auto px-4 pt-2">
+      <div className="container mx-auto">
        
           
           <h2 className="mb-10 section-title">
