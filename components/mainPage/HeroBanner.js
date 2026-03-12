@@ -5,53 +5,53 @@ import { useState, useRef } from "react";
 import { featuredImages } from "@/data/featuredImages";
 
 // Компонент анімованого зображення з dragging ефектом (тільки для desktop)
-function FloatingImage({ src, index }) {
+function FloatingImage({ src, index, isMobile }) {
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const imageRef = useRef(null);
 
-  // Desktop позиціонування: 2 по боках, 2 внизу
-  const positions = [
-    { top: "50%", left: "5%", translateY: "-50%", rotate: -8 },   // лівий бік
-    { top: "50%", right: "5%", translateY: "-50%", rotate: 5 },   // правий бік
-    { bottom: "5%", left: "10%", rotate: 6 },                     // нижній лівий
-    { bottom: "5%", right: "10%", rotate: -7 },                   // нижній правий
+  const handleMove = (e) => {
+    if (!imageRef.current) return;
+    const rect = imageRef.current.getBoundingClientRect();
+    const clientX = e.clientX ?? e.touches?.[0]?.clientX;
+    const clientY = e.clientY ?? e.touches?.[0]?.clientY;
+    if (!clientX || !clientY) return;
+    setOffset({
+      x: (clientX - (rect.left + rect.width / 2)) * 0.15,
+      y: (clientY - (rect.top + rect.height / 2)) * 0.15,
+    });
+  };
+
+  const handleLeave = () => setOffset({ x: 0, y: 0 });
+
+  const desktopPositions = [
+    { top: "50%", left: "5%", translateY: "-50%", rotate: -8 },
+    { top: "50%", right: "5%", translateY: "-50%", rotate: 5 },
+    { bottom: "5%", left: "10%", rotate: 6 },
+    { bottom: "5%", right: "10%", rotate: -7 },
   ];
 
-  const position = positions[index % 4];
+  const rotate = isMobile
+    ? [-4, 4, -3, 3][index % 4]
+    : desktopPositions[index % 4].rotate;
 
-  const handleMouseMove = (e) => {
-    if (!imageRef.current) return;
-
-    const rect = imageRef.current.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-
-    // Обчислюємо зміщення (максимум 20px)
-    const deltaX = (e.clientX - centerX) * 0.15;
-    const deltaY = (e.clientY - centerY) * 0.15;
-
-    setOffset({ x: deltaX, y: deltaY });
-  };
-
-  const handleMouseLeave = () => {
-    setOffset({ x: 0, y: 0 });
-  };
+  const { translateY, rotate: _, ...desktopPos } = isMobile
+    ? {}
+    : desktopPositions[index % 4];
 
   return (
     <div
       ref={imageRef}
-      className="absolute hidden lg:block cursor-grab active:cursor-grabbing"
-      style={{
-        ...position,
-        transform: `translateY(${position.translateY || '0'}) rotate(${position.rotate}deg)`,
-      }}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
+      className={isMobile ? "" : "absolute hidden lg:block cursor-grab active:cursor-grabbing"}
+      style={isMobile ? {} : { ...desktopPos, transform: `translateY(${translateY ?? "0"}) rotate(${rotate}deg)` }}
+      onMouseMove={handleMove}
+      onMouseLeave={handleLeave}
+      onTouchMove={handleMove}
+      onTouchEnd={handleLeave}
     >
       <div
         className="relative transition-transform duration-300 ease-out"
         style={{
-          transform: `translate(${offset.x}px, ${offset.y}px)`,
+          transform: `translate(${offset.x}px, ${offset.y}px)${isMobile ? ` rotate(${rotate}deg)` : ""}`,
         }}
       >
         <Image
@@ -59,7 +59,11 @@ function FloatingImage({ src, index }) {
           alt=""
           width={280}
           height={280}
-          className="img-rounded object-cover w-[240px] h-[240px] xl:w-[280px] xl:h-[280px]"
+          className={
+  isMobile
+    ? "rounded-[var(--radius-card)] border border-white/70 object-cover w-[120px] h-[120px] sm:w-[140px] sm:h-[140px]"
+    : "img-rounded object-cover w-[240px] h-[240px] xl:w-[280px] xl:h-[280px]"
+}
           priority
         />
       </div>
@@ -67,68 +71,12 @@ function FloatingImage({ src, index }) {
   );
 }
 
-// Компонент мобільного фото з dragging ефектом
-function MobileFloatingImage({ src, index }) {
-  const [offset, setOffset] = useState({ x: 0, y: 0 });
-  const imageRef = useRef(null);
-
-  const handleMouseMove = (e) => {
-    if (!imageRef.current) return;
-
-    const rect = imageRef.current.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-
-    // Отримуємо координати (підтримка touch)
-    const clientX = e.clientX || (e.touches && e.touches[0]?.clientX);
-    const clientY = e.clientY || (e.touches && e.touches[0]?.clientY);
-
-    if (!clientX || !clientY) return;
-
-    // Обчислюємо зміщення
-    const deltaX = (clientX - centerX) * 0.15;
-    const deltaY = (clientY - centerY) * 0.15;
-
-    setOffset({ x: deltaX, y: deltaY });
-  };
-
-  const handleMouseLeave = () => {
-    setOffset({ x: 0, y: 0 });
-  };
-
-  return (
-    <div
-      ref={imageRef}
-      className="cursor-grab active:cursor-grabbing"
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      onTouchMove={handleMouseMove}
-      onTouchEnd={handleMouseLeave}
-    >
-      <div
-        className="relative transition-transform duration-300 ease-out"
-        style={{
-          transform: `translate(${offset.x}px, ${offset.y}px) rotate(${[-4, 4, -3, 5][index % 4]}deg)`,
-        }}
-      >
-        <Image
-          src={`/${src}`}
-          alt=""
-          width={140}
-          height={140}
-          className="img-rounded object-cover w-[120px] h-[120px] sm:w-[140px] sm:h-[140px]"
-          priority
-        />
-      </div>
-    </div>
-  );
-}
 
 export default function HeroBanner() {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <section className="relative overflow-hidden min-h-[100vh] flex items-center justify-center py-20">
+    <section className="relative overflow-hidden min-h-[100vh] flex items-center justify-center ">
       <div className="container mx-auto">
         <div className="relative z-10 flex flex-col items-center text-center">
           {/* Ім'я */}
@@ -160,7 +108,7 @@ export default function HeroBanner() {
 
           {/* Центральне фото з анімованими контурами */}
           <div 
-            className="relative mb-6 animate-[fadeIn_1s_ease-out_0.3s_backwards] hero-photo-wrapper group cursor-pointer"
+            className="relative mb-6 animate-[fadeIn_1s_ease-out_0.3s_backwards] group cursor-pointer"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           >
@@ -202,13 +150,8 @@ export default function HeroBanner() {
                 alt="Olena Oprich"
                 width={500}
                 height={500}
-                className="object-cover w-[320px] h-[320px] sm:w-[400px] sm:h-[400px] md:w-[480px] md:h-[480px] lg:w-[500px] lg:h-[500px] transition-all duration-500 group-hover:scale-105"
-                style={{
-                  boxShadow: isHovered 
-                    ? "0 30px 80px rgba(0,0,0,0.3), 0 12px 30px rgba(240, 70, 99, 0.2)" 
-                    : "0 20px 60px rgba(0,0,0,0.2), 0 8px 20px rgba(0,0,0,0.15)",
-                  borderRadius: "24px",
-                }}
+                className="shadow-xl object-cover w-[320px] h-[320px] sm:w-[400px] sm:h-[400px] md:w-[480px] md:h-[480px] lg:w-[500px] lg:h-[500px] transition-all duration-500 hover:scale-105"
+          
                 priority
               />
               
@@ -225,9 +168,8 @@ export default function HeroBanner() {
           {/* Підпис */}
           <div className="mt-4 h-[3px] bg-foreground/60 w-3/5 max-w-[420px]" />
           <p
-            className="mt-4 text-foreground relative inline-block cursor-default text-3xl sm:text-4xl md:text-5xl"
+            className="mt-4 t-body text-foreground relative inline-block cursor-default text-3xl sm:text-4xl md:text-5xl"
             style={{
-              fontFamily: "var(--font-body), ui-sans-serif, system-ui, sans-serif",
               textShadow: "0 1px 4px rgba(0,0,0,0.06)",
               animation: "fadeInUp 0.8s ease-out 0.5s both",
             }}
@@ -235,25 +177,17 @@ export default function HeroBanner() {
             Hi there!
           </p>
 
-          {/* Мобільна сітка фото (під підписом) */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 lg:hidden max-w-2xl animate-[fadeIn_1s_ease-out_0.8s_backwards]">
-            {featuredImages.map((imagePath, index) => (
-              <MobileFloatingImage
-                key={imagePath}
-                src={imagePath}
-                index={index}
-              />
-            ))}
-          </div>
+        {/*  mobile grid */}
+<div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 lg:hidden">
+  {featuredImages.map((src, i) => (
+    <FloatingImage key={src} src={src} index={i} isMobile />
+  ))}
+</div>
 
-          {/* Desktop анімовані зображення навколо */}
-          {featuredImages.map((imagePath, index) => (
-            <FloatingImage
-              key={imagePath}
-              src={imagePath}
-              index={index}
-            />
-          ))}
+ {/*  desktop absolute */}
+{featuredImages.map((src, i) => (
+  <FloatingImage key={src} src={src} index={i} isMobile={false} />
+))}
         </div>
       </div>
 

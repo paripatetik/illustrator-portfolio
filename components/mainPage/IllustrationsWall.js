@@ -3,12 +3,12 @@
 import Image from "next/image";
 import {
   useCallback,
-  useMemo,
   useState,
 } from "react";
 import { illustrations } from "@/data/illustrations";
 import imageDimensions from "@/data/imageDimensions.json";
 import GalleryLightbox from "@/components/shared/GalleryLightbox";
+import Masonry from "react-masonry-css"
 
 const shimmer = (w, h) => `
   <svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
@@ -32,15 +32,9 @@ const INITIAL_VISIBLE = 3;
 const LOAD_MORE_STEP = 3;
 
 export default function IllustrationsWall() {
-  const illustrationList = useMemo(
-    () => (Array.isArray(illustrations) ? illustrations : []),
-    []
-  );
+ 
   const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE);
-  const visibleIllustrations = useMemo(
-    () => illustrationList.slice(0, visibleCount),
-    [illustrationList, visibleCount]
-  );
+  const visibleIllustrations = illustrations.slice(0, visibleCount)
 
   const [loadedMap, setLoadedMap] = useState({});
   const [lightboxIndex, setLightboxIndex] = useState(null);
@@ -59,7 +53,7 @@ export default function IllustrationsWall() {
 
   const handleLoadMore = () => {
     setVisibleCount((prev) =>
-      Math.min(prev + LOAD_MORE_STEP, illustrationList.length)
+      Math.min(prev + LOAD_MORE_STEP, illustrations.length)
     );
   };
 
@@ -77,8 +71,17 @@ export default function IllustrationsWall() {
       <div className="container mx-auto">
         <h2 className="mb-10 section-title">Illustrations</h2>
 
-        <div className="grid grid-cols-1 gap-8 min-[776px]:grid-cols-2 lg:grid-cols-3">
-          {visibleIllustrations.map((imagePath, index) => {
+
+<Masonry
+  breakpointCols={{
+    default: 3,
+    1024: 2,
+    776: 1,
+  }}
+  className="flex gap-6"
+  columnClassName="flex flex-col gap-6"
+>
+   {visibleIllustrations.map((imagePath, index) => {
             const dimensions = imageDimensions[imagePath] || {
               width: 700,
               height: 500,
@@ -89,11 +92,10 @@ export default function IllustrationsWall() {
                 key={`${imagePath}-${index}`}
                 type="button"
                 onClick={(e) => {
-                  const previewSrc =
-                    e.currentTarget.querySelector("img")?.currentSrc || "";
+                  const previewSrc = e.currentTarget.querySelector("img")?.currentSrc || "";
                   openLightbox(index, previewSrc);
                 }}
-                className="group block w-full cursor-pointer text-left"
+                className="group block w-full cursor-pointer"
               >
                 <span className="sr-only">Open illustration {index + 1} in lightbox</span>
                 <article className="relative overflow-hidden rounded-[var(--radius-card)] bg-transparent">
@@ -104,10 +106,10 @@ export default function IllustrationsWall() {
                       width={dimensions.width}
                       height={dimensions.height}
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      className={`h-auto w-full object-cover transition-[opacity,transform] duration-1000 ease-[cubic-bezier(0.2,0.8,0.2,1)] group-hover:scale-[1.015] transform-gpu will-change-transform ${
+                      className={`h-auto w-full object-cover transition-[opacity,transform] duration-1000 ease-[cubic-bezier(0.2,0.8,0.2,1)] group-hover:scale-[1.015] ${
                         loadedMap[imagePath]
-                          ? "opacity-100 scale-100 blur-0"
-                          : "opacity-0 scale-[1.01] blur-[5px]"
+                          ? "opacity-100 scale-100"
+                          : "opacity-0 scale-[1.01]"
                       }`}
                       style={{
                         minHeight: "clamp(15rem, 24vw, 19rem)",
@@ -116,7 +118,8 @@ export default function IllustrationsWall() {
                       blurDataURL={`data:image/svg+xml;base64,${toBase64(
                         shimmer(dimensions.width, dimensions.height)
                       )}`}
-                      priority={index < 2}
+                      loading={index < 3 ? "eager" : "lazy"}
+                      fetchPriority={index < 3 ? "high" : "auto"}
                       quality={85}
                       onLoad={() => {
                         requestAnimationFrame(() => {
@@ -132,9 +135,9 @@ export default function IllustrationsWall() {
               </button>
             );
           })}
-        </div>
+</Masonry>
 
-        {visibleCount < illustrationList.length && (
+        {visibleCount < illustrations.length && (
           <div className="mt-6 flex justify-center">
             <button
               type="button"

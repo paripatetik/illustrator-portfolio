@@ -67,7 +67,7 @@ export default function ProjectNav({ currentSlug }) {
       <Link
         href="/"
         onClick={markHomeScrollRestorePending}
-        className={`btn fixed right-4 z-50 mt-0 transition-all duration-200 ${
+        className={`btn fixed right-4 z-50 mt-0 transition-[top] duration-200 ${
           isScrolled ? "top-1" : "top-4"
         }`}
       >
