@@ -46,7 +46,7 @@ export default async function ProjectPage({ params }) {
   }
 
   return (
-    <main>
+    <main >
       <ProjectHeader />
       <ProjectHero project={project} folder={project.slug} />
       <ProjectCards

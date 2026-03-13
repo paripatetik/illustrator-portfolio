@@ -51,6 +51,8 @@ body {
   font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
   position: relative;
   isolation: isolate;
+  padding-bottom: 30px;
+
 }
 
 body::before {
