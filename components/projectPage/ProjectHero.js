@@ -32,8 +32,7 @@ export default function ProjectHero({ project, folder }) {
   const heroDimensionKey = `projects/${folder}/${heroImage}`;
   const heroDimensions = imageDimensions[heroDimensionKey] || { width: 1600, height: 1000 };
   const heroAspect = heroDimensions.width / heroDimensions.height;
-  const needsTallerHeroFrame = heroAspect > 1.45;
-  const mobileHeroAspect = needsTallerHeroFrame ? Math.min(heroAspect, 2.05) : heroAspect;
+
   const frameRef = useRef(null);
   const imgRef = useRef(null);
   const rafRef = useRef(null);
@@ -41,42 +40,35 @@ export default function ProjectHero({ project, folder }) {
   const currentRef = useRef({ x: 50, y: 50 });
   const isHoveringRef = useRef(false);
   const loopStartRef = useRef(0);
-  
+
   const handleHeroMove = (event) => {
     const img = imgRef.current;
     if (!img) return;
     const rect = img.getBoundingClientRect();
     const rawX = ((event.clientX - rect.left) / rect.width) * 100;
     const rawY = ((event.clientY - rect.top) / rect.height) * 100;
-    const x = Math.min(100, Math.max(0, rawX));
-    const y = Math.min(100, Math.max(0, rawY));
-    targetRef.current = { x, y };
+    targetRef.current = {
+      x: Math.min(100, Math.max(0, rawX)),
+      y: Math.min(100, Math.max(0, rawY)),
+    };
   };
 
   const handleHeroEnter = () => {
     isHoveringRef.current = true;
-    if (frameRef.current) {
-      frameRef.current.style.setProperty("--spot-opacity", "1");
-    }
+    frameRef.current?.style.setProperty("--spot-opacity", "1");
   };
 
   const handleHeroLeave = () => {
     isHoveringRef.current = false;
-    if (frameRef.current) {
-      frameRef.current.style.setProperty("--spot-opacity", "0");
-    }
+    frameRef.current?.style.setProperty("--spot-opacity", "0");
   };
 
   useEffect(() => {
     loopStartRef.current = performance.now();
     const tick = (time) => {
       const frame = frameRef.current;
-      if (!frame) {
-        rafRef.current = null;
-        return;
-      }
+      if (!frame) { rafRef.current = null; return; }
 
-      // Idle drift on all devices so the hero feels "alive" even without hover.
       if (!isHoveringRef.current) {
         const elapsed = (time - loopStartRef.current) * 0.001;
         targetRef.current = {
@@ -93,43 +85,35 @@ export default function ProjectHero({ project, folder }) {
       currentRef.current = { x: nextX, y: nextY };
       frame.style.setProperty("--spot-x", `${nextX.toFixed(2)}%`);
       frame.style.setProperty("--spot-y", `${nextY.toFixed(2)}%`);
-
-      const offsetX = ((nextX - 50) / 50) * 6;
-      const offsetY = ((nextY - 50) / 50) * 4;
-      frame.style.setProperty("--img-x", `${offsetX.toFixed(2)}px`);
-      frame.style.setProperty("--img-y", `${offsetY.toFixed(2)}px`);
+      frame.style.setProperty("--img-x", `${(((nextX - 50) / 50) * 6).toFixed(2)}px`);
+      frame.style.setProperty("--img-y", `${(((nextY - 50) / 50) * 4).toFixed(2)}px`);
 
       rafRef.current = requestAnimationFrame(tick);
     };
 
     rafRef.current = requestAnimationFrame(tick);
-
-    return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    };
+    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
   }, []);
 
   return (
     <section className="section py-12 md:py-20 lg:py-24">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Mobile/Tablet: Title First (shown below lg) */}
-        <div 
+
+        {/* Mobile/Tablet: Title */}
+        <div
           className="lg:hidden mb-8 text-center"
           style={{ animation: "fadeInUp 0.8s ease both" }}
         >
-          <h1
-            className="t-project mb-4"
-          >
-            {project.title}
-          </h1>
+          <h1 className="t-project mb-4">{project.title}</h1>
         </div>
 
-        {/* Desktop: Side by Side Layout */}
-        <div 
+        {/* Layout */}
+        <div
           className="w-full"
           style={{ animation: "fadeInUp 0.8s ease both" }}
         >
           <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 lg:items-start max-w-[2000px] mx-auto">
+
             {/* Hero Image */}
             <div
               className="w-full lg:flex-1 flex justify-center"
@@ -141,94 +125,67 @@ export default function ProjectHero({ project, folder }) {
                 onMouseEnter={handleHeroEnter}
                 onMouseMove={handleHeroMove}
                 onMouseLeave={handleHeroLeave}
-                style={{
-                  width: `min(100%, ${75 * heroAspect}vh)`,
-                  maxHeight: "75vh",
-                }}
+                style={{ width: `min(100%, ${75 * heroAspect}vh)` }}
               >
-                <div
-                  className={`relative w-full hero-motion project-hero-motion [aspect-ratio:var(--hero-mobile-aspect)] md:[aspect-ratio:var(--hero-desktop-aspect)] ${
-                    needsTallerHeroFrame
-                      ? "md:min-h-[clamp(16rem,32vw,26rem)]"
-                      : ""
-                  }`}
-                  style={{
-                    "--hero-mobile-aspect": mobileHeroAspect,
-                    "--hero-desktop-aspect": heroAspect,
-                  }}
-                  data-loaded="false"
-                >
+              <div
+                className="relative w-full min-h-[200px]  hero-motion project-hero-motion"
+                style={{ aspectRatio: `${heroDimensions.width} / ${heroDimensions.height}` }}
+                data-loaded="false"
+              >
                   <span
                     aria-hidden="true"
                     className="absolute inset-0 rounded-[var(--radius-card)] bg-foreground/5 animate-pulse transition-opacity duration-500 data-[loaded=true]:opacity-0"
                   />
-                    <Image
-                      ref={imgRef}
-                      src={`/projects/${folder}/${heroImage}`}
-                      alt={`${project.title} hero`}
-                      fill
-                      className={`hero-image project-hero-image block opacity-0 transition-[opacity,transform,filter] duration-700 ease-out data-[loaded=true]:opacity-100 ${
-                        needsTallerHeroFrame ? "object-contain md:object-cover" : "object-contain"
-                      }`}
-                      data-loaded="false"
-                      sizes="(max-width: 768px) 92vw, (max-width: 1280px) 70vw, 60vw"
-                      priority
+                  <Image
+                    ref={imgRef}
+                    src={`/projects/${folder}/${heroImage}`}
+                    alt={`${project.title} hero`}
+                    fill
+                    className="hero-image project-hero-image block opacity-0 transition-[opacity,transform,filter] duration-700 ease-out data-[loaded=true]:opacity-100 object-fill"
+                    data-loaded="false"
+                    sizes="(max-width: 768px) 92vw, (max-width: 1280px) 70vw, 60vw"
+                    priority
                     quality={85}
                     placeholder="blur"
-                    blurDataURL={`data:image/svg+xml;base64,${toBase64(
-                      shimmer(900, 900)
-                    )}`}
+                    blurDataURL={`data:image/svg+xml;base64,${toBase64(shimmer(900, 900))}`}
                     onLoad={(e) => {
                       e.currentTarget.setAttribute("data-loaded", "true");
-                      e.currentTarget.parentElement?.setAttribute(
-                        "data-loaded",
-                        "true"
-                      );
+                      e.currentTarget.parentElement?.setAttribute("data-loaded", "true");
                     }}
                   />
                 </div>
               </div>
             </div>
 
-            {/* Text Content - Desktop Only (lg and above) */}
-            <div 
+            {/* Text — Desktop */}
+            <div
               className="hidden lg:flex lg:flex-col lg:w-[380px] xl:w-[420px] gap-6 lg:sticky lg:top-24"
               style={{ animation: "fadeInUp 0.9s ease both", animationDelay: "0.2s" }}
             >
               <div>
-                <h1
-                  className="t-project mb-4"
-                >
-                  {project.title}
-                </h1>
+                <h1 className="t-project mb-4">{project.title}</h1>
                 {metaLine && (
-                  <p className="t-body text-foreground/50 mb-6">
-                    {metaLine}
-                  </p>
+                  <p className="t-body text-foreground/50 mb-6">{metaLine}</p>
                 )}
               </div>
-              
-              <p className="t-body text-foreground/75">
-                {project.description}
-              </p>
+              <p className="t-body text-foreground/75">{project.description}</p>
             </div>
+
           </div>
         </div>
 
-        {/* Mobile/Tablet: Description Below Image (shown below lg) */}
-        <div 
+        {/* Mobile/Tablet: Description */}
+        <div
           className="lg:hidden mt-8 text-center max-w-2xl mx-auto"
           style={{ animation: "fadeInUp 0.8s ease both", animationDelay: "0.3s" }}
         >
-          <p className="t-body text-foreground/75">
-            {project.description}
-          </p>
+          <p className="t-body text-foreground/75">{project.description}</p>
           {metaLine && (
             <p className="t-body text-foreground/50 mt-3">{metaLine}</p>
           )}
         </div>
-      </div>
 
+      </div>
     </section>
   );
 }
