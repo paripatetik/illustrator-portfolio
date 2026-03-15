@@ -1,43 +1,58 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { illustrations } from "@/data/illustrations";
 import imageDimensions from "@/data/imageDimensions.json";
 import GalleryLightbox from "@/components/shared/GalleryLightbox";
 import MasonryGrid, { sortByAspect } from "@/components/shared/MasonryGrid";
 
-const INITIAL_VISIBLE = 3;
-const LOAD_MORE_STEP = 3;
+function getConfig() {
+  if (typeof window === "undefined") return { initial: 3, step: 3 };
+  if (window.matchMedia("(max-width: 776px)").matches)  return { initial: 4, step: 3 };
+  if (window.matchMedia("(max-width: 1024px)").matches) return { initial: 4, step: 2 };
+  return { initial: 3, step: 3 };
+}
 
-// ── Sort the FULL array once at module level ─────────────────────────────────
-// This guarantees stable positions: "Show more" only appends new items at the
-// end of the already-sorted list — nothing already visible ever moves.
 const allSorted = sortByAspect(
   illustrations.map((imagePath) => ({
     key: imagePath,
     src: `/${imagePath}`,
     alt: "Illustration",
     dimensions: imageDimensions[imagePath] || { width: 700, height: 500 },
-    _path: imagePath,
   }))
 );
 
 export default function IllustrationsWall() {
-  const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE);
+  const [config, setConfig] = useState(getConfig);
+  const { initial, step } = config;
+  const [visibleCount, setVisibleCount] = useState(initial);
   const [lightboxIndex, setLightboxIndex] = useState(null);
   const [lightboxPreviewSrc, setLightboxPreviewSrc] = useState("");
 
-  // Slice the pre-sorted list — order never changes, items only get added
-  const sortedItems = useMemo(() => allSorted.slice(0, visibleCount), [visibleCount]);
+  // ── Синхронізуємо visibleCount коли initial змінюється ──────────────────
+  useEffect(() => {
+    setVisibleCount(initial);
+  }, [initial]);
 
-  // Sorted filenames forwarded to lightbox so in-lightbox navigation
-  // matches the visual grid order.
+  // ── Оновлюємо config при resize ──────────────────────────────────────────
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const handler = () => setConfig(getConfig());
+    window.addEventListener("resize", handler);
+    return () => window.removeEventListener("resize", handler);
+  }, []);
+
+  // ── Slice the pre-sorted list ────────────────────────────────────────────
+  const sortedItems = useMemo(
+    () => allSorted.slice(0, visibleCount),
+    [visibleCount]
+  );
+
   const lightboxImages = useMemo(
-    () => sortedItems.map((item) => item._path),
+    () => sortedItems.map((item) => item.key),
     [sortedItems]
   );
 
-  // Build final item list with click handlers keyed to sorted index
   const items = useMemo(
     () =>
       sortedItems.map((item, si) => ({
@@ -59,10 +74,7 @@ export default function IllustrationsWall() {
     setLightboxPreviewSrc("");
   };
 
-  const getLightboxSrc = useCallback(
-    (imagePath) => `/${imagePath}`,
-    []
-  );
+  const getLightboxSrc = useCallback((imagePath) => `/${imagePath}`, []);
   const getLightboxDimensions = useCallback(
     (imagePath) => imageDimensions[imagePath],
     []
@@ -78,7 +90,6 @@ export default function IllustrationsWall() {
         <MasonryGrid
           items={items}
           columns={{ default: 3, 1024: 2, 776: 1 }}
-    
         />
 
         {visibleCount < illustrations.length && (
@@ -87,7 +98,7 @@ export default function IllustrationsWall() {
               type="button"
               onClick={() =>
                 setVisibleCount((prev) =>
-                  Math.min(prev + LOAD_MORE_STEP, illustrations.length)
+                  Math.min(prev + step, illustrations.length)
                 )
               }
               className="btn mt-0"
