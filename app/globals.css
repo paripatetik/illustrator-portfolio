@@ -117,7 +117,7 @@ h1, h2, h3, h4, h5, h6 {
   }
 
   .t-body {
-    @apply text-2xl sm:text-3xl md:text-4xl leading-tight;
+    @apply text-3xl sm:text-4xl md:text-4xl leading-tight;
     font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
   }
 

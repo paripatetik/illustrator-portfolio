@@ -20,7 +20,7 @@ export default function About() {
               animation: "aboutFloat 8s ease-in-out infinite",
             }}
           >
-            {/* Bookmark */}
+            {/* Bookmark is */}
             <span
               className="absolute left-5 -top-4 w-[40px] h-[58px]"
               aria-hidden="true"

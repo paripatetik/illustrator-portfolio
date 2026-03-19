@@ -28,8 +28,6 @@ const toBase64 = (str) =>
 /**
  * Sort items by ascending aspect ratio:
  * landscape / square images first, portrait / tall images last.
- *
- * Works on any array whose items have `dimensions: { width, height }`.
  */
 export function sortByAspect(items) {
   return [...items].sort((a, b) => {
@@ -39,28 +37,66 @@ export function sortByAspect(items) {
   });
 }
 
+// ── Sub-components ────────────────────────────────────────────────────────────
+
+function CardOverlay({ overlay }) {
+  return (
+    <>
+      <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/35 to-black/10 opacity-90 transition-opacity duration-700 ease-out md:opacity-0 sm:group-hover:opacity-90" />
+      <div className="absolute inset-0 flex flex-col justify-end p-6">
+        <h3 className="t-project-card drop-shadow-[0_4px_12px_rgba(0,0,0,0.55)] transition-all duration-700 ease-out translate-y-0 opacity-100 md:translate-y-3 md:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100">
+          {overlay.title}
+        </h3>
+        {overlay.description && (
+          <p className="t-body mt-1 md:mt-3 text-white/95 drop-shadow-[0_4px_10px_rgba(0,0,0,0.55)] transition-all delay-75 duration-700 ease-out translate-y-0 opacity-100 md:translate-y-3 md:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100">
+            {overlay.description}
+          </p>
+        )}
+      </div>
+    </>
+  );
+}
+
+function GalleryCard({ children }) {
+  return (
+    <article className="overflow-hidden img-rounded bg-white p-[6px]">
+      <div className="w-full overflow-hidden rounded-[18px] bg-foreground/5">
+        {children}
+      </div>
+    </article>
+  );
+}
+
+function DefaultCard({ overlay, children }) {
+  return (
+    <article className="relative overflow-hidden rounded-[var(--radius-card)]">
+      <div className="relative w-full">
+        {children}
+        {overlay && <CardOverlay overlay={overlay} />}
+      </div>
+    </article>
+  );
+}
+
 // ── MasonryGrid ──────────────────────────────────────────────────────────────
 /**
  * Unified masonry grid that renders images with optional overlays, links, or
  * lightbox-click behaviour.
  *
- * Pass `items` already sorted (use `sortByAspect` in the consumer so the same
- * sorted order can be forwarded to GalleryLightbox).
- *
  * Item shape:
- *   key              string                   unique identifier / React key
- *   src              string                   image src path
- *   alt              string                   image alt text
- *   dimensions       { width, height }        natural image dimensions
- *   href?            string                   → wraps card in <Link>
- *   onLinkClick?     () => void               onClick on the Link
- *   onClick?         (e, sortedIndex) => void → wraps card in <button>
- *   overlay?         { title, description? }  → hover gradient + text
- *   priority?        boolean                  → Image priority / eager
- *   variant?         'default' | 'gallery'   → gallery = white padded frame
- *   itemRef?         RefCallback              → ref on the outer wrapper div
- *   wrapperClassName? string                  → extra classes on wrapper div
- *   wrapperStyle?    CSSProperties            → extra styles on wrapper div
+ *   key               string                   unique identifier / React key
+ *   src               string                   image src path
+ *   alt               string                   image alt text
+ *   dimensions        { width, height }        natural image dimensions
+ *   href?             string                   → wraps card in <Link>
+ *   onLinkClick?      () => void               onClick on the Link
+ *   onClick?          (e, sortedIndex) => void → wraps card in <button>
+ *   overlay?          { title, description? }  → hover gradient + text
+ *   priority?         boolean                  → Image priority / eager
+ *   variant?          'default' | 'gallery'    → gallery = white padded frame
+ *   itemRef?          RefCallback              → ref on the outer wrapper div
+ *   wrapperClassName? string                   → extra classes on wrapper div
+ *   wrapperStyle?     CSSProperties            → extra styles on wrapper div
  */
 export default function MasonryGrid({
   items = [],
@@ -126,68 +162,19 @@ export default function MasonryGrid({
         );
 
         // ── Card shell ──
-        const card = (
-          <article
-            className={
-              isGallery
-                ? "relative overflow-hidden img-rounded bg-white p-[6px]"
-                : "relative overflow-hidden rounded-[var(--radius-card)]"
-            }
-          >
-            {/* Gallery: thin ring overlay */}
-            {isGallery && (
-              <span className="pointer-events-none absolute inset-0 rounded-[22px] ring-1 ring-foreground/10" />
-            )}
-
-            <div
-              className={
-                isGallery
-                  ? "relative w-full overflow-hidden rounded-[18px] bg-foreground/5"
-                  : "relative w-full"
-              }
-            >
-              {/* Gallery shimmer while loading */}
-              {isGallery && (
-                <span
-                  aria-hidden="true"
-                  className={`gallery-shimmer absolute inset-0 transition-opacity duration-700 ${
-                    loaded ? "opacity-0" : ""
-                  }`}
-                />
-              )}
-
-              {imgNode}
-
-              {/* Hover overlay (project cards) */}
-              {overlay && (
-                <>
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/35 to-black/10 opacity-90 transition-opacity duration-700 ease-out sm:opacity-0 sm:group-hover:opacity-90" />
-                  <div className="absolute inset-0 flex flex-col justify-end p-6">
-                    <h3 className="t-project-card text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.55)] transition-all duration-700 ease-out translate-y-0 opacity-100 sm:translate-y-3 sm:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100">
-                      {overlay.title}
-                    </h3>
-                    {overlay.description && (
-                      <p className="t-body mt-3 text-white/95 drop-shadow-[0_4px_10px_rgba(0,0,0,0.55)] transition-all delay-75 duration-700 ease-out translate-y-0 opacity-100 sm:translate-y-3 sm:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100">
-                        {overlay.description}
-                      </p>
-                    )}
-                  </div>
-                </>
-              )}
-            </div>
-          </article>
-        );
+        const card = isGallery
+          ? <GalleryCard >{imgNode}</GalleryCard>
+          : <DefaultCard overlay={overlay}>{imgNode}</DefaultCard>;
 
         // ── Interaction wrapper (Link / button / plain) ──
-        let interactiveCard;
-        if (href) {
-          interactiveCard = (
+        const interactiveCard = href
+          ? (
             <Link href={href} onClick={onLinkClick} className="block w-full">
               {card}
             </Link>
-          );
-        } else if (onClick) {
-          interactiveCard = (
+          )
+          : onClick
+          ? (
             <button
               type="button"
               onClick={(e) => onClick(e, index)}
@@ -196,15 +183,10 @@ export default function MasonryGrid({
               <span className="sr-only">{alt}</span>
               {card}
             </button>
-          );
-        } else {
-          interactiveCard = card;
-        }
+          )
+          : card;
 
         return (
-          // Outer div holds the ref (for IntersectionObserver / animation),
-          // carries the `group` class so all hover variants work, and applies
-          // any per-item wrapper classes / styles (e.g. wall-card animation).
           <div
             key={key}
             ref={itemRef}

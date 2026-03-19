@@ -146,11 +146,11 @@ export default function HeroBanner() {
             {/* Фото */}
             <div className="relative overflow-hidden rounded-[24px]">
               <Image
-                src="/olena.jpg"
+                src="/olena-2.png"
                 alt="Olena Oprich"
                 width={500}
                 height={500}
-                className="shadow-xl object-cover w-[320px] h-[320px] sm:w-[400px] sm:h-[400px] md:w-[480px] md:h-[480px] lg:w-[500px] lg:h-[500px] transition-all duration-500 hover:scale-105"
+                className="shadow-xl object-contain w-[320px] h-[320px] sm:w-[400px] sm:h-[400px] md:w-[480px] md:h-[480px] lg:w-[500px] lg:h-[500px] transition-all duration-500 hover:scale-105"
           
                 priority
               />

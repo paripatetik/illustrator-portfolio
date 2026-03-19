@@ -29,10 +29,6 @@ export default function IllustrationsWall() {
   const [lightboxIndex, setLightboxIndex] = useState(null);
   const [lightboxPreviewSrc, setLightboxPreviewSrc] = useState("");
 
-  // ── Синхронізуємо visibleCount коли initial змінюється ──────────────────
-  useEffect(() => {
-    setVisibleCount(initial);
-  }, [initial]);
 
   // ── Оновлюємо config при resize ──────────────────────────────────────────
   useEffect(() => {

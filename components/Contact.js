@@ -60,7 +60,7 @@ function LocationIcon() {
 
 export default function Contact() {
   return (
-    <section className="section pb-5" id="contact">
+    <section className="z-3 section pb-5" id="contact">
       <div className="container mx-auto">
         <h2 className="section-title mb-10">Let&apos;s connect!</h2>
 
