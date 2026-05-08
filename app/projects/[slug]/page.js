@@ -4,11 +4,59 @@ import ProjectHeader from "@/components/projectPage/ProjectHeader";
 import ProjectHero from "@/components/projectPage/ProjectHero";
 import ProjectCards from "@/components/projectPage/ProjectCards";
 import ProjectNav from "@/components/projectPage/ProjectNav";
+import { absoluteUrl, getProjectCover, siteName } from "@/lib/seo";
 
 const projectsList = Array.isArray(projects) ? projects : projects?.default ?? [];
 
 export function generateStaticParams() {
   return projectsList.map((project) => ({ slug: project.slug }));
+}
+
+export async function generateMetadata({ params }) {
+  const { slug } = await params;
+  const project = projectsList.find((item) => item.slug === slug);
+
+  if (!project) {
+    return {
+      title: "Project Not Found",
+      robots: {
+        index: false,
+        follow: false,
+      },
+    };
+  }
+
+  const title = `${project.title} Illustration Project`;
+  const description = project.description;
+  const path = `/projects/${project.slug}`;
+  const image = absoluteUrl(getProjectCover(project));
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: path,
+    },
+    openGraph: {
+      type: "article",
+      url: path,
+      siteName,
+      title,
+      description,
+      images: [
+        {
+          url: image,
+          alt: `${project.title} illustration by ${siteName}`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [image],
+    },
+  };
 }
 
 /* This function is used to clean up the slug for display purposes, but the actual slug matching is done against the original slug from the projects list.

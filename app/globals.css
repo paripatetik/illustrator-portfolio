@@ -2,6 +2,7 @@
 
 html {
   scrollbar-gutter: stable;
+  min-height: 100%;
 }
 
 /* ================================
@@ -46,31 +47,30 @@ html {
    ================================ */
 
 body {
-  background-color: #d7838f;
+  min-height: 100vh;
+  background-color: #f2adb2;
   color: var(--foreground);
   font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
   position: relative;
   isolation: isolate;
-  padding-bottom: 30px;
 
 }
 
 body::before {
   content: "";
-  position: absolute;
+  position: fixed;
   inset: 0;
+  z-index: -1;
   pointer-events: none;
-  z-index: 0;
-  background-image: url("/background/spots-page-map-v13.svg?v=16");
+  background-image: url("/background/bg.svg?v=22");
   background-repeat: no-repeat;
-  background-position: 0 0;
-  background-size: 100% auto;
+  background-position: center top;
+  background-size: cover;
 }
 
-@media (max-width: 900px) {
-  body::before {
-    background-image: url("/background/spots-page-map-mobile-v7.svg?v=12");
-  }
+.site-background {
+  min-height: 100vh;
+  padding-bottom: 30px;
 }
 
 body > * {
@@ -303,6 +303,15 @@ h1, h2, h3, h4, h5, h6 {
     border-top-color: rgba(255,255,255,0.95);
     animation: gallerySpin 0.9s linear infinite;
     box-shadow: 0 0 0 1px rgba(0,0,0,0.22);
+  }
+
+  .lightbox-counter {
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 0.95rem;
+    font-style: normal;
+    font-weight: 800;
+    letter-spacing: 0;
+    font-variant-numeric: tabular-nums;
   }
 }
 

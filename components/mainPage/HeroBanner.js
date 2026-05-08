@@ -146,7 +146,7 @@ export default function HeroBanner() {
             {/* Фото */}
             <div className="relative overflow-hidden rounded-[24px]">
               <Image
-                src="/olena-2.png"
+                src="/olena_hero.jpg"
                 alt="Olena Oprich"
                 width={500}
                 height={500}

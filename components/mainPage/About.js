@@ -12,7 +12,7 @@ export default function About() {
 
           {/* Фото */}
           <div
-            className="relative flex items-center justify-center rounded-[24px] p-[10px] border border-white/20"
+            className="relative rounded-[24px] p-[10px] border border-white/20"
             style={{
               width: "min(82vw, 400px)",
               background: "rgba(255,255,255,0.12)",
@@ -39,7 +39,7 @@ export default function About() {
               alt="Olena portrait"
               width={620}
               height={760}
-              className="h-auto w-full object-cover rounded-[18px] transition-[transform,filter] duration-300"
+              className="rounded-[18px]"
               style={{ boxShadow: "0 10px 24px rgba(0,0,0,0.18)" }}
               priority
               unoptimized

@@ -41,26 +41,26 @@ export function sortByAspect(items) {
 
 function CardOverlay({ overlay }) {
   return (
-    <>
-      <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/35 to-black/10 opacity-90 transition-opacity duration-700 ease-out md:opacity-0 sm:group-hover:opacity-90" />
-      <div className="absolute inset-0 flex flex-col justify-end p-6">
-        <h3 className="t-project-card drop-shadow-[0_4px_12px_rgba(0,0,0,0.55)] transition-all duration-700 ease-out translate-y-0 opacity-100 md:translate-y-3 md:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100">
-          {overlay.title}
-        </h3>
-        {overlay.description && (
-          <p className="t-body mt-1 md:mt-3 text-white/95 drop-shadow-[0_4px_10px_rgba(0,0,0,0.55)] transition-all delay-75 duration-700 ease-out translate-y-0 opacity-100 md:translate-y-3 md:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100">
-            {overlay.description}
-          </p>
-        )}
-      </div>
-    </>
+   <>
+    <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/35 to-black/10 opacity-90 transition-opacity duration-700 ease-out md:opacity-0 sm:group-hover:opacity-90" />
+    <div className="absolute inset-0 flex flex-col justify-end p-6">
+      <h3 className="t-project-card drop-shadow-[0_4px_12px_rgba(0,0,0,0.55)] transition-all duration-700 ease-out md:translate-y-3 md:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100">
+        {overlay.title}
+      </h3>
+      {overlay.description && (
+        <p className="t-body mt-1 md:mt-3 text-white/95 drop-shadow-[0_4px_10px_rgba(0,0,0,0.55)] transition-all delay-75 duration-700 ease-out md:translate-y-3 md:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100">
+          {overlay.description}
+        </p>
+      )}
+    </div>
+  </>
   );
 }
 
 function GalleryCard({ children }) {
   return (
     <article className="overflow-hidden img-rounded bg-white p-[6px]">
-      <div className="w-full overflow-hidden rounded-[18px] bg-foreground/5">
+      <div className="overflow-hidden rounded-[18px] bg-foreground/5">
         {children}
       </div>
     </article>
@@ -70,10 +70,10 @@ function GalleryCard({ children }) {
 function DefaultCard({ overlay, children }) {
   return (
     <article className="relative overflow-hidden rounded-[var(--radius-card)]">
-      <div className="relative w-full">
+      
         {children}
         {overlay && <CardOverlay overlay={overlay} />}
-      </div>
+    
     </article>
   );
 }
@@ -146,7 +146,7 @@ export default function MasonryGrid({
             width={w}
             height={h}
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            className={`h-auto w-full object-cover transition-[opacity,transform] duration-1000 ease-[cubic-bezier(0.2,0.8,0.2,1)] group-hover:scale-[1.015] transform-gpu will-change-transform ${
+            className={`transition-[opacity,transform] duration-1000 ease-[cubic-bezier(0.2,0.8,0.2,1)] group-hover:scale-[1.015] transform-gpu will-change-transform ${
               loaded ? "opacity-100 scale-100" : "opacity-0 scale-[1.01]"
             }`}
             style={{ minHeight: "clamp(12rem, 20vw, 18rem)" }}

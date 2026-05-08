@@ -1,3 +1,7 @@
+"use client";
+
+import { useState } from "react";
+
 function MailIcon() {
   return (
     <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" className="w-[1.45rem] h-[1.45rem] block flex-none">
@@ -59,6 +63,40 @@ function LocationIcon() {
 
 
 export default function Contact() {
+  const [result, setResult] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const onSubmit = async (event) => {
+    event.preventDefault();
+    setResult("");
+    setIsSubmitting(true);
+
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    formData.append("access_key", "c2261d98-eb9e-42a1-b2ef-5080ebd2d56a");
+    formData.append("subject", "New message from portfolio");
+
+    try {
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setResult("Message sent!");
+        form.reset();
+      } else {
+        setResult("Something went wrong. Please try again.");
+      }
+    } catch {
+      setResult("Something went wrong. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <section className="z-3 section pb-5" id="contact">
       <div className="container mx-auto">
@@ -69,9 +107,7 @@ export default function Contact() {
           <form
             className="w-full md:flex-[0_0_65%] rounded-[20px] border border-white/40 p-5 md:p-7"
             style={{ background: "var(--surface-rose)" }}
-            action="mailto:olenaoprich@gmail.com"
-            method="post"
-            encType="text/plain"
+            onSubmit={onSubmit}
           >
             <h3 className="text-center md:text-left">Send me a letter</h3>
 
@@ -108,9 +144,15 @@ export default function Contact() {
               className="mt-2 w-full rounded-xl border border-white/30 bg-white/15 px-4 py-3 t-body text-foreground outline-none transition focus:border-white/70 focus:shadow-[0_0_0_3px_rgba(255,255,255,0.2)]"
             />
 
-            <button type="submit" className="btn">
-              Send Letter
+            <button type="submit" className="btn" disabled={isSubmitting}>
+              {isSubmitting ? "Sending..." : "Send Letter"}
             </button>
+
+            {result && (
+              <p className="mt-4 t-body text-foreground" role="status">
+                {result}
+              </p>
+            )}
           </form>
 
           {/* Контакти */}
