@@ -81,7 +81,7 @@ export default function HeroBanner() {
         <div className="relative z-10 flex flex-col items-center text-center">
           {/* Ім'я */}
           <h1
-            className="group mb-16 md:mb-20 relative inline-block w-auto max-w-none cursor-default text-foreground uppercase tracking-[0.08em] text-6xl sm:text-7xl md:text-8xl lg:text-9xl"
+            className="group pt-7 mb-16 md:mb-20 relative inline-block w-auto max-w-none cursor-default text-foreground uppercase tracking-[0.08em] text-6xl sm:text-7xl md:text-8xl lg:text-9xl"
             style={{
               fontFamily: "var(--font-heading), ui-serif, serif",
               fontWeight: 600,
