@@ -29,7 +29,7 @@ export default function Home() {
       />
       <main>
         <HomeScrollRestore />
-        {/* Hero Banner з анімованими фото */}
+        {/* Hero Banner */}
         <HeroBanner />
 
         <IllustrationsWall />

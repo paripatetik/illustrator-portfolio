@@ -1,28 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useRef } from "react";
 import { featuredImages } from "@/data/featuredImages";
 
-// Компонент анімованого зображення з dragging ефектом (тільки для desktop)
-function FloatingImage({ src, index, isMobile }) {
-  const [offset, setOffset] = useState({ x: 0, y: 0 });
-  const imageRef = useRef(null);
-
-  const handleMove = (e) => {
-    if (!imageRef.current) return;
-    const rect = imageRef.current.getBoundingClientRect();
-    const clientX = e.clientX ?? e.touches?.[0]?.clientX;
-    const clientY = e.clientY ?? e.touches?.[0]?.clientY;
-    if (!clientX || !clientY) return;
-    setOffset({
-      x: (clientX - (rect.left + rect.width / 2)) * 0.15,
-      y: (clientY - (rect.top + rect.height / 2)) * 0.15,
-    });
-  };
-
-  const handleLeave = () => setOffset({ x: 0, y: 0 });
-
+function FeaturedImage({ src, index, isMobile }) {
   const desktopPositions = [
     { top: "50%", left: "5%", translateY: "-50%", rotate: -8 },
     { top: "50%", right: "5%", translateY: "-50%", rotate: 5 },
@@ -40,18 +21,13 @@ function FloatingImage({ src, index, isMobile }) {
 
   return (
     <div
-      ref={imageRef}
-      className={isMobile ? "" : "absolute hidden lg:block cursor-grab active:cursor-grabbing"}
+      className={isMobile ? "" : "absolute hidden lg:block"}
       style={isMobile ? {} : { ...desktopPos, transform: `translateY(${translateY ?? "0"}) rotate(${rotate}deg)` }}
-      onMouseMove={handleMove}
-      onMouseLeave={handleLeave}
-      onTouchMove={handleMove}
-      onTouchEnd={handleLeave}
     >
       <div
-        className="relative transition-transform duration-300 ease-out"
+        className="relative"
         style={{
-          transform: `translate(${offset.x}px, ${offset.y}px)${isMobile ? ` rotate(${rotate}deg)` : ""}`,
+          transform: isMobile ? `rotate(${rotate}deg)` : undefined,
         }}
       >
         <Image
@@ -73,8 +49,6 @@ function FloatingImage({ src, index, isMobile }) {
 
 
 export default function HeroBanner() {
-  const [isHovered, setIsHovered] = useState(false);
-
   return (
     <section className="relative overflow-hidden min-h-[100vh] flex items-center justify-center ">
       <div className="container mx-auto">
@@ -86,7 +60,6 @@ export default function HeroBanner() {
               fontFamily: "var(--font-heading), ui-serif, serif",
               fontWeight: 600,
               textShadow: "0 2px 8px rgba(0,0,0,0.08)",
-              animation: "fadeInUp 0.8s ease-out both",
             }}
           >
             <span
@@ -106,43 +79,8 @@ export default function HeroBanner() {
             </span>
           </h1>
 
-          {/* Центральне фото з анімованими контурами */}
-          <div 
-            className="relative mb-6 animate-[fadeIn_1s_ease-out_0.3s_backwards] group cursor-pointer"
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-          >
-            {/* Анімовані контури навколо фото */}
-            <div className="absolute inset-0 rounded-[24px] pointer-events-none">
-              {/* Перший контур - accent (рожевий) */}
-              <div 
-                className="absolute inset-0 rounded-[24px] border-2 border-accent/40"
-                style={{
-                  animation: `pulseOutline 3s ease-in-out infinite`,
-                  animationDelay: '0s',
-                  animationPlayState: isHovered ? 'paused' : 'running',
-                }}
-              ></div>
-              {/* Другий контур - mint (м'ятний) */}
-              <div 
-                className="absolute inset-0 rounded-[24px] border-2 border-mint/40"
-                style={{
-                  animation: `pulseOutline 3s ease-in-out infinite`,
-                  animationDelay: '1s',
-                  animationPlayState: isHovered ? 'paused' : 'running',
-                }}
-              ></div>
-              {/* Третій контур - foreground (чорний) */}
-              <div 
-                className="absolute inset-0 rounded-[24px] border-2 border-foreground/25"
-                style={{
-                  animation: `pulseOutline 3s ease-in-out infinite`,
-                  animationDelay: '2s',
-                  animationPlayState: isHovered ? 'paused' : 'running',
-                }}
-              ></div>
-            </div>
-
+          {/* Центральне фото */}
+          <div className="relative mb-6">
             {/* Фото */}
             <div className="relative overflow-hidden rounded-[24px]">
               <Image
@@ -150,18 +88,11 @@ export default function HeroBanner() {
                 alt="Olena Oprich"
                 width={500}
                 height={500}
-                className="shadow-xl object-contain w-[320px] h-[320px] sm:w-[400px] sm:h-[400px] md:w-[480px] md:h-[480px] lg:w-[500px] lg:h-[500px] transition-all duration-500 hover:scale-105"
+                className="shadow-xl object-contain w-[320px] h-[320px] sm:w-[400px] sm:h-[400px] md:w-[480px] md:h-[480px] lg:w-[500px] lg:h-[500px]"
           
                 priority
               />
               
-              {/* Gradient overlay при hover */}
-              <div 
-                className="absolute inset-0 rounded-[24px] opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-                style={{
-                  background: "linear-gradient(135deg, rgba(240, 70, 99, 0.1) 0%, rgba(122, 186, 170, 0.1) 100%)",
-                }}
-              ></div>
             </div>
           </div>
 
@@ -171,7 +102,6 @@ export default function HeroBanner() {
             className="mt-4 t-body text-foreground relative inline-block cursor-default text-3xl sm:text-4xl md:text-5xl"
             style={{
               textShadow: "0 1px 4px rgba(0,0,0,0.06)",
-              animation: "fadeInUp 0.8s ease-out 0.5s both",
             }}
           >
             Hi there!
@@ -180,13 +110,13 @@ export default function HeroBanner() {
         {/*  mobile grid */}
 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 lg:hidden">
   {featuredImages.map((src, i) => (
-    <FloatingImage key={src} src={src} index={i} isMobile />
+    <FeaturedImage key={src} src={src} index={i} isMobile />
   ))}
 </div>
 
  {/*  desktop absolute */}
 {featuredImages.map((src, i) => (
-  <FloatingImage key={src} src={src} index={i} isMobile={false} />
+  <FeaturedImage key={src} src={src} index={i} isMobile={false} />
 ))}
         </div>
       </div>

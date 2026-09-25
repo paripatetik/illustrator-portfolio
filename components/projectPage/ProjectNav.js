@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import projects from "@/data/projects.json";
 import { markHomeScrollRestorePending } from "@/lib/homeScrollMemory";
@@ -44,19 +43,6 @@ function ArrowRightIcon({ className = "size-5 shrink-0" }) {
 }
 
 export default function ProjectNav({ currentSlug }) {
-  const [isScrolled, setIsScrolled] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 80);
-    };
-
-    handleScroll();
-    window.addEventListener("scroll", handleScroll, { passive: true });
-
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
   const currentIndex = projects.findIndex(p => p.slug === currentSlug);
   const prevProject = projects[(currentIndex - 1 + projects.length) % projects.length];
   const nextProject = projects[(currentIndex + 1) % projects.length];
@@ -67,9 +53,7 @@ export default function ProjectNav({ currentSlug }) {
       <Link
         href="/"
         onClick={markHomeScrollRestorePending}
-        className={`btn fixed right-4 z-50 mt-0 transition-[top] duration-200 ${
-          isScrolled ? "top-1" : "top-4"
-        }`}
+        className="btn fixed right-4 top-4 z-50 mt-0"
       >
         Main
       </Link>

@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { getImageProps } from "next/image";
 
 export default function GalleryLightbox({
   images,
@@ -8,6 +9,7 @@ export default function GalleryLightbox({
   previewSrc = "",
   onClose,
   getImageSrc,
+  getImageDimensions,
   ariaLabel = "Gallery lightbox",
   getImageAlt = (index) => `Image detail ${index + 1}`,
 }) {
@@ -16,7 +18,7 @@ export default function GalleryLightbox({
     typeof openIndex === "number" && openIndex >= 0 && openIndex < totalImages;
   const isOpen = hasValidOpenIndex;
 
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(hasValidOpenIndex ? openIndex : 0);
   const [isZoomed, setIsZoomed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [zoomOrigin, setZoomOrigin] = useState({ x: 50, y: 50 });
@@ -24,8 +26,7 @@ export default function GalleryLightbox({
   const [isDragging, setIsDragging] = useState(false);
   const [hasDragged, setHasDragged] = useState(false);
   const [lightboxLoaded, setLightboxLoaded] = useState(false);
-  const [currentPreviewSrc, setCurrentPreviewSrc] = useState("");
-  const [viewportSize, setViewportSize] = useState({ width: 0, height: 0 });
+  const [currentPreviewSrc, setCurrentPreviewSrc] = useState(previewSrc);
 
   const zoomFrameRef = useRef(null);
   const lightboxImgRef = useRef(null);
@@ -37,24 +38,39 @@ export default function GalleryLightbox({
   const showNextRef = useRef(null);
 
   const currentImage = isOpen ? images[currentIndex] : null;
-  const lightboxSrc = currentImage ? getImageSrc(currentImage) : "";
   const currentNumber = currentIndex + 1;
-  const frameDimensions = useMemo(() => {
-    const viewportWidth = viewportSize.width || 1280;
-    const viewportHeight = viewportSize.height || 720;
-    const width = isMobile
-      ? viewportWidth * 0.92
-      : Math.min(viewportWidth * 0.86, 1320);
-    const height = Math.max(180, viewportHeight - (isMobile ? 330 : 250));
-    return {
-      width: Math.max(160, Math.floor(width)),
-      height: Math.max(160, Math.floor(height)),
-    };
-  }, [
-    isMobile,
-    viewportSize.height,
-    viewportSize.width,
-  ]);
+
+  const getDisplayImageProps = useCallback((image) => {
+    const dimensions = getImageDimensions?.(image) || { width: 1600, height: 1000 };
+    return getImageProps({
+      src: getImageSrc(image),
+      alt: "",
+      ...dimensions,
+      sizes: "(max-width: 767px) 92vw, (max-width: 1534px) 86vw, 1320px",
+      quality: 75,
+    }).props;
+  }, [getImageSrc, getImageDimensions]);
+
+  const displayImageProps = currentImage ? getDisplayImageProps(currentImage) : {};
+  const lightboxSrc = currentImage
+    ? (isZoomed ? getImageSrc(currentImage) : displayImageProps.src)
+    : "";
+
+  const getPreviewForImage = useCallback((image) => {
+    const originalSrc = getImageSrc(image);
+    const thumbnail = Array.from(document.querySelectorAll("img[data-gallery-src]")).find(
+      (img) => img.dataset.gallerySrc === originalSrc && img.complete && img.naturalWidth > 0
+    );
+    if (thumbnail) return thumbnail.currentSrc || thumbnail.src;
+
+    return getImageProps({
+      src: originalSrc,
+      alt: "",
+      width: 320,
+      height: 320,
+      quality: 75,
+    }).props.src;
+  }, [getImageSrc]);
 
   const preloadLightboxImage = useCallback(
     (image) => {
@@ -73,9 +89,12 @@ export default function GalleryLightbox({
       preload.onerror = () => {
         loadingLightboxRef.current.delete(src);
       };
-      preload.src = src;
+      const props = getDisplayImageProps(image);
+      preload.sizes = props.sizes;
+      preload.srcset = props.srcSet;
+      preload.src = props.src;
     },
-    [getImageSrc]
+    [getImageSrc, getDisplayImageProps]
   );
 
   const resetInteractionState = useCallback(() => {
@@ -148,18 +167,8 @@ export default function GalleryLightbox({
     if (!isOpen || totalImages < 2) return;
 
     const prevIndex = currentIndex === 0 ? totalImages - 1 : currentIndex - 1;
-    const image = images[prevIndex];
-
-    // Keep the current image visible until the next one fades in.
-    setCurrentPreviewSrc(lightboxSrc || "");
-    setLightboxLoaded(false);
-
-    if (totalImages > 1) {
-      const next = images[(prevIndex + 1) % totalImages];
-      const prev = images[(prevIndex - 1 + totalImages) % totalImages];
-      preloadLightboxImage(next);
-      preloadLightboxImage(prev);
-    }
+    setCurrentPreviewSrc(getPreviewForImage(images[prevIndex]));
+    setLightboxLoaded(preloadedLightboxRef.current.has(getImageSrc(images[prevIndex])));
 
     setCurrentIndex(prevIndex);
     resetInteractionState();
@@ -170,18 +179,8 @@ export default function GalleryLightbox({
     if (!isOpen || totalImages < 2) return;
 
     const nextIndex = currentIndex === totalImages - 1 ? 0 : currentIndex + 1;
-    const image = images[nextIndex];
-
-    // Keep the current image visible until the next one fades in.
-    setCurrentPreviewSrc(lightboxSrc || "");
-    setLightboxLoaded(false);
-
-    if (totalImages > 1) {
-      const next = images[(nextIndex + 1) % totalImages];
-      const prev = images[(nextIndex - 1 + totalImages) % totalImages];
-      preloadLightboxImage(next);
-      preloadLightboxImage(prev);
-    }
+    setCurrentPreviewSrc(getPreviewForImage(images[nextIndex]));
+    setLightboxLoaded(preloadedLightboxRef.current.has(getImageSrc(images[nextIndex])));
 
     setCurrentIndex(nextIndex);
     resetInteractionState();
@@ -197,14 +196,11 @@ export default function GalleryLightbox({
     const media = window.matchMedia("(max-width: 767px)");
     const update = () => {
       setIsMobile(media.matches);
-      setViewportSize({ width: window.innerWidth, height: window.innerHeight });
     };
     update();
     media.addEventListener("change", update);
-    window.addEventListener("resize", update);
     return () => {
       media.removeEventListener("change", update);
-      window.removeEventListener("resize", update);
     };
   }, []);
 
@@ -218,15 +214,8 @@ export default function GalleryLightbox({
     const src = getImageSrc(image);
     const isPreloaded = preloadedLightboxRef.current.has(src);
 
-    setCurrentPreviewSrc("");
+    setCurrentPreviewSrc(previewSrc);
     setLightboxLoaded(isPreloaded);
-
-    if (totalImages > 1) {
-      const next = images[(openIndex + 1) % totalImages];
-      const prev = images[(openIndex - 1 + totalImages) % totalImages];
-      preloadLightboxImage(next);
-      preloadLightboxImage(prev);
-    }
 
     setIsZoomed(false);
     setDragOffset({ x: 0, y: 0 });
@@ -236,6 +225,7 @@ export default function GalleryLightbox({
   }, [
     isOpen,
     openIndex,
+    previewSrc,
     images,
     totalImages,
     getImageSrc,
@@ -253,11 +243,6 @@ export default function GalleryLightbox({
       preloadLightboxImage(img);
     });
   }, [isOpen, lightboxLoaded, currentIndex, totalImages, images, preloadLightboxImage]);
-
-  useEffect(() => {
-    const imagesToPrime = isMobile ? images.slice(0, 4) : images.slice(0, 1);
-    imagesToPrime.forEach((img) => preloadLightboxImage(img));
-  }, [images, isMobile, preloadLightboxImage]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -404,7 +389,7 @@ export default function GalleryLightbox({
 
   return (
     <div
-      className="fixed left-0 top-0 z-[80] h-[100dvh] w-screen bg-black/90 md:backdrop-blur-sm animate-none md:animate-[fadeIn_0.2s_ease-out] motion-reduce:animate-none"
+      className="fixed left-0 top-0 z-[80] h-[100dvh] w-screen bg-black/90 md:backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
       aria-label={ariaLabel}
@@ -415,7 +400,7 @@ export default function GalleryLightbox({
           data-visible="true"
           aria-hidden="true"
         >
-          <span className="lightbox-loading-spinner" />
+          <span className="text-white text-base">Loading…</span>
         </div>
       )}
 
@@ -440,7 +425,7 @@ export default function GalleryLightbox({
               <button
                 type="button"
                 onClick={closeLightbox}
-                className="w-9 h-9 rounded-full bg-[color:var(--surface-rose)] hover:bg-[color:var(--accent)] active:bg-[color:var(--accent)] text-white border border-white/35 flex items-center justify-center transition-colors backdrop-blur-sm"
+                className="w-9 h-9 rounded-full bg-[color:var(--surface-rose)] hover:bg-[color:var(--accent)] active:bg-[color:var(--accent)] text-white border border-white/35 flex items-center justify-center backdrop-blur-sm"
                 aria-label="Close lightbox"
               >
                 <svg
@@ -460,12 +445,10 @@ export default function GalleryLightbox({
 
           <div
             ref={zoomFrameRef}
-            className={`relative select-none inline-block ${
+            className={`relative select-none inline-block w-[92vw] h-[max(180px,calc(100dvh-330px))] md:w-[min(86vw,1320px)] md:h-[max(180px,calc(100dvh-250px))] ${
               isZoomed ? (isDragging ? "cursor-grabbing" : "cursor-grab") : "cursor-zoom-in"
             }`}
             style={{
-              width: `${frameDimensions.width}px`,
-              height: `${frameDimensions.height}px`,
               overflow: isZoomed ? "hidden" : "visible",
               touchAction: isZoomed ? "none" : "auto",
               userSelect: "none",
@@ -537,7 +520,7 @@ export default function GalleryLightbox({
             <div className="relative h-full w-full" data-loaded={lightboxLoaded ? "true" : "false"}>
               <span
                 aria-hidden="true"
-                className="gallery-shimmer absolute inset-0 transition-opacity duration-700 data-[loaded=true]:opacity-0"
+                className="gallery-placeholder absolute inset-0 data-[loaded=true]:opacity-0"
               />
               {!lightboxLoaded && currentPreviewSrc && (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -545,21 +528,22 @@ export default function GalleryLightbox({
                   src={currentPreviewSrc}
                   alt=""
                   aria-hidden="true"
-                  className="pointer-events-none absolute inset-0 m-auto block h-auto w-auto max-h-full max-w-full object-contain object-center"
+                  className="pointer-events-none absolute inset-0 block h-full w-full object-contain object-center"
                   decoding="async"
                   draggable={false}
                 />
               )}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
+                key={currentImage}
                 ref={lightboxImgRef}
                 src={lightboxSrc}
+                srcSet={isZoomed ? undefined : displayImageProps.srcSet}
+                sizes={isZoomed ? undefined : displayImageProps.sizes}
                 alt={getImageAlt(currentIndex, currentImage)}
                 loading="eager"
-                className={`absolute inset-0 m-auto block h-auto w-auto max-h-full max-w-full object-contain object-center transition-opacity ${
-                  isMobile ? "duration-180" : "duration-300"
-                } ease-out ${lightboxLoaded ? "opacity-100" : "opacity-0"}`}
-                decoding="sync"
+                className={`absolute inset-0 block h-full w-full object-contain object-center ${lightboxLoaded ? "opacity-100" : "opacity-0"}`}
+                decoding="async"
                 style={{
                   transform: isZoomed
                     ? `scale(2) translate(${dragOffset.x / 2}px, ${dragOffset.y / 2}px)`
@@ -567,10 +551,8 @@ export default function GalleryLightbox({
                   transformOrigin: `${zoomOrigin.x}% ${zoomOrigin.y}%`,
                 }}
                 onLoad={() => {
-                  preloadedLightboxRef.current.add(lightboxSrc);
-                  requestAnimationFrame(() => {
-                    setLightboxLoaded(true);
-                  });
+                  preloadedLightboxRef.current.add(getImageSrc(currentImage));
+                  setLightboxLoaded(true);
                 }}
                 onError={() => {
                   setLightboxLoaded(true);
@@ -580,7 +562,7 @@ export default function GalleryLightbox({
             </div>
 
             {isZoomed && (
-              <div className="absolute bottom-4 right-4 px-3 py-2 rounded-full bg-black/50 backdrop-blur-sm text-white text-xs font-medium flex items-center gap-2 animate-[fadeIn_0.2s_ease-out]">
+              <div className="absolute bottom-4 right-4 px-3 py-2 rounded-full bg-black/50 backdrop-blur-sm text-white text-xs font-medium flex items-center gap-2">
                 <svg
                   viewBox="0 0 24 24"
                   className="w-4 h-4"
@@ -601,7 +583,7 @@ export default function GalleryLightbox({
             <button
               type="button"
               onClick={showPrev}
-              className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[color:var(--surface-rose)] hover:bg-[color:var(--accent)] active:bg-[color:var(--accent)] backdrop-blur-sm text-white flex items-center justify-center transition-all shadow-lg border border-white/35"
+              className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[color:var(--surface-rose)] hover:bg-[color:var(--accent)] active:bg-[color:var(--accent)] backdrop-blur-sm text-white flex items-center justify-center shadow-lg border border-white/35"
               aria-label="Previous image"
             >
               <svg
@@ -620,7 +602,7 @@ export default function GalleryLightbox({
             <button
               type="button"
               onClick={showNext}
-              className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[color:var(--surface-rose)] hover:bg-[color:var(--accent)] active:bg-[color:var(--accent)] backdrop-blur-sm text-white flex items-center justify-center transition-all shadow-lg border border-white/35"
+              className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[color:var(--surface-rose)] hover:bg-[color:var(--accent)] active:bg-[color:var(--accent)] backdrop-blur-sm text-white flex items-center justify-center shadow-lg border border-white/35"
               aria-label="Next image"
             >
               <svg

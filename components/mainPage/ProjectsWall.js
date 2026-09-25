@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import projects from "@/data/projects.json";
 import imageDimensions from "@/data/imageDimensions.json";
 import { saveHomeScrollPosition } from "@/lib/homeScrollMemory";
@@ -11,59 +11,35 @@ function getProjectCover(images = []) {
 }
 
 export default function ProjectsWall() {
-  const [isMobile, setIsMobile] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return window.matchMedia("(max-width: 639px)").matches;
-  });
+  const sectionRef = useRef(null);
 
-  const cardRefs = useRef([]);
-  const observerRef = useRef(null);
-
-  // ── Mobile detection on resize ───────────────────────────────────────────
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const media = window.matchMedia("(max-width: 639px)");
-    const update = () => setIsMobile(media.matches);
-    media.addEventListener("change", update);
-    return () => media.removeEventListener("change", update);
-  }, []);
+    if (
+      !("IntersectionObserver" in window) ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) return;
 
-  // ── Створюємо observer один раз ──────────────────────────────────────────
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (!("IntersectionObserver" in window)) return;
+    const cards = sectionRef.current.querySelectorAll(".project-card");
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add("project-card-visible");
+        observer.unobserve(entry.target);
+      });
+    }, { threshold: 0.1, rootMargin: "0px 0px 60px 0px" });
 
-    observerRef.current = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-          entry.target.classList.add("wall-animate");
-          observerRef.current?.unobserve(entry.target);
-        });
-      },
-      { threshold: 0.1, rootMargin: "0px 0px 60px 0px" }
-    );
+    cards.forEach((card) => {
+      card.classList.add("project-card-pending");
+      observer.observe(card);
+    });
 
     return () => {
-      observerRef.current?.disconnect();
-      observerRef.current = null;
+      observer.disconnect();
+      cards.forEach((card) => {
+        card.classList.remove("project-card-pending", "project-card-visible");
+      });
     };
   }, []);
-
-  // ── itemRef винесено окремо ──────────────────────────────────────────────
-  const makeItemRef = useCallback((si) => (el) => {
-    const prev = cardRefs.current[si];
-    if (prev) observerRef.current?.unobserve(prev);
-
-    cardRefs.current[si] = el;
-    if (!el) return;
-
-    if (observerRef.current) {
-      observerRef.current.observe(el);
-    } else {
-      el.classList.add("wall-animate");
-    }
-  }, []); // refs не змінюються → залежностей немає
 
   // ── Build & sort items ───────────────────────────────────────────────────
   const items = useMemo(() => {
@@ -83,28 +59,19 @@ export default function ProjectsWall() {
 
     const sorted = sortByAspect(raw);
 
-    const slideDirections = isMobile
-      ? [{ x: 0, y: 24 }]
-      : [{ x: -80, y: 0 }, { x: 80, y: 0 }];
-
-    return sorted.map((item, si) => {
-      const dir = slideDirections[si % slideDirections.length];
-      return {
-        ...item,
-        priority: si < 2,
-        wrapperClassName: "wall-card [break-inside:avoid] [page-break-inside:avoid] [column-break-inside:avoid] align-top",
-        wrapperStyle: {
-          "--from-x": `${dir.x}px`,
-          "--from-y": `${dir.y}px`,
-          "--wall-delay": `${si * 120}ms`,
-        },
-        itemRef: makeItemRef(si), // ← чиста функція, без side effects
-      };
-    });
-  }, [isMobile, makeItemRef]);
+    return sorted.map((item, index) => ({
+      ...item,
+      priority: index < 2,
+      wrapperClassName: "project-card [break-inside:avoid] [page-break-inside:avoid] [column-break-inside:avoid] align-top",
+      wrapperStyle: {
+        "--card-from-x": index % 2 === 0 ? "-80px" : "80px",
+        "--card-delay": `${(index % 3) * 120}ms`,
+      },
+    }));
+  }, []);
 
   return (
-    <section className="section bg-cream overflow-x-hidden">
+    <section ref={sectionRef} className="section bg-cream overflow-x-hidden">
       <div className="container mx-auto">
         <h2 className="mb-10 section-title">Books</h2>
         <MasonryGrid

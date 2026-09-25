@@ -17,7 +17,6 @@ export default function About() {
               width: "min(82vw, 400px)",
               background: "rgba(255,255,255,0.12)",
               boxShadow: "0 16px 30px rgba(156,46,68,0.28)",
-              animation: "aboutFloat 8s ease-in-out infinite",
             }}
           >
             {/* Bookmark is */}

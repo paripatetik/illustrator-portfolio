@@ -11,7 +11,7 @@ html {
 
 :root {
   --foreground: #ffffff;
-  --background: #ffffff;
+  --brand-pink: #F2ADB2;
 
   --accent: #d8585d;
   
@@ -35,11 +35,12 @@ html {
    ================================ */
 
 @theme inline {
-  --color-foreground: var(--foreground);
+  --color-foreground: #F2ADB2;
   --color-background: var(--background);
-  --color-accent: var(--accent);
+  --color-accent: #F2ADB2;
   --color-mint: var(--mint);
   --color-cream: var(--cream);
+  --color-brand-pink: var(--brand-pink);
 }
 
 /* ================================
@@ -48,14 +49,14 @@ html {
 
 body {
   min-height: 100vh;
-  background-color: #f2adb2;
-  color: var(--foreground);
+
+   color: var(--brand-pink);
   font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
   position: relative;
   isolation: isolate;
 
 }
-
+/*
 body::before {
   content: "";
   position: fixed;
@@ -102,6 +103,7 @@ h1, h2, h3, h4, h5, h6 {
     font-weight: 700;
     letter-spacing: 0.02em;
     margin-top: 15px;
+    color: var(--accent);
   }
 
   .t-project {
@@ -124,7 +126,7 @@ h1, h2, h3, h4, h5, h6 {
   /* --- Кнопка --- */
   .btn {
     border-radius: var(--radius-pill);
-    @apply mt-5 inline-flex items-center justify-center gap-2 px-6 py-3 font-semibold leading-none transition hover:translate-y-[-1px];
+    @apply mt-5 inline-flex items-center justify-center gap-2 px-6 py-3 font-semibold leading-none;
     font-size: clamp(1.5rem, 2.8vw, 2.25rem);
     background: #ffffff;
     border: 1px solid rgba(243, 179, 182, 0.6);
@@ -151,133 +153,74 @@ h1, h2, h3, h4, h5, h6 {
     background-image: none !important;
   }
 
-  /* ================================
-     5) АНІМАЦІЙНА ІНФРАСТРУКТУРА
-     (JS керує класами / CSS-змінними)
-     ================================ */
-
-  /* --- ProjectsWall анімація входу --- */
-  .wall-card {
-    opacity: 0;
-    transform: translate3d(var(--from-x, 0px), var(--from-y, 16px), 0);
-    will-change: transform, opacity;
-  }
-
-  .wall-card.wall-animate {
-    animation: wallSlideIn 0.95s cubic-bezier(0.2, 0.8, 0.2, 1) var(--wall-delay, 0ms) both;
-  }
-
-  .wall-card.wall-static {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-    animation: none;
-  }
-
-  /* --- Hero (головна) --- */
-  .hero-frame {
-    perspective: 1000px;
-    position: relative;
-    isolation: isolate;
-    --spot-opacity: 0;
-  }
-
-  .hero-frame::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(
-      circle at var(--spot-x, 50%) var(--spot-y, 50%),
-      rgba(255,255,255,0.4) 0%,
-      rgba(255,255,255,0.2) 18%,
-      rgba(255,255,255,0.05) 30%,
-      transparent 45%
-    );
-    opacity: var(--spot-opacity, 0);
-    transition: opacity 200ms ease;
-    pointer-events: none;
-    mix-blend-mode: screen;
-    z-index: 2;
-  }
-
-  .hero-frame:hover {
-    box-shadow: 0 18px 40px rgba(0,0,0,0.22);
-    --spot-opacity: 1;
-  }
-
-  .hero-image {
-    animation: heroBreath 14s ease-in-out infinite alternate;
-    transition: filter 240ms ease, transform 400ms ease;
-    backface-visibility: hidden;
-    filter: saturate(1.01) brightness(1.005) contrast(1.01);
-    transform: scale(1.03) translate3d(0,0,0);
-    transform-origin: center;
-    will-change: transform;
-  }
-
-  .hero-frame:hover .hero-image {
-    filter: saturate(1.06) brightness(1.03);
-    transform: scale(1.04);
-  }
-
-  /* --- Hero (сторінка проєкту) --- */
-  .project-hero-frame {
-    position: relative;
-  }
-
-  .project-hero-frame::after,
-  .project-hero-frame::before {
-    display: none !important;
-  }
-
-  .project-hero-frame:hover {
-    --spot-opacity: 0 !important;
-  }
-
-  .project-hero-motion {
-    transform: translate3d(var(--img-x, 0px), var(--img-y, 0px), 0);
-    transition: transform 0.2s ease-out;
-    will-change: transform;
-  }
-
   .project-hero-image {
-    transform: none !important;
     filter: saturate(1.02) brightness(1.01) contrast(1.01);
   }
 
-  .project-hero-frame:hover .project-hero-image,
-  .project-hero-frame:hover .hero-image {
-    transform: none !important;
-    filter: saturate(1.02) brightness(1.01) contrast(1.01) !important;
+  /* --- Project cards --- */
+  .project-card {
+    --card-enter-x: 0px;
+    --card-enter-y: 24px;
   }
 
-  @media (min-width: 768px) {
-    .project-hero-frame::before {
-      content: "";
-      position: absolute;
-      top: var(--spot-y, 50%);
-      left: var(--spot-x, 50%);
-      width: 300px;
-      height: 300px;
-      background: radial-gradient(circle, rgba(255,107,122,0.15) 0%, transparent 70%);
-      transform: translate(-50%, -50%);
-      pointer-events: none;
-      opacity: var(--spot-opacity, 0);
-      transition: opacity 0.3s ease;
-      z-index: 10;
+  .project-card-pending {
+    opacity: 0;
+  }
+
+  .project-card-visible {
+    animation: projectCardReveal 0.95s cubic-bezier(0.2, 0.8, 0.2, 1) var(--card-delay, 0ms) both;
+  }
+
+  .project-card img {
+    transition: transform 700ms ease-out;
+  }
+
+  .project-card .card-overlay-gradient {
+    transition: opacity 700ms ease-out;
+  }
+
+  .project-card h3,
+  .project-card p {
+    transition: opacity 700ms ease-out, transform 700ms ease-out;
+  }
+
+  .project-card p {
+    transition-delay: 75ms;
+  }
+
+  @media (min-width: 640px) {
+    .project-card {
+      --card-enter-x: var(--card-from-x);
+      --card-enter-y: 0px;
+    }
+  }
+
+  @media (min-width: 768px) and (hover: hover) {
+    .project-card h3,
+    .project-card p {
+      transform: translateY(12px);
+    }
+
+    .project-card:hover h3,
+    .project-card:hover p {
+      transform: translateY(0);
+    }
+  }
+
+  @media (hover: hover) {
+    .project-card:hover img {
+      transform: scale(1.015);
     }
   }
 
   /* --- Gallery --- */
-  .gallery-shimmer {
+  .gallery-placeholder {
     background: linear-gradient(
       100deg,
       rgba(0,0,0,0.03) 20%,
       rgba(0,0,0,0.08) 40%,
       rgba(0,0,0,0.03) 60%
     );
-    background-size: 200% 100%;
-    animation: galleryShimmer 1.8s ease-in-out infinite;
-    transition: opacity 0.7s ease;
   }
 
   .lightbox-loading-overlay {
@@ -288,21 +231,10 @@ h1, h2, h3, h4, h5, h6 {
     pointer-events: none;
     z-index: 5;
     opacity: 0;
-    transition: opacity 160ms ease;
   }
 
   .lightbox-loading-overlay[data-visible="true"] {
     opacity: 1;
-  }
-
-  .lightbox-loading-spinner {
-    width: 52px;
-    height: 52px;
-    border-radius: 999px;
-    border: 2px solid rgba(255,255,255,0.25);
-    border-top-color: rgba(255,255,255,0.95);
-    animation: gallerySpin 0.9s linear infinite;
-    box-shadow: 0 0 0 1px rgba(0,0,0,0.22);
   }
 
   .lightbox-counter {
@@ -315,42 +247,10 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-/* ================================
-   6) REDUCED MOTION
-   ================================ */
-
-@media (prefers-reduced-motion: reduce) {
-  .hero-image,
-  .project-hero-motion,
-  .wall-card,
-  .gallery-shimmer {
-    animation: none;
-    transform: none;
-  }
-
-  .wall-card {
-    opacity: 1;
-  }
-
-  .project-hero-motion {
-    transition: none;
-  }
-}
-
-/* ================================
-   7) KEYFRAMES
-   ================================ */
-
-@keyframes heroBreath {
-  0%   { transform: scale(1.03); }
-  50%  { transform: scale(1.05); }
-  100% { transform: scale(1.03); }
-}
-
-@keyframes wallSlideIn {
+@keyframes projectCardReveal {
   from {
     opacity: 0;
-    transform: translate3d(var(--from-x, 0px), var(--from-y, 16px), 0);
+    transform: translate3d(var(--card-enter-x), var(--card-enter-y), 0);
   }
   to {
     opacity: 1;
@@ -358,39 +258,18 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(30px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
+@media (prefers-reduced-motion: reduce) {
+  .project-card,
+  .project-card img,
+  .project-card .card-overlay-gradient,
+  .project-card h3,
+  .project-card p {
+    animation: none;
+    transition: none;
+    transform: none !important;
+  }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
-@keyframes galleryShimmer {
-  0%   { background-position: 100% 0; }
-  100% { background-position: -100% 0; }
-}
-
-@keyframes gallerySpin {
-  to { transform: rotate(360deg); }
-}
-
-@keyframes pulseOutline {
-  0%   { transform: scale(1); opacity: 0; }
-  50%  { opacity: 0.8; }
-  100% { transform: scale(1.15); opacity: 0; }
-}
-
-@keyframes aboutFloat {
-  0%   { transform: translateY(0) rotate(0deg); }
-  50%  { transform: translateY(-14px) rotate(-0.8deg); }
-  100% { transform: translateY(0) rotate(0deg); }
-}
-
-@keyframes contactIconFloat {
-  0%   { transform: translateY(0); }
-  50%  { transform: translateY(-4px); }
-  100% { transform: translateY(0); }
+  .project-card-pending {
+    opacity: 1;
+  }
 }

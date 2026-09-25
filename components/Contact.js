@@ -102,16 +102,15 @@ export default function Contact() {
       <div className="container mx-auto">
         <h2 className="section-title mb-10">Let&apos;s connect!</h2>
 
-        <div className="flex flex-col items-start md:flex-row gap-8 md:gap-4 lg:gap-12 t-body max-w-[1200px]">
+        <div className="flex flex-col text-white items-start md:flex-row gap-8 md:gap-4 lg:gap-12 t-body max-w-[1200px]">
             {/* Форма */}
           <form
-            className="w-full md:flex-[0_0_65%] rounded-[20px] border border-white/40 p-5 md:p-7"
-            style={{ background: "var(--surface-rose)" }}
+            className="w-full md:flex-[0_0_65%] rounded-[20px] border border-white/40 p-5 md:p-7 bg-brand-pink"
             onSubmit={onSubmit}
           >
-            <h3 className="text-center md:text-left">Send me a letter</h3>
+            <h3 className="text-center text-5xl md:text-left">Send me a letter</h3>
 
-            <label className="mt-4 block t-body text-foreground" htmlFor="contact-name">
+            <label className="mt-4 block t-body" htmlFor="contact-name">
               Name
             </label>
             <input
@@ -119,10 +118,10 @@ export default function Contact() {
               name="name"
               type="text"
               required
-              className="mt-2 w-full rounded-xl border border-white/30 bg-white/15 px-4 py-3 t-body text-foreground outline-none transition focus:border-white/70 focus:shadow-[0_0_0_3px_rgba(255,255,255,0.2)]"
+              className="mt-2 w-full rounded-xl border border-white/30 bg-white/15 px-4 py-3 t-body outline-none focus:border-white/70 focus:shadow-[0_0_0_3px_rgba(255,255,255,0.2)]"
             />
 
-            <label className="mt-4 block t-body text-foreground" htmlFor="contact-email">
+            <label className="mt-4 block t-body" htmlFor="contact-email">
               Email
             </label>
             <input
@@ -130,10 +129,10 @@ export default function Contact() {
               name="email"
               type="email"
               required
-              className="mt-2 w-full rounded-xl border border-white/30 bg-white/15 px-4 py-3 t-body text-foreground outline-none transition focus:border-white/70 focus:shadow-[0_0_0_3px_rgba(255,255,255,0.2)]"
+              className="mt-2 w-full rounded-xl border border-white/30 bg-white/15 px-4 py-3 t-body outline-none focus:border-white/70 focus:shadow-[0_0_0_3px_rgba(255,255,255,0.2)]"
             />
 
-            <label className="mt-4 block t-body text-foreground" htmlFor="contact-message">
+            <label className="mt-4 block t-body" htmlFor="contact-message">
               Message
             </label>
             <textarea
@@ -141,7 +140,7 @@ export default function Contact() {
               name="message"
               rows="5"
               required
-              className="mt-2 w-full rounded-xl border border-white/30 bg-white/15 px-4 py-3 t-body text-foreground outline-none transition focus:border-white/70 focus:shadow-[0_0_0_3px_rgba(255,255,255,0.2)]"
+              className="mt-2 w-full rounded-xl border border-white/30 bg-white/15 px-4 py-3 t-body text-foreground outline-none focus:border-white/70 focus:shadow-[0_0_0_3px_rgba(255,255,255,0.2)]"
             />
 
             <button type="submit" className="btn" disabled={isSubmitting}>
@@ -159,11 +158,11 @@ export default function Contact() {
           <div className="flex w-full flex-col gap-3 md:gap-4">
             <a
               href="mailto:olenaoprich@gmail.com"
-              className="inline-flex items-center gap-5 no-underline transition-transform duration-300 hover:translate-x-1 md:gap-3"
+              className="inline-flex items-center gap-5 no-underline md:gap-3"
             >
               <span
                 className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full overflow-hidden text-white"
-                style={{ background: "#c84b53", animation: "contactIconFloat 2.8s ease-in-out infinite", animationDelay: "0s" }}
+                style={{ background: "#c84b53" }}
               >
                 <MailIcon />
               </span>
@@ -174,11 +173,11 @@ export default function Contact() {
               href="https://linkedin.com/in/olena-oprich"
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-5 no-underline transition-transform duration-300 hover:translate-x-1 md:gap-3"
+              className="inline-flex items-center gap-5 no-underline md:gap-3"
             >
               <span
                 className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full overflow-hidden text-white"
-                style={{ background: "#c84b53", animation: "contactIconFloat 2.8s ease-in-out infinite", animationDelay: "0.15s" }}
+                style={{ background: "#c84b53" }}
               >
                 <LinkedinIcon />
               </span>
@@ -189,11 +188,11 @@ export default function Contact() {
               href="https://instagram.com/oprich.art"
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-5 no-underline transition-transform duration-300 hover:translate-x-1 md:gap-3"
+              className="inline-flex items-center gap-5 no-underline md:gap-3"
             >
               <span
                 className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full overflow-hidden text-white"
-                style={{ background: "#c84b53", animation: "contactIconFloat 2.8s ease-in-out infinite", animationDelay: "0.3s" }}
+                style={{ background: "#c84b53" }}
               >
                 <InstagramIcon />
               </span>
@@ -203,7 +202,7 @@ export default function Contact() {
             <div className="inline-flex items-center gap-5 md:gap-3">
               <span
                 className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full overflow-hidden text-white"
-                style={{ background: "#c84b53", animation: "contactIconFloat 2.8s ease-in-out infinite", animationDelay: "0.45s" }}
+                style={{ background: "#c84b53" }}
               >
                 <LocationIcon />
               </span>

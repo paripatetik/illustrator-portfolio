@@ -2,10 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
 import Masonry from "react-masonry-css";
 
-// ── Shimmer placeholder ──────────────────────────────────────────────────────
+// ── Static placeholder ──────────────────────────────────────────────────────
 const shimmer = (w, h) => `
 <svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
   <defs>
@@ -42,13 +41,13 @@ export function sortByAspect(items) {
 function CardOverlay({ overlay }) {
   return (
    <>
-    <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/35 to-black/10 opacity-90 transition-opacity duration-700 ease-out md:opacity-0 sm:group-hover:opacity-90" />
+    <div className="card-overlay-gradient absolute inset-0 bg-gradient-to-t from-black/75 via-black/35 to-black/10 opacity-90 md:opacity-0 sm:group-hover:opacity-90" />
     <div className="absolute inset-0 flex flex-col justify-end p-6">
-      <h3 className="t-project-card drop-shadow-[0_4px_12px_rgba(0,0,0,0.55)] transition-all duration-700 ease-out md:translate-y-3 md:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100">
+      <h3 className="t-project-card drop-shadow-[0_4px_12px_rgba(0,0,0,0.55)] md:opacity-0 sm:group-hover:opacity-100">
         {overlay.title}
       </h3>
       {overlay.description && (
-        <p className="t-body mt-1 md:mt-3 text-white/95 drop-shadow-[0_4px_10px_rgba(0,0,0,0.55)] transition-all delay-75 duration-700 ease-out md:translate-y-3 md:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100">
+        <p className="t-body mt-1 md:mt-3 text-white/95 drop-shadow-[0_4px_10px_rgba(0,0,0,0.55)] md:opacity-0 sm:group-hover:opacity-100">
           {overlay.description}
         </p>
       )}
@@ -102,14 +101,10 @@ export default function MasonryGrid({
   items = [],
   columns = { default: 3, 1024: 2, 776: 1 },
   gap = "gap-6",
+  imageSizes = "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw",
+  imageStyle = { minHeight: "clamp(12rem, 20vw, 18rem)" },
+  imageQuality = 85,
 }) {
-  const [loadedMap, setLoadedMap] = useState({});
-
-  const markLoaded = (key) =>
-    requestAnimationFrame(() =>
-      setLoadedMap((prev) => (prev[key] ? prev : { ...prev, [key]: true }))
-    );
-
   return (
     <Masonry
       breakpointCols={columns}
@@ -135,29 +130,25 @@ export default function MasonryGrid({
 
         const w = dimensions?.width || 700;
         const h = dimensions?.height || 500;
-        const loaded = !!loadedMap[key];
         const isGallery = variant === "gallery";
 
         // ── Image ──
         const imgNode = (
           <Image
             src={src}
+            data-gallery-src={src}
             alt={alt}
             width={w}
             height={h}
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            className={`transition-[opacity,transform] duration-1000 ease-[cubic-bezier(0.2,0.8,0.2,1)] group-hover:scale-[1.015] transform-gpu will-change-transform ${
-              loaded ? "opacity-100 scale-100" : "opacity-0 scale-[1.01]"
-            }`}
-            style={{ minHeight: "clamp(12rem, 20vw, 18rem)" }}
+            sizes={imageSizes}
+            className="block"
+            style={imageStyle}
             placeholder="blur"
             blurDataURL={`data:image/svg+xml;base64,${toBase64(shimmer(w, h))}`}
             loading={priority ? "eager" : "lazy"}
             fetchPriority={priority ? "high" : "auto"}
             priority={priority}
-            quality={85}
-            onLoad={() => markLoaded(key)}
-            onError={() => markLoaded(key)}
+            quality={imageQuality}
           />
         );
 
