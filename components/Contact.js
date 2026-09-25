@@ -161,8 +161,7 @@ export default function Contact() {
               className="inline-flex items-center gap-5 no-underline md:gap-3"
             >
               <span
-                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full overflow-hidden text-white"
-                style={{ background: "#c84b53" }}
+                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full overflow-hidden bg-brand-pink text-white"
               >
                 <MailIcon />
               </span>
@@ -176,8 +175,7 @@ export default function Contact() {
               className="inline-flex items-center gap-5 no-underline md:gap-3"
             >
               <span
-                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full overflow-hidden text-white"
-                style={{ background: "#c84b53" }}
+                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full overflow-hidden bg-brand-pink text-white"
               >
                 <LinkedinIcon />
               </span>
@@ -191,8 +189,7 @@ export default function Contact() {
               className="inline-flex items-center gap-5 no-underline md:gap-3"
             >
               <span
-                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full overflow-hidden text-white"
-                style={{ background: "#c84b53" }}
+                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full overflow-hidden bg-brand-pink text-white"
               >
                 <InstagramIcon />
               </span>
@@ -201,8 +198,7 @@ export default function Contact() {
 
             <div className="inline-flex items-center gap-5 md:gap-3">
               <span
-                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full overflow-hidden text-white"
-                style={{ background: "#c84b53" }}
+                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full overflow-hidden bg-brand-pink text-white"
               >
                 <LocationIcon />
               </span>
