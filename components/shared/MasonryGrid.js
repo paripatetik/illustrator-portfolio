@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import Masonry from "react-masonry-css";
+import BalancedMasonry from "@/components/shared/BalancedMasonry";
 
 // ── Static placeholder ──────────────────────────────────────────────────────
 const shimmer = (w, h) => `
@@ -104,13 +105,19 @@ export default function MasonryGrid({
   imageSizes = "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw",
   imageStyle = { minHeight: "clamp(12rem, 20vw, 18rem)" },
   imageQuality = 85,
+  balanceColumns = false,
 }) {
+  const Layout = balanceColumns ? BalancedMasonry : Masonry;
+  const layoutProps = balanceColumns
+    ? { items, columns, className: gap }
+    : {
+        breakpointCols: columns,
+        className: `flex ${gap}`,
+        columnClassName: `flex flex-col ${gap}`,
+      };
+
   return (
-    <Masonry
-      breakpointCols={columns}
-      className={`flex ${gap}`}
-      columnClassName={`flex flex-col ${gap}`}
-    >
+    <Layout {...layoutProps}>
       {items.map((item, index) => {
         const {
           key,
@@ -188,6 +195,6 @@ export default function MasonryGrid({
           </div>
         );
       })}
-    </Masonry>
+    </Layout>
   );
 }

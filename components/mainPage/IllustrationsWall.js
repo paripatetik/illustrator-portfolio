@@ -4,18 +4,17 @@ import { useCallback, useMemo, useState } from "react";
 import { illustrations } from "@/data/illustrations";
 import imageDimensions from "@/data/imageDimensions.json";
 import GalleryLightbox from "@/components/shared/GalleryLightbox";
-import MasonryGrid, { sortByAspect } from "@/components/shared/MasonryGrid";
+import MasonryGrid from "@/components/shared/MasonryGrid";
 
-const allSorted = sortByAspect(
-  illustrations.map((imagePath) => ({
-    key: imagePath,
-    src: `/${imagePath}`,
-    alt: "Illustration",
-    dimensions: imageDimensions[imagePath] || { width: 700, height: 500 },
-  }))
-);
+// Keep the collection's mixed order instead of grouping short images first.
+const allIllustrations = illustrations.map((imagePath) => ({
+  key: imagePath,
+  src: `/${imagePath}`,
+  alt: "Illustration",
+  dimensions: imageDimensions[imagePath] || { width: 700, height: 500 },
+}));
 
-const lightboxImages = allSorted.map((item) => item.key);
+const lightboxImages = allIllustrations.map((item) => item.key);
 
 export default function IllustrationsWall() {
   const [lightboxIndex, setLightboxIndex] = useState(null);
@@ -24,7 +23,7 @@ export default function IllustrationsWall() {
 
   const items = useMemo(
     () =>
-      allSorted.map((item, si) => ({
+      allIllustrations.map((item, si) => ({
         ...item,
         alt: `Illustration ${si + 1}`,
         onClick: (e, idx) => {
@@ -53,9 +52,10 @@ export default function IllustrationsWall() {
 
         <MasonryGrid
           items={items}
-          columns={{ default: 5, 1023: 3, 639: 1 }}
+          balanceColumns
+          columns={{ default: 4, 1023: 3, 639: 1 }}
           gap="gap-3 sm:gap-4"
-          imageSizes="(max-width: 639px) 100vw, (max-width: 1023px) 33vw, 20vw"
+          imageSizes="(max-width: 639px) 100vw, (max-width: 1023px) 33vw, 25vw"
           imageStyle={{ width: "100%", height: "auto" }}
           imageQuality={75}
         />
